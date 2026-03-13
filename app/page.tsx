@@ -218,7 +218,7 @@ export default function Home() {
             <h2 className="mb-8 text-[28px] font-semibold tracking-tight text-off-white">
               Simple, permanent, no surprises
             </h2>
-            <div className="grid max-w-[480px] grid-cols-2 gap-4">
+            <div className="grid max-w-[720px] grid-cols-3 gap-4">
 
               {/* Proof */}
               <div className="rounded-lg border border-electric-blue bg-surface p-6">
@@ -230,10 +230,27 @@ export default function Home() {
                   1 anchor. SHA-256 manifest hash on Base mainnet. AR-ID. Permanent verify URL.
                 </p>
                 <Link
-                  href="/register"
+                  href="/register?tier=proof"
                   className="block rounded border border-electric-blue bg-electric-blue px-0 py-2.5 text-center text-[13px] font-medium text-off-white transition-colors hover:bg-blue-600"
                 >
                   Register now →
+                </Link>
+              </div>
+
+              {/* Pack */}
+              <div className="rounded-lg border border-electric-blue bg-surface p-6">
+                <div className="mb-2.5 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-slate">
+                  Pack
+                </div>
+                <div className="mb-2 text-[36px] font-semibold tracking-tight">$12</div>
+                <p className="mb-5 min-h-[52px] text-[13px] leading-[1.55] text-muted-slate">
+                  3 anchors. Same proof guarantee per anchor. 20% discount vs individual.
+                </p>
+                <Link
+                  href="/register?tier=pack"
+                  className="block rounded border border-electric-blue bg-electric-blue px-0 py-2.5 text-center text-[13px] font-medium text-off-white transition-colors hover:bg-blue-600"
+                >
+                  Register pack →
                 </Link>
               </div>
 
@@ -244,13 +261,13 @@ export default function Home() {
                 </div>
                 <div className="mb-2 text-[36px] font-semibold tracking-tight">$30</div>
                 <p className="mb-5 min-h-[52px] text-[13px] leading-[1.55] text-muted-slate">
-                  Up to 10 anchors as a single tree or corpus. 40% discount vs individual.
+                  10 anchors as a single tree or corpus. 40% discount vs individual.
                 </p>
                 <Link
-                  href="/register?bundle=true"
+                  href="/register?tier=bundle"
                   className="block rounded border border-[#2E4270] px-0 py-2.5 text-center text-[13px] font-medium text-muted-slate transition-all hover:border-muted-slate hover:text-off-white"
                 >
-                  Register bundle
+                  Register bundle →
                 </Link>
               </div>
 

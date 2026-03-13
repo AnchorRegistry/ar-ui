@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import { verifyById, type AnchorRecord } from '@/lib/api'
-import LineageTree from './LineageTree'
+import ArtifactTree from './ArtifactTree'
 
 interface Props {
   params: { id: string }
@@ -151,33 +151,34 @@ export default async function VerifyId({ params }: Props) {
                   )}
                 </div>
 
-                <h2 className="mb-1 text-[22px] font-semibold text-off-white">
-                  {a.descriptor || a.ar_id}
-                </h2>
+                {a.url ? (
+                  <a
+                    href={a.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group mb-1 inline-block"
+                  >
+                    <h2 className="text-[22px] font-semibold text-off-white transition-opacity group-hover:opacity-70">
+                      {a.descriptor || a.ar_id}
+                      <span className="ml-2 font-mono text-[13px] font-normal text-muted-slate">↗</span>
+                    </h2>
+                  </a>
+                ) : (
+                  <h2 className="mb-1 text-[22px] font-semibold text-off-white">
+                    {a.descriptor || a.ar_id}
+                  </h2>
+                )}
                 <p className="mb-6 text-[14px] text-muted-slate">
                   {a.registrant} · {date} · Base mainnet · block {a.block_number.toLocaleString()}
                 </p>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <Field label="AR-ID"          value={a.ar_id}         mono />
-                  <Field label="Artifact type"  value={a.artifact_type} />
-                  <Field label="Registrant"     value={a.registrant}    mono />
-                  <Field label="Block"          value={a.block_number.toLocaleString()} />
-                  <Field label="Registered"     value={date} />
+                  <Field label="AR-ID"         value={a.ar_id}                        mono />
+                  <Field label="Artifact type" value={a.artifact_type}                     />
+                  <Field label="Registrant"    value={a.registrant}                   mono />
+                  <Field label="Block"         value={a.block_number.toLocaleString()}     />
+                  <Field label="Registered"    value={date}                                />
                   {a.license && <Field label="License" value={a.license} />}
-                  {a.url && (
-                    <div className="col-span-2">
-                      <div className="mb-1 font-mono text-[10px] uppercase tracking-[0.08em] text-muted-slate">URL</div>
-                      <a
-                        href={a.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[13px] text-electric-blue transition-opacity hover:opacity-80 break-all"
-                      >
-                        {a.url}
-                      </a>
-                    </div>
-                  )}
                 </div>
               </div>
 
@@ -232,7 +233,7 @@ export default async function VerifyId({ params }: Props) {
               <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-slate">
                 IP Lineage
               </div>
-              <LineageTree anchor={a} typeColors={TYPE_COLORS} />
+              <ArtifactTree anchor={a} typeColors={TYPE_COLORS} />
 
               {/* Machine URL */}
               <div className="mt-4 rounded-lg border border-[#2E4270] bg-surface p-4">
