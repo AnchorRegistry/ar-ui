@@ -54,7 +54,7 @@ export default function Home() {
               Immutable Provenance Infrastructure
             </p>
             <h1
-              className="animate-fade-up mb-5 max-w-[580px] text-[52px] font-semibold leading-[1.08] tracking-tight"
+              className="animate-fade-up mb-5 max-w-[580px] text-[52px] font-semibold leading-[1.08] tracking-tight text-off-white"
               style={{ animationDelay: '0.12s' }}
             >
               Prove you made it<br />
@@ -115,7 +115,7 @@ export default function Home() {
             <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.1em] text-muted-slate">
               How it works
             </p>
-            <h2 className="mb-8 text-[28px] font-semibold tracking-tight">
+            <h2 className="mb-8 text-[28px] font-semibold tracking-tight text-off-white">
               Four steps to permanent proof
             </h2>
             <div className="grid grid-cols-4 gap-px overflow-hidden rounded-lg border border-[#2E4270] bg-[#2E4270]">
@@ -215,7 +215,7 @@ export default function Home() {
             <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.1em] text-muted-slate">
               Pricing
             </p>
-            <h2 className="mb-8 text-[28px] font-semibold tracking-tight">
+            <h2 className="mb-8 text-[28px] font-semibold tracking-tight text-off-white">
               Simple, permanent, no surprises
             </h2>
             <div className="grid max-w-[480px] grid-cols-2 gap-4">
