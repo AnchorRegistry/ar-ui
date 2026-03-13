@@ -2,7 +2,7 @@
 
 > Immutable provenance infrastructure for the AI era.
 
-Next.js 14 frontend for AnchorRegistry. Three pages, App Router, TypeScript, Tailwind CSS. Deployed to Vercel.
+Next.js 14 frontend for AnchorRegistry. App Router, TypeScript, Tailwind CSS. Deployed to Vercel.
 
 **Private repository — BUSL-1.1**
 
@@ -13,9 +13,10 @@ Next.js 14 frontend for AnchorRegistry. Three pages, App Router, TypeScript, Tai
 | Route | Description |
 |-------|-------------|
 | `/` | Landing page |
-| `/register` | File drop, manifest, Stripe payment |
+| `/register` | File drop, manifest, Stripe Checkout |
+| `/register/success` | Post-payment confirmation, polls for AR-ID |
 | `/verify` | AR-ID lookup input |
-| `/verify/[id]` | Full anchor record + IP lineage tree |
+| `/verify/[id]` | Full anchor record + ArtifactTree |
 
 ## Quick Start
 
@@ -34,22 +35,34 @@ Site at `http://localhost:3000`
 ```
 ar-web/
 ├── app/
-│   ├── globals.css           # tokens, reset, animations
-│   ├── layout.tsx            # root layout, metadata
-│   ├── page.tsx              # / landing
+│   ├── globals.css                     # tokens, reset, animations
+│   ├── layout.tsx                      # root layout, metadata
+│   ├── page.tsx                        # / landing
 │   ├── register/
-│   │   └── page.tsx          # /register
-│   └── verify/
-│       ├── page.tsx          # /verify
-│       └── [id]/
-│           └── page.tsx      # /verify/:id
+│   │   ├── page.tsx                    # /register — file drop + manifest + pay
+│   │   └── success/
+│   │       ├── page.tsx                # /register/success — shell + suspense
+│   │       └── SuccessContent.tsx      # polls for AR-ID, confirmed state
+│   ├── verify/
+│   │   ├── page.tsx                    # /verify — AR-ID input
+│   │   └── [id]/
+│   │       ├── page.tsx                # /verify/:id — anchor record
+│   │       └── ArtifactTree.tsx        # IP lineage tree component
+│   └── api/
+│       ├── checkout/
+│       │   └── route.ts                # POST — creates Stripe Checkout session
+│       ├── registration-status/
+│       │   └── route.ts                # GET — polls ar-api for AR-ID confirmation
+│       └── verify/
+│           └── [id]/
+│               └── route.ts            # GET — machine-readable JSON verify endpoint
 ├── components/
-│   ├── Nav.tsx               # sticky nav, mobile menu
-│   └── Footer.tsx            # footer
+│   ├── Nav.tsx                         # sticky nav, mobile menu
+│   └── Footer.tsx                      # footer
 ├── lib/
-│   └── api.ts                # fetch wrapper for ar-api
-├── next.config.ts            # API rewrite proxy
-├── tailwind.config.ts        # brand color tokens
+│   └── api.ts                          # fetch wrapper for ar-api
+├── next.config.ts                      # API rewrite proxy to ar-api
+├── tailwind.config.ts                  # brand color tokens
 └── .env.local.example
 ```
 
@@ -58,6 +71,20 @@ ar-web/
 ```bash
 NEXT_PUBLIC_API_URL=http://localhost:8000
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_SITE_URL=https://anchorregistry.com
+```
+
+## Registration Flow
+
+```
+User drops file → SHA-256 in browser (file never uploaded)
+  → fills manifest → Pay $5
+  → /api/checkout/route.ts → Stripe Checkout session
+  → Stripe redirect → payment complete
+  → Stripe webhook → ar-api → on-chain → Supabase
+  → /register/success → polls /api/registration-status
+  → AR-ID confirmed → copy URL → share
 ```
 
 ## Deployment
