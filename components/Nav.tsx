@@ -48,7 +48,7 @@ export default function Nav() {
               href="/register"
               className="rounded border border-[#2E4270] px-4 py-1.5 text-[13px] font-medium text-off-white transition-all hover:border-electric-blue hover:bg-electric-blue/10"
             >
-              Get started →
+              Register →
             </Link>
           </li>
         </ul>
@@ -78,7 +78,7 @@ export default function Nav() {
             ))}
             <li>
               <Link href="/register" className="text-[14px] font-medium text-electric-blue">
-                Get started →
+                Register →
               </Link>
             </li>
           </ul>

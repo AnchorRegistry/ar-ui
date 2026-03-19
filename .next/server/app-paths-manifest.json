@@ -1,6 +1,5 @@
 {
-  "/verify/page": "app/verify/page.js",
-  "/tree/page": "app/tree/page.js",
   "/page": "app/page.js",
+  "/tree/page": "app/tree/page.js",
   "/register/page": "app/register/page.js"
 }

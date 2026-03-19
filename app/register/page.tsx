@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Nav from '@/components/Nav'
@@ -65,6 +65,7 @@ const ARTIFACT_TYPES = [
   { value: 'TEXT',      label: 'Text',      desc: 'Blogs, books, essays'          },
   { value: 'POST',      label: 'Post',      desc: 'Tweets, social content'        },
   { value: 'ONCHAIN',   label: 'On-Chain',  desc: 'Addresses, NFTs, contracts'    },
+  { value: 'EVENT',     label: 'Event',     desc: 'Human events · machine runs · agent tasks' },
   { value: 'RECEIPT',   label: 'Receipt',   desc: 'Purchase, medical, financial'  },
   { value: 'LEGAL',     label: 'Legal',     desc: 'Contracts, filings'            },
   { value: 'ENTITY',    label: 'Entity',    desc: 'Persons, companies'            },
@@ -124,7 +125,7 @@ const PARENT_HINT: Record<string, string[]> = {
   tree:  ['', 'Auto-set to Artifact 1', 'Auto-set to Artifact 1'],
 }
 
-type EvidenceMode = 'url' | 'file' | 'hash'
+type EvidenceMode = 'auto' | 'url' | 'file' | 'hash'
 type TierValue    = 'proof' | 'pair' | 'tree'
 
 interface FieldDef {
@@ -136,6 +137,48 @@ interface FieldDef {
   options?:    string[]
   mono?:       boolean
   span?:       'full' | 'half'
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EVENT executor config — labels, placeholders, and eventType options by executor
+// ─────────────────────────────────────────────────────────────────────────────
+
+const EVENT_BY_EXECUTOR: Record<string, {
+  eventTypeOptions:        string[]
+  locationLabel:           string
+  locationPlaceholder:     string
+  orchestratorLabel:       string
+  orchestratorPlaceholder: string
+  urlLabel:                string
+  eventDatePlaceholder:    string
+}> = {
+  HUMAN: {
+    eventTypeOptions:        ['CONFERENCE', 'LAUNCH', 'GOVERNANCE', 'MILESTONE', 'COMPETITION', 'OTHER'],
+    locationLabel:           'Location',
+    locationPlaceholder:     'e.g. San Francisco, CA or online',
+    orchestratorLabel:       'Organizer',
+    orchestratorPlaceholder: 'e.g. Ethereum Foundation, Ian Moore',
+    urlLabel:                'Event URL',
+    eventDatePlaceholder:    'e.g. 2026-03-16',
+  },
+  MACHINE: {
+    eventTypeOptions:        ['TRAIN', 'DEPLOY', 'BUILD', 'TEST', 'EVALUATE', 'PIPELINE', 'INFERENCE', 'OTHER'],
+    locationLabel:           'Environment',
+    locationPlaceholder:     'e.g. GitHub Actions, Railway, AWS us-east-1',
+    orchestratorLabel:       'Orchestrator',
+    orchestratorPlaceholder: 'e.g. cron, Airflow, GitHub Actions',
+    urlLabel:                'Run Logs / Job URL',
+    eventDatePlaceholder:    'e.g. 2026-03-19T14:23:00Z',
+  },
+  AGENT: {
+    eventTypeOptions:        ['TRAIN', 'DEPLOY', 'INFER', 'EVALUATE', 'TASK', 'PIPELINE', 'OTHER'],
+    locationLabel:           'Environment',
+    locationPlaceholder:     'e.g. Railway prod, AWS us-east-1',
+    orchestratorLabel:       'Orchestrator',
+    orchestratorPlaceholder: 'e.g. DeFiMind v1.2, LangChain agent',
+    urlLabel:                'Run Logs / Job URL',
+    eventDatePlaceholder:    'e.g. 2026-03-19T17:00:00Z',
+  },
 }
 
 const TYPE_FIELDS: Record<string, FieldDef[]> = {
@@ -203,6 +246,15 @@ const TYPE_FIELDS: Record<string, FieldDef[]> = {
     { key: 'token_id',         label: 'Token ID',         placeholder: 'e.g. 1234 (for NFTs)', mono: true },
     { key: 'block_number',     label: 'Block Number',     placeholder: 'e.g. 22041887', mono: true },
   ],
+  // EVENT: keys listed here for buildPayload — rendered via custom executor-aware UI
+  EVENT: [
+    { key: 'executor',     label: 'Executor',     placeholder: '' },  // handled by executor toggle
+    { key: 'event_type',   label: 'Event Type',   placeholder: '', type: 'select', options: [] },
+    { key: 'event_date',   label: 'Event Date',   placeholder: '', mono: true },
+    { key: 'location',     label: 'Location',     placeholder: '' },
+    { key: 'orchestrator', label: 'Orchestrator', placeholder: '' },
+    { key: 'url',          label: 'URL',          placeholder: '', mono: true, span: 'full' },
+  ],
   RECEIPT: [
     { key: 'receipt_type', label: 'Receipt Type', placeholder: '', type: 'select',
       options: ['PURCHASE', 'MEDICAL', 'FINANCIAL', 'GOVERNMENT', 'EVENT', 'SERVICE'] },
@@ -253,13 +305,15 @@ interface FormState {
 }
 
 interface ManifestState {
-  form:         FormState
-  hash:         string
-  notes:        string
+  form:           FormState
+  nonce:          string    // random UUID — combined with timestamp, ensures hash uniqueness
+  registeredAt:   string    // ISO 8601 timestamp fixed at form init — part of canonical
+  hash:           string
   evidenceMode: EvidenceMode
   urlInput:     string
   hashInput:    string
   file:         File | null
+  notes:        string
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -292,18 +346,45 @@ function isValidUrl(s: string): boolean {
   try { new URL(s); return true } catch { return false }
 }
 
+// Canonical string for autohash — artifact fields + nonce + timestamp
+// nonce:        random UUID generated at form init
+// registeredAt: ISO 8601 timestamp fixed at form init
+// Together they make every autogenerated hash globally unique and time-bound.
+function buildCanonical(form: FormState, nonce: string, registeredAt: string): string {
+  return [
+    form.artifactType,
+    form.title,
+    form.author,
+    form.descriptor,
+    ...(TYPE_FIELDS[form.artifactType] ?? []).map(f => form[f.key] ?? ''),
+    nonce,
+    registeredAt,
+  ].join('|')
+}
+
 function emptyForm(artifactType = 'CODE'): FormState {
   return { artifactType, title: '', author: '', descriptor: '', parentHash: '' }
 }
 
 function emptyManifest(artifactType = 'CODE'): ManifestState {
-  return { form: emptyForm(artifactType), hash: '', notes: '', evidenceMode: 'url', urlInput: '', hashInput: '', file: null }
+  return {
+    form:         emptyForm(artifactType),
+    nonce:        crypto.randomUUID(),
+    registeredAt: new Date().toISOString(),
+    hash:         '',
+    evidenceMode: 'auto',
+    urlInput:     '',
+    hashInput:    '',
+    file:         null,
+    notes:        '',
+  }
 }
 
-const MODES = [
-  { key: 'url'  as EvidenceMode, label: 'URL',  hint: 'Anchors the URL as a permanent pointer. Content at this URL may change.' },
-  { key: 'file' as EvidenceMode, label: 'File', hint: 'Hash computed in your browser. File never uploaded.' },
-  { key: 'hash' as EvidenceMode, label: 'Hash', hint: 'Paste a pre-computed SHA-256. For developers and API integrations.' },
+const EVIDENCE_MODES: { key: EvidenceMode; label: string }[] = [
+  { key: 'auto', label: 'Auto'  },
+  { key: 'url',  label: 'URL'   },
+  { key: 'file', label: 'File'  },
+  { key: 'hash', label: 'Hash'  },
 ]
 
 function tierAnchorCount(tier: TierValue): number {
@@ -325,9 +406,10 @@ function ManifestForm({ state, onChange, parentHint, isAutoParent }: ManifestFor
   const fileInputRef            = useRef<HTMLInputElement>(null)
   const [dragging, setDragging] = useState(false)
   const [hashing, setHashing]   = useState(false)
+  const [advancedOpen, setAdvancedOpen] = useState(false)
   const [error, setError]       = useState('')
 
-  const { form, hash, notes, evidenceMode, urlInput, hashInput, file } = state
+  const { form, nonce, registeredAt, hash, evidenceMode, urlInput, hashInput, file, notes } = state
 
   const patch     = (p: Partial<ManifestState>) => onChange({ ...state, ...p })
   const patchForm = (p: Partial<FormState>)     => patch({ form: { ...form, ...p } })
@@ -336,8 +418,25 @@ function ManifestForm({ state, onChange, parentHint, isAutoParent }: ManifestFor
     const oldFields = TYPE_FIELDS[form.artifactType] ?? []
     const newForm   = { ...form, artifactType: type }
     oldFields.forEach(f => { delete (newForm as Record<string, string>)[f.key] })
+    if (type === 'EVENT') (newForm as Record<string, string>).executor = 'HUMAN'
     patch({ form: newForm as FormState })
   }
+
+  const setField = (key: string) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+      patchForm({ [key]: e.target.value })
+
+  // ── Autohash: recompute whenever form fields change ──────────────────────
+  const canonical = useMemo(() => buildCanonical(form, nonce, registeredAt), [form, nonce, registeredAt])
+
+  useEffect(() => {
+    if (evidenceMode !== 'auto') return
+    if (!form.title) { if (hash) patch({ hash: '' }); return }
+    sha256String(canonical).then(autoHash => {
+      if (hash !== autoHash) onChange({ ...state, hash: autoHash })
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canonical, evidenceMode])
 
   const handleFile = useCallback(async (f: File) => {
     patch({ file: f, hash: '' })
@@ -368,12 +467,9 @@ function ManifestForm({ state, onChange, parentHint, isAutoParent }: ManifestFor
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handleFile])
 
-  const setField = (key: string) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-      patchForm({ [key]: e.target.value })
-
   const changeMode = (mode: EvidenceMode) => {
-    setError(''); patch({ evidenceMode: mode, hash: '', file: null, urlInput: '', hashInput: '' })
+    setError('')
+    patch({ evidenceMode: mode, hash: '', file: null, urlInput: '', hashInput: '' })
   }
 
   const selectedType = ARTIFACT_TYPES.find(t => t.value === form.artifactType)
@@ -407,99 +503,10 @@ function ManifestForm({ state, onChange, parentHint, isAutoParent }: ManifestFor
         </div>
       </div>
 
-      {/* 02 — Evidence */}
+      {/* 02 — Manifest */}
       <div>
         <div className="mb-4 flex items-center gap-3">
           <span className="font-mono text-[11px] text-gold">02</span>
-          <span className="text-[14px] font-medium text-off-white">Drop artifact evidence</span>
-        </div>
-        <div className="mb-4 flex gap-1 rounded-lg border border-[#2E4270] bg-[#152038] p-1">
-          {MODES.map(m => (
-            <button key={m.key} onClick={() => changeMode(m.key)}
-              className={`flex-1 rounded py-1.5 text-[13px] font-medium transition-all ${
-                evidenceMode === m.key ? 'bg-surface text-off-white' : 'text-muted-slate hover:text-off-white'
-              }`}>{m.label}</button>
-          ))}
-        </div>
-        <p className="mb-3 font-mono text-[11px] text-muted-slate">
-          {MODES.find(m => m.key === evidenceMode)?.hint}
-        </p>
-
-        {evidenceMode === 'url' && (
-          <div className="space-y-3">
-            <input type="url" placeholder="https://github.com/you/repo"
-              value={urlInput} onChange={e => patch({ urlInput: e.target.value, hash: '' })} className={cls} />
-            <button onClick={handleUrlCommit} disabled={!urlInput || hashing}
-              className={`rounded px-4 py-2 text-[13px] font-medium transition-all ${
-                urlInput && !hashing ? 'bg-electric-blue text-off-white hover:bg-blue-600'
-                                     : 'cursor-not-allowed bg-electric-blue/30 text-off-white/50'
-              }`}>{hashing ? 'Hashing…' : 'Generate hash →'}</button>
-            {hash && (
-              <div className="break-all rounded border border-[#2E4270] bg-[#152038] px-3 py-2.5 font-mono text-[11px] leading-relaxed text-muted-slate">
-                sha256:{hash}
-              </div>
-            )}
-          </div>
-        )}
-
-        {evidenceMode === 'file' && (
-          <div onClick={() => fileInputRef.current?.click()} onDrop={onDrop}
-            onDragOver={e => { e.preventDefault(); setDragging(true) }}
-            onDragLeave={() => setDragging(false)}
-            className={`cursor-pointer rounded-lg border-2 border-dashed p-10 text-center transition-all ${
-              dragging ? 'border-electric-blue bg-electric-blue/5'
-              : file   ? 'border-gold/40 bg-gold/5'
-              :          'border-[#2E4270] hover:border-muted-slate hover:bg-white/[0.02]'
-            }`}>
-            <input ref={fileInputRef} type="file" className="hidden"
-              onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f) }} />
-            {file ? (
-              <div>
-                <div className="mb-1 text-[15px] font-medium text-off-white">{file.name}</div>
-                <div className="mb-3 font-mono text-[12px] text-muted-slate">{formatBytes(file.size)}</div>
-                {hashing
-                  ? <div className="font-mono text-[12px] text-muted-slate">Computing SHA-256…</div>
-                  : <div className="break-all font-mono text-[11px] leading-relaxed text-muted-slate">sha256:{hash}</div>}
-              </div>
-            ) : (
-              <div>
-                <div className="mb-3 flex justify-center">
-                  <Image src="/anchor.png" alt="anchor" width={48} height={48} />
-                </div>
-                <div className="mb-1 text-[14px] font-medium text-off-white">Drop any file here</div>
-                <div className="text-[13px] text-muted-slate">
-                  Code, paper, dataset, model, image — anything.<br />Hashed in your browser. Never uploaded.
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {evidenceMode === 'hash' && (
-          <div className="space-y-3">
-            <input type="text"
-              placeholder="a3f8c2e1b9d4f7a2c6e3b1d8f5a9c2e4b7d1f3a6c9e2b5d8f1a4c7e0b3d6f9a2"
-              value={hashInput} onChange={e => patch({ hashInput: e.target.value, hash: '' })} className={clsMono} />
-            <button onClick={handleHashCommit} disabled={!hashInput}
-              className={`rounded px-4 py-2 text-[13px] font-medium transition-all ${
-                hashInput ? 'bg-electric-blue text-off-white hover:bg-blue-600'
-                          : 'cursor-not-allowed bg-electric-blue/30 text-off-white/50'
-              }`}>Use this hash →</button>
-            {hash && <div className="flex items-center gap-2 font-mono text-[12px] text-gold">✓ Valid SHA-256 accepted</div>}
-          </div>
-        )}
-
-        {error && (
-          <div className="mt-3 rounded border border-red-500/30 bg-red-500/10 px-3 py-2 font-mono text-[11px] text-red-400">
-            {error}
-          </div>
-        )}
-      </div>
-
-      {/* 03 — Manifest */}
-      <div>
-        <div className="mb-4 flex items-center gap-3">
-          <span className="font-mono text-[11px] text-gold">03</span>
           <span className="text-[14px] font-medium text-off-white">
             Fill the manifest
             <span className="ml-2 font-mono text-[10px] text-muted-slate normal-case tracking-normal">
@@ -553,6 +560,8 @@ function ManifestForm({ state, onChange, parentHint, isAutoParent }: ManifestFor
               <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.08em] text-gold">
                 {selectedType?.label} fields
               </p>
+
+              {/* ONCHAIN info banner */}
               {form.artifactType === 'ONCHAIN' && (
                 <div className="mb-3 flex items-start gap-2 rounded border border-[#2E4270] bg-[#152038] px-3 py-2">
                   <span className="mt-0.5 font-mono text-[11px] text-muted-slate">ℹ</span>
@@ -561,30 +570,247 @@ function ManifestForm({ state, onChange, parentHint, isAutoParent }: ManifestFor
                   </p>
                 </div>
               )}
-              <div className="grid grid-cols-2 gap-3">
-                {typeFields.map(f => (
-                  <div key={f.key} className={f.span === 'full' ? 'col-span-2' : ''}>
-                    <label className={clsLbl}>
-                      {f.label}
-                      {f.required ? <span className="text-gold"> *</span> : <span className="text-muted-slate/50"> (optional)</span>}
-                    </label>
-                    {f.type === 'license' ? (
-                      <select value={form[f.key] ?? 'MIT'} onChange={setField(f.key)} className={cls}>
-                        {LICENSES.map(l => <option key={l} value={l}>{l}</option>)}
-                      </select>
-                    ) : f.type === 'select' ? (
-                      <select value={form[f.key] ?? ''} onChange={setField(f.key)} className={cls}>
-                        <option value="">Select type…</option>
-                        {f.options?.map(o => <option key={o} value={o}>{o}</option>)}
-                      </select>
-                    ) : (
-                      <input type="text" placeholder={f.placeholder}
-                        value={form[f.key] ?? ''} onChange={setField(f.key)}
-                        className={f.mono ? clsMono : cls} />
-                    )}
+
+              {/* EVENT executor toggle */}
+              {form.artifactType === 'EVENT' && (() => {
+                const exec    = (form.executor || 'HUMAN') as 'HUMAN' | 'MACHINE' | 'AGENT'
+                const execCfg = EVENT_BY_EXECUTOR[exec]
+                const EXECUTORS: { value: string; label: string; hint: string }[] = [
+                  { value: 'HUMAN',   label: 'Human',   hint: 'Conference, launch, governance vote, milestone' },
+                  { value: 'MACHINE', label: 'Machine', hint: 'Training run, deployment, pipeline, build' },
+                  { value: 'AGENT',   label: 'Agent',   hint: 'Agent-driven task, inference, evaluation' },
+                ]
+                return (
+                  <div className="mb-4">
+                    <label className={clsLbl}>Executor</label>
+                    <div className="mb-1.5 flex gap-1 rounded-lg border border-[#2E4270] bg-[#152038] p-1">
+                      {EXECUTORS.map(e => (
+                        <button key={e.value}
+                          onClick={() => patchForm({ executor: e.value, event_type: '' })}
+                          className={`flex-1 rounded py-1.5 text-[12px] font-medium transition-all ${
+                            exec === e.value
+                              ? 'bg-surface text-off-white'
+                              : 'text-muted-slate hover:text-off-white'
+                          }`}>
+                          {e.label}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="font-mono text-[10px] text-muted-slate/60">
+                      {EXECUTORS.find(e => e.value === exec)?.hint}
+                    </p>
+
+                    {/* EVENT fields — executor-aware */}
+                    <div className="mt-3 grid grid-cols-2 gap-3">
+
+                      {/* Event Type */}
+                      <div>
+                        <label className={clsLbl}>Event Type <span className="text-muted-slate/50">(optional)</span></label>
+                        <select value={form.event_type ?? ''}
+                          onChange={setField('event_type')} className={cls}>
+                          <option value="">Select type…</option>
+                          {execCfg.eventTypeOptions.map(o => <option key={o} value={o}>{o}</option>)}
+                        </select>
+                      </div>
+
+                      {/* Event Date */}
+                      <div>
+                        <label className={clsLbl}>Event Date <span className="text-muted-slate/50">(optional)</span></label>
+                        <input type="text" placeholder={execCfg.eventDatePlaceholder}
+                          value={form.event_date ?? ''} onChange={setField('event_date')}
+                          className={clsMono} />
+                      </div>
+
+                      {/* Location / Environment */}
+                      <div>
+                        <label className={clsLbl}>{execCfg.locationLabel} <span className="text-muted-slate/50">(optional)</span></label>
+                        <input type="text" placeholder={execCfg.locationPlaceholder}
+                          value={form.location ?? ''} onChange={setField('location')}
+                          className={cls} />
+                      </div>
+
+                      {/* Organizer / Orchestrator */}
+                      <div>
+                        <label className={clsLbl}>{execCfg.orchestratorLabel} <span className="text-muted-slate/50">(optional)</span></label>
+                        <input type="text" placeholder={execCfg.orchestratorPlaceholder}
+                          value={form.orchestrator ?? ''} onChange={setField('orchestrator')}
+                          className={cls} />
+                      </div>
+
+                      {/* URL */}
+                      <div className="col-span-2">
+                        <label className={clsLbl}>{execCfg.urlLabel} <span className="text-muted-slate/50">(optional)</span></label>
+                        <input type="text" placeholder="https://..."
+                          value={form.url ?? ''} onChange={setField('url')}
+                          className={clsMono} />
+                      </div>
+
+                    </div>
                   </div>
+                )
+              })()}
+
+              {/* Generic fields — all types except EVENT (handled above) */}
+              {form.artifactType !== 'EVENT' && (
+                <div className="grid grid-cols-2 gap-3">
+                  {typeFields.map(f => (
+                    <div key={f.key} className={f.span === 'full' ? 'col-span-2' : ''}>
+                      <label className={clsLbl}>
+                        {f.label}
+                        {f.required ? <span className="text-gold"> *</span> : <span className="text-muted-slate/50"> (optional)</span>}
+                      </label>
+                      {f.type === 'license' ? (
+                        <select value={form[f.key] ?? 'MIT'} onChange={setField(f.key)} className={cls}>
+                          {LICENSES.map(l => <option key={l} value={l}>{l}</option>)}
+                        </select>
+                      ) : f.type === 'select' ? (
+                        <select value={form[f.key] ?? ''} onChange={setField(f.key)} className={cls}>
+                          <option value="">Select type…</option>
+                          {f.options?.map(o => <option key={o} value={o}>{o}</option>)}
+                        </select>
+                      ) : (
+                        <input type="text" placeholder={f.placeholder}
+                          value={form[f.key] ?? ''} onChange={setField(f.key)}
+                          className={f.mono ? clsMono : cls} />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 03 — Evidence */}
+      <div>
+        <div className="mb-4 flex items-center gap-3">
+          <span className="font-mono text-[11px] text-gold">03</span>
+          <span className="text-[14px] font-medium text-off-white">Artifact evidence</span>
+        </div>
+
+        {/* Auto mode — default */}
+        <div className={`rounded-lg border p-5 ${
+          evidenceMode === 'auto' ? 'border-gold/30 bg-gold/5' : 'border-[#2E4270] bg-surface'
+        }`}>
+          <div className="mb-3 flex items-center justify-between">
+            <div>
+              <p className="text-[14px] font-medium text-off-white">Auto-generated hash</p>
+              <p className="mt-0.5 font-mono text-[11px] text-muted-slate">
+                SHA-256 derived from your manifest fields. Updates as you fill step 02.
+              </p>
+            </div>
+            {evidenceMode !== 'auto' && (
+              <button onClick={() => changeMode('auto')}
+                className="rounded border border-[#2E4270] px-3 py-1.5 font-mono text-[11px] text-muted-slate transition-colors hover:border-muted-slate hover:text-off-white">
+                Use auto
+              </button>
+            )}
+            {evidenceMode === 'auto' && (
+              <span className="rounded-full border border-gold/30 bg-gold/10 px-2.5 py-0.5 font-mono text-[10px] text-gold">active</span>
+            )}
+          </div>
+          {evidenceMode === 'auto' && (
+            <div className="break-all rounded border border-[#2E4270] bg-bg px-3 py-2.5 font-mono text-[11px] leading-relaxed text-muted-slate">
+              {hash
+                ? <><span className="text-muted-slate/50">sha256:</span>{hash}</>
+                : <span className="text-muted-slate/30">Fill in a title in step 02 to generate…</span>}
+            </div>
+          )}
+        </div>
+
+        {/* Advanced toggle */}
+        <div className="mt-3">
+          <button
+            onClick={() => setAdvancedOpen(v => !v)}
+            className="flex items-center gap-1.5 font-mono text-[10px] text-muted-slate/50 transition-colors hover:text-muted-slate">
+            <span>{advancedOpen ? '▾' : '▸'}</span>
+            <span>Advanced — provide your own evidence</span>
+          </button>
+
+          {advancedOpen && (
+            <div className="mt-3 rounded-lg border border-[#2E4270] p-4">
+              <p className="mb-3 font-mono text-[11px] text-muted-slate/60">
+                Override with a file hash, URL hash, or pre-computed SHA-256.
+              </p>
+              <div className="mb-4 flex gap-1 rounded-lg border border-[#2E4270] bg-[#152038] p-1">
+                {EVIDENCE_MODES.filter(m => m.key !== 'auto').map(m => (
+                  <button key={m.key} onClick={() => changeMode(m.key)}
+                    className={`flex-1 rounded py-1.5 text-[13px] font-medium transition-all ${
+                      evidenceMode === m.key ? 'bg-surface text-off-white' : 'text-muted-slate hover:text-off-white'
+                    }`}>{m.label}</button>
                 ))}
               </div>
+
+              {evidenceMode === 'url' && (
+                <div className="space-y-3">
+                  <input type="url" placeholder="https://github.com/you/repo"
+                    value={urlInput} onChange={e => patch({ urlInput: e.target.value, hash: '' })} className={cls} />
+                  <button onClick={handleUrlCommit} disabled={!urlInput || hashing}
+                    className={`rounded px-4 py-2 text-[13px] font-medium transition-all ${
+                      urlInput && !hashing ? 'bg-electric-blue text-off-white hover:bg-blue-600'
+                                           : 'cursor-not-allowed bg-electric-blue/30 text-off-white/50'
+                    }`}>{hashing ? 'Hashing…' : 'Generate hash →'}</button>
+                  {hash && (
+                    <div className="break-all rounded border border-[#2E4270] bg-[#152038] px-3 py-2.5 font-mono text-[11px] leading-relaxed text-muted-slate">
+                      sha256:{hash}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {evidenceMode === 'file' && (
+                <div onClick={() => fileInputRef.current?.click()} onDrop={onDrop}
+                  onDragOver={e => { e.preventDefault(); setDragging(true) }}
+                  onDragLeave={() => setDragging(false)}
+                  className={`cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-all ${
+                    dragging ? 'border-electric-blue bg-electric-blue/5'
+                    : file   ? 'border-gold/40 bg-gold/5'
+                    :          'border-[#2E4270] hover:border-muted-slate hover:bg-white/[0.02]'
+                  }`}>
+                  <input ref={fileInputRef} type="file" className="hidden"
+                    onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f) }} />
+                  {file ? (
+                    <div>
+                      <div className="mb-1 text-[15px] font-medium text-off-white">{file.name}</div>
+                      <div className="mb-3 font-mono text-[12px] text-muted-slate">{formatBytes(file.size)}</div>
+                      {hashing
+                        ? <div className="font-mono text-[12px] text-muted-slate">Computing SHA-256…</div>
+                        : <div className="break-all font-mono text-[11px] leading-relaxed text-muted-slate">sha256:{hash}</div>}
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="mb-3 flex justify-center">
+                        <Image src="/anchor.png" alt="anchor" width={40} height={40} />
+                      </div>
+                      <div className="mb-1 text-[14px] font-medium text-off-white">Drop any file here</div>
+                      <div className="text-[13px] text-muted-slate">
+                        Code, paper, dataset, model, image — anything.<br />Hashed in your browser. Never uploaded.
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {evidenceMode === 'hash' && (
+                <div className="space-y-3">
+                  <input type="text"
+                    placeholder="a3f8c2e1b9d4f7a2c6e3b1d8f5a9c2e4b7d1f3a6c9e2b5d8f1a4c7e0b3d6f9a2"
+                    value={hashInput} onChange={e => patch({ hashInput: e.target.value, hash: '' })} className={clsMono} />
+                  <button onClick={handleHashCommit} disabled={!hashInput}
+                    className={`rounded px-4 py-2 text-[13px] font-medium transition-all ${
+                      hashInput ? 'bg-electric-blue text-off-white hover:bg-blue-600'
+                                : 'cursor-not-allowed bg-electric-blue/30 text-off-white/50'
+                    }`}>Use this hash →</button>
+                  {hash && <div className="flex items-center gap-2 font-mono text-[12px] text-gold">✓ SHA-256 accepted</div>}
+                </div>
+              )}
+
+              {error && (
+                <div className="mt-3 rounded border border-red-500/30 bg-red-500/10 px-3 py-2 font-mono text-[11px] text-red-400">
+                  {error}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -718,7 +944,9 @@ export default function Register() {
   const changeTier = (t: TierValue) => { setTier(t); setActiveTab(0) }
 
   const buildPayload = (m: ManifestState) => ({
-    manifestHash: m.hash,
+    manifestHash:  m.hash,
+    nonce:         m.nonce,
+    registered_at: m.registeredAt,
     artifactType: m.form.artifactType,
     title:        m.form.title,
     author:       m.form.author,
@@ -865,7 +1093,7 @@ export default function Register() {
                       {manifests[0].hash}
                     </div>
                   ) : (
-                    <div className="font-mono text-[11px] text-muted-slate/40">Provide evidence to generate hash</div>
+                    <div className="font-mono text-[11px] text-muted-slate/40">Add a title to generate hash</div>
                   )}
                   {manifests[0].hash && manifests[0].form.title && (
                     <div className="mt-3 border-t border-[#2E4270] pt-3">

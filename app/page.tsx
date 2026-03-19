@@ -10,23 +10,23 @@ export const metadata: Metadata = {
 const STEPS = [
   {
     num:   '01',
-    title: 'Drop your artifact',
-    body:  'Any artifact — code, paper, dataset, model. Hashed client-side. Never uploaded.',
+    title: 'Artifact type',
+    body:  'Nineteen types across seven groups — code, research, data, models, events, receipts, and more.',
   },
   {
     num:   '02',
     title: 'Fill the manifest',
-    body:  'Title, author, license, artifact type. The manifest becomes your fingerprint.',
+    body:  'Title, author, descriptor and type-specific fields. Everything becomes your permanent public fingerprint.',
   },
   {
     num:   '03',
-    title: 'Pay once',
-    body:  'From $5 via Stripe. No subscription. No renewal. One payment, permanent record.',
+    title: 'Artifact evidence',
+    body:  'SHA-256 auto-generated from your manifest. Optionally drop a file or paste your own hash for content-level proof.',
   },
   {
     num:   '04',
-    title: 'Get your AR-ID',
-    body:  'Share anchorregistry.ai/AR-ID as proof. Verifiable by anyone, including AI agents.',
+    title: 'Author notes',
+    body:  'Off-chain description rendered on your verify card. Public and editable after anchoring.',
   },
 ]
 
@@ -34,7 +34,7 @@ const STATS = [
   { value: 'From $5', label: 'Per Anchor'       },
   { value: 'Forever', label: 'Record Lifetime'  },
   { value: 'Base L2', label: 'Ethereum Mainnet' },
-  { value: '18',      label: 'Artifact Types'   },
+  { value: '19',      label: 'Artifact Types'   },
 ]
 
 const ROOT  = '#F59E0B'
@@ -80,7 +80,7 @@ const TIERS = [
     body:     'Single artifact anchored on Base mainnet. SHA-256 hash, permanent AR-ID, verify URL.',
     icon:     <ProofSVG />,
     featured: true,
-    cta:      'Get started →',
+    cta:      'Register →',
   },
   {
     value:    'pair',
@@ -232,14 +232,14 @@ export default function Home() {
             </h1>
             <p className="animate-fade-up mb-9 max-w-[420px] text-[17px] font-light leading-[1.65] text-muted-slate"
               style={{ animationDelay: '0.2s' }}>
-              Register any digital artifact — code, research, data, models — and
-              receive permanent, on-chain proof of authorship. One payment. No
-              expiry. Verifiable by any human or AI, forever.
+              Anchor any digital artifact on-chain. Code, research, receipts,
+              events, models — nineteen types, one registry. Permanent proof of
+              existence. Verifiable by anyone, forever.
             </p>
             <div className="animate-fade-up flex items-center gap-3" style={{ animationDelay: '0.28s' }}>
               <Link href="/register"
                 className="inline-flex items-center gap-1.5 rounded bg-gold px-5 py-2.5 text-[14px] font-semibold text-deep-navy transition-all hover:bg-[#FBBF24] active:scale-[0.98]">
-                Get started →
+                Register →
               </Link>
               <Link href="/verify"
                 className="inline-flex items-center rounded border border-[#2E4270] px-5 py-2.5 text-[14px] text-muted-slate transition-all hover:border-muted-slate hover:text-off-white">
