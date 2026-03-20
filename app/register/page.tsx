@@ -376,13 +376,16 @@ interface ManifestFormProps {
   onEmailChange?:   (email: string) => void
   tree?:            TreeCredentials
   onTree?:          (t: TreeCredentials) => void
-  onConfirmTree?:   () => void
+  onConfirmTree?:       () => void
+  custodyConfirmed?:     boolean
+  onCustodyChange?:      (v: boolean) => void
 }
 
-function ManifestForm({ state, onChange, parentHint, isAutoParent, anchorKeyEmail, onEmailChange, tree, onTree, onConfirmTree }: ManifestFormProps) {
+function ManifestForm({ state, onChange, parentHint, isAutoParent, anchorKeyEmail, onEmailChange, tree, onTree, onConfirmTree, custodyConfirmed, onCustodyChange }: ManifestFormProps) {
   const { form, tokenId, hash, notes } = state
 
   const [extendOpen, setExtendOpen] = useState(false)
+  const [keySent, setKeySent]         = useState(false)
 
   const patch     = (p: Partial<ManifestState>) => onChange({ ...state, ...p })
   const patchForm = (p: Partial<FormState>)     => patch({ form: { ...form, ...p } })
@@ -723,9 +726,13 @@ function ManifestForm({ state, onChange, parentHint, isAutoParent, anchorKeyEmai
                   className="shrink-0 rounded border border-[#2E4270] px-2 py-1 font-mono text-[10px] text-muted-slate transition-all hover:border-muted-slate hover:text-off-white"
                 >Copy</button>
                 <button
-                  onClick={() => patch({ tokenId: crypto.randomUUID(), hash: '' })}
-                  className="shrink-0 rounded border border-[#2E4270] px-2 py-1 font-mono text-[10px] text-muted-slate transition-all hover:border-muted-slate hover:text-off-white"
-                >New</button>
+                  onClick={() => { patch({ tokenId: crypto.randomUUID(), hash: '' }); setKeySent(false) }}
+                  className={`shrink-0 rounded border px-2 py-1 font-mono text-[10px] transition-all ${
+                    keySent
+                      ? 'border-amber-500/50 text-amber-400 hover:bg-amber-500/10'
+                      : 'border-[#2E4270] text-muted-slate hover:border-muted-slate hover:text-off-white'
+                  }`}
+                >{keySent ? 'New ⚠' : 'New'}</button>
               </>
             )}
           </div>
@@ -739,17 +746,60 @@ function ManifestForm({ state, onChange, parentHint, isAutoParent, anchorKeyEmai
               <label className="mb-1.5 block font-mono text-[11px] uppercase tracking-[0.08em] text-muted-slate">
                 Email to yourself <span className="text-muted-slate/50 normal-case tracking-normal">(optional)</span>
               </label>
-              <input
-                type="email"
-                placeholder="you@example.com"
-                value={anchorKeyEmail ?? ''}
-                onChange={e => onEmailChange(e.target.value)}
-                className="w-full rounded border border-[#2E4270] bg-surface px-3 py-2.5 text-[14px] text-off-white placeholder-muted-slate/50 outline-none transition-colors focus:border-electric-blue"
-              />
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  placeholder="you@example.com"
+                  value={anchorKeyEmail ?? ''}
+                  onChange={e => onEmailChange(e.target.value)}
+                  className="min-w-0 flex-1 rounded border border-[#2E4270] bg-surface px-3 py-2.5 text-[14px] text-off-white placeholder-muted-slate/50 outline-none transition-colors focus:border-electric-blue"
+                />
+                <a
+                  href={anchorKeyEmail?.trim() && tokenId
+                    ? `mailto:${encodeURIComponent(anchorKeyEmail.trim())}?subject=${encodeURIComponent('AnchorRegistry — Anchor Key Backup')}&body=${encodeURIComponent(
+                        'Save this before you pay.\n\nAnchor Key:\n' + tokenId + '\n\nThis key proves ownership of your anchor tree. Save it somewhere safe — AnchorRegistry cannot recover it.\n\nNot your keys, not your trees.\n\n—\nAnchorRegistry™\nanchorregistry.com'
+                      )}`
+                    : undefined}
+                  onClick={e => {
+                    if (!anchorKeyEmail?.trim() || !tokenId) { e.preventDefault(); return }
+                    setKeySent(true)
+                  }}
+                  className={`shrink-0 rounded border px-3 py-2.5 font-mono text-[12px] font-medium transition-all ${
+                    keySent
+                      ? 'border-green-500/40 bg-green-500/10 text-green-400 cursor-pointer hover:bg-green-500/20'
+                      : anchorKeyEmail?.trim() && tokenId
+                        ? 'border-electric-blue/40 bg-electric-blue/10 text-electric-blue hover:bg-electric-blue/20 cursor-pointer'
+                        : 'border-[#2E4270] text-muted-slate/30 cursor-not-allowed'
+                  }`}
+                >
+                  {keySent ? '✓ Sent' : 'Send →'}
+                </a>
+              </div>
               <p className="mt-1.5 font-mono text-[10px] text-muted-slate/50">
-                Your anchor key will be emailed once after registration. We don’t store your email.
+                Opens your email client with the key pre-filled. Confirm receipt before paying.
               </p>
             </div>
+          )}
+
+          {/* Custody confirmation — only shown on root tab */}
+          {onCustodyChange && (
+            <label className={`mt-5 flex cursor-pointer items-start gap-3 rounded border px-3 py-2.5 transition-all ${
+              custodyConfirmed
+                ? 'border-gold/40 bg-gold/5'
+                : 'border-[#2E4270] hover:border-muted-slate/50'
+            }`}>
+              <input
+                type="checkbox"
+                checked={custodyConfirmed ?? false}
+                onChange={e => onCustodyChange(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-[#F59E0B]"
+              />
+              <span className="font-mono text-[11px] leading-relaxed text-muted-slate">
+                I have saved my anchor key and understand it{' '}
+                <span className="text-off-white">cannot be recovered</span>{' '}
+                if lost. Not your key, not your tree.
+              </span>
+            </label>
           )}
         </div>
       </div>
@@ -856,7 +906,8 @@ export default function Register() {
   const [activeTab, setActiveTab]   = useState(0)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError]           = useState('')
-  const [anchorKeyEmail, setAnchorKeyEmail] = useState('')
+  const [anchorKeyEmail, setAnchorKeyEmail]       = useState('')
+  const [custodyConfirmed, setCustodyConfirmed] = useState(false)
   const [tree, setTree]             = useState<TreeCredentials>({
     parentArId: '', anchorKey: '', confirmed: false,
     confirming: false, parentTitle: '', error: '',
@@ -926,13 +977,14 @@ export default function Register() {
   // tree.confirmed means they verified ownership — required before paying in child mode
   const isChildMode = !!tree.parentArId
   const isReady    = activeManifests.every(m => m.hash && m.form.title) &&
-                     (!isChildMode || tree.confirmed)
+                     (!isChildMode || tree.confirmed) &&
+                     custodyConfirmed
   const readyCount = activeManifests.filter(m => m.hash && m.form.title).length
 
   const updateManifest = (i: number) => (next: ManifestState) =>
     setManifests(prev => prev.map((m, j) => j === i ? next : m))
 
-  const changeTier = (t: TierValue) => { setTier(t); setActiveTab(0) }
+  const changeTier = (t: TierValue) => { setTier(t); setActiveTab(0); setCustodyConfirmed(false) }
 
   const buildPayload = (m: ManifestState) => ({
     manifestHash:      m.hash,
@@ -1064,6 +1116,8 @@ export default function Register() {
                 tree={activeTab === 0 ? tree : undefined}
                 onTree={activeTab === 0 ? setTree : undefined}
                 onConfirmTree={activeTab === 0 ? confirmTree : undefined}
+                custodyConfirmed={activeTab === 0 ? custodyConfirmed : undefined}
+                onCustodyChange={activeTab === 0 ? setCustodyConfirmed : undefined}
               />
             </div>
 
