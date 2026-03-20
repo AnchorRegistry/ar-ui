@@ -44,6 +44,11 @@ export default function Nav() {
             </Link>
           </li>
           <li>
+            <Link href="/docs" className="text-[13px] text-muted-slate transition-colors hover:text-off-white">
+              Docs
+            </Link>
+          </li>
+          <li>
             <Link
               href="/register"
               className="rounded border border-[#2E4270] px-4 py-1.5 text-[13px] font-medium text-off-white transition-all hover:border-electric-blue hover:bg-electric-blue/10"
@@ -69,10 +74,10 @@ export default function Nav() {
       {menuOpen && (
         <div className="border-t border-[#2E4270] bg-[#152038] px-8 py-4 md:hidden">
           <ul className="flex flex-col gap-4">
-            {['/#four-steps', '/tree', '/verify', '/#pricing'].map((href, i) => (
+            {['/#four-steps', '/tree', '/verify', '/#pricing', '/docs'].map((href, i) => (
               <li key={i}>
                 <Link href={href} className="text-[14px] text-muted-slate" onClick={() => setMenuOpen(false)}>
-                  {['Anchoring', 'How it works', 'Verify', 'Pricing'][i]}
+                  {['Anchoring', 'How it works', 'Verify', 'Pricing', 'Docs'][i]}
                 </Link>
               </li>
             ))}
