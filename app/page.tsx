@@ -20,8 +20,8 @@ const STEPS = [
   },
   {
     num:   '03',
-    title: 'Artifact evidence',
-    body:  'SHA-256 auto-generated from your manifest. Optionally drop a file or paste your own hash for content-level proof.',
+    title: 'Anchor Key',
+    body:  'Your auto-generated private key. Controls your entire provenance tree. Save it — it cannot be recovered.',
   },
   {
     num:   '04',
