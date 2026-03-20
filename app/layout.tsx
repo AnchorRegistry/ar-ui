@@ -3,7 +3,7 @@ import { Analytics } from '@vercel/analytics/react'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title:       'AnchorRegistry™ — Immutable Provenance Infrastructure',
+  title:       'AnchorRegistry™ — Anchor your work on-chain.',
   description: 'Register any digital artifact and receive permanent, verifiable, on-chain proof of authorship. One payment. No expiry. Verifiable by any human or AI, forever.',
   openGraph: {
     title:       'AnchorRegistry™ — Prove you made it first.',

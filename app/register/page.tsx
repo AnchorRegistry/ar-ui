@@ -1063,7 +1063,7 @@ export default function Register() {
 
           <div className="mb-8">
             <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.1em] text-muted-slate">Register an artifact</p>
-            <h1 className="text-[28px] font-semibold tracking-tight text-off-white">Anchor your content on-chain</h1>
+            <h1 className="text-[28px] font-semibold tracking-tight text-off-white">Register your anchor</h1>
           </div>
 
           {/* ── Tier selector — 3 cols ──────────────────────────────────────── */}

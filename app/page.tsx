@@ -4,14 +4,14 @@ import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 
 export const metadata: Metadata = {
-  title: 'AnchorRegistry™ — Anchor your content on-chain.',
+  title: 'AnchorRegistry™ — Anchor your work on-chain.',
 }
 
 const STEPS = [
   {
     num:   '01',
     title: 'Artifact type',
-    body:  'Nineteen types across seven groups — code, research, data, models, events, receipts, and more.',
+    body:  'Twenty-one types across seven groups — code, research, data, models, reports, notes, events, receipts, and more.',
   },
   {
     num:   '02',
@@ -21,7 +21,7 @@ const STEPS = [
   {
     num:   '03',
     title: 'Anchor Key',
-    body:  'Your auto-generated private key. Controls your entire provenance tree. Save it — it cannot be recovered.',
+    body:  'Your self-custodied private key. Controls your entire provenance tree. Save it — it cannot be recovered.',
   },
   {
     num:   '04',
@@ -34,7 +34,7 @@ const STATS = [
   { value: 'From $5', label: 'Per Anchor'       },
   { value: 'Forever', label: 'Record Lifetime'  },
   { value: 'Base L2', label: 'Ethereum Mainnet' },
-  { value: '19',      label: 'Artifact Types'   },
+  { value: '21',      label: 'Artifact Types'   },
 ]
 
 const ROOT  = '#F59E0B'
@@ -227,14 +227,14 @@ export default function Home() {
             </p>
             <h1 className="animate-fade-up mb-5 max-w-[580px] text-[52px] font-semibold leading-[1.08] tracking-tight text-off-white"
               style={{ animationDelay: '0.12s' }}>
-              Anchor your content{' '}
+              Anchor your work<br />
               <span className="text-gold">on-chain.</span>
             </h1>
             <p className="animate-fade-up mb-9 max-w-[420px] text-[17px] font-light leading-[1.65] text-muted-slate"
               style={{ animationDelay: '0.2s' }}>
-              Anchor any digital artifact on-chain. Code, research, receipts,
-              events, models — nineteen types, one registry. Permanent proof of
-              existence. Verifiable by anyone, forever.
+              Anchor your work and network it to everything. Code, research,
+              models, reports, notes, receipts — twenty-one types, one registry.
+              Permanent proof of existence and lineage, verifiable by anyone, forever.
             </p>
             <div className="animate-fade-up flex items-center gap-3" style={{ animationDelay: '0.28s' }}>
               <Link href="/register"
