@@ -99,6 +99,14 @@ export async function POST(req: NextRequest) {
       kind:             m.kind             ?? '',
       value:            m.value            ?? '',
       url:              m.url              ?? '',
+      report_type:      m.report_type      ?? '',
+      institution:      m.institution      ?? '',
+      engagement:       m.engagement       ?? '',
+      version:          m.version          ?? '',
+      authors:          m.authors          ?? '',
+      note_type:        m.note_type        ?? '',
+      date:             m.date             ?? '',
+      participants:     m.participants     ?? '',
     })
 
     const arApiPayload = isMulti

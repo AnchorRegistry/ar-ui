@@ -64,10 +64,12 @@ const ARTIFACT_TYPES = [
   { value: 'TEXT',      label: 'Text',      desc: 'Blogs, books, essays'          },
   { value: 'POST',      label: 'Post',      desc: 'Tweets, social content'        },
   { value: 'ONCHAIN',   label: 'On-Chain',  desc: 'Addresses, NFTs, contracts'    },
+  { value: 'REPORT',    label: 'Report',    desc: 'Consulting, compliance, ESG, audits' },
+  { value: 'NOTE',      label: 'Note',      desc: 'Memos, meeting notes, correspondence' },
   { value: 'EVENT',     label: 'Event',     desc: 'Human events · machine runs · agent tasks' },
   { value: 'RECEIPT',   label: 'Receipt',   desc: 'Purchase, medical, financial'  },
   { value: 'OTHER',     label: 'Other',     desc: 'Everything else'               },
-  // LEGAL (11), ENTITY (12), PROOF (13) — suppressed at launch, no operators added
+  // LEGAL (13), ENTITY (14), PROOF (15) — suppressed at launch, no operators added
   // Reintroduced in V2-V4 with dedicated operator gates and verification infrastructure
 ]
 
@@ -294,6 +296,22 @@ const TYPE_FIELDS: Record<string, FieldDef[]> = {
     { key: 'verifier_url', label: 'Verifier URL',        placeholder: 'https://...', mono: true, span: 'full' },
     { key: 'report_url',   label: 'Report / Paper URL',  placeholder: 'https://...', mono: true, span: 'full' },
   ],
+  REPORT: [
+    { key: 'report_type',  label: 'Report Type', placeholder: '', type: 'select',
+      options: ['CONSULTING', 'FINANCIAL', 'COMPLIANCE', 'ESG', 'TECHNICAL', 'AUDIT', 'OTHER'] },
+    { key: 'institution',  label: 'Institution',  placeholder: 'e.g. Hive Advisory Inc.' },
+    { key: 'engagement',   label: 'Engagement',   placeholder: 'e.g. Q1-2026-ESG', mono: true },
+    { key: 'version',      label: 'Version',      placeholder: 'e.g. v1.0, draft, final' },
+    { key: 'authors',      label: 'Authors',      placeholder: 'e.g. Stefan P., Ian Moore', span: 'full' },
+    { key: 'url',          label: 'URL',          placeholder: 'https://...', mono: true, span: 'full' },
+  ],
+  NOTE: [
+    { key: 'note_type',    label: 'Note Type', placeholder: '', type: 'select',
+      options: ['MEMO', 'MEETING', 'CORRESPONDENCE', 'OBSERVATION', 'FIELD', 'OTHER'] },
+    { key: 'date',         label: 'Date',         placeholder: 'e.g. 2026-03-20', mono: true },
+    { key: 'participants', label: 'Participants',  placeholder: 'e.g. Stefan P., Ian Moore', span: 'full' },
+    { key: 'url',          label: 'URL',          placeholder: 'https://...', mono: true, span: 'full' },
+  ],
   OTHER: [],
 }
 
@@ -375,16 +393,18 @@ interface ManifestFormProps {
   onEmailChange?:   (email: string) => void
   tree?:            TreeCredentials
   onTree?:          (t: TreeCredentials) => void
-  onConfirmTree?:       () => void
-  custodyConfirmed?:     boolean
-  onCustodyChange?:      (v: boolean) => void
+  onConfirmTree?:   () => void
+  custodyConfirmed?: boolean
+  onCustodyChange?:  (v: boolean) => void
+  keySent?:          boolean
+  onKeySent?:        (v: boolean) => void
+  onNewKey?:         () => void
 }
 
-function ManifestForm({ state, onChange, parentHint, isAutoParent, anchorKeyEmail, onEmailChange, tree, onTree, onConfirmTree, custodyConfirmed, onCustodyChange }: ManifestFormProps) {
+function ManifestForm({ state, onChange, parentHint, isAutoParent, anchorKeyEmail, onEmailChange, tree, onTree, onConfirmTree, custodyConfirmed, onCustodyChange, keySent, onKeySent, onNewKey }: ManifestFormProps) {
   const { form, tokenId, hash, notes } = state
 
   const [extendOpen, setExtendOpen] = useState(false)
-  const [keySent, setKeySent]         = useState(false)
 
   const patch     = (p: Partial<ManifestState>) => onChange({ ...state, ...p })
   const patchForm = (p: Partial<FormState>)     => patch({ form: { ...form, ...p } })
@@ -725,7 +745,7 @@ function ManifestForm({ state, onChange, parentHint, isAutoParent, anchorKeyEmai
                   className="shrink-0 rounded border border-[#2E4270] px-2 py-1 font-mono text-[10px] text-muted-slate transition-all hover:border-muted-slate hover:text-off-white"
                 >Copy</button>
                 <button
-                  onClick={() => { patch({ tokenId: crypto.randomUUID(), hash: '' }); setKeySent(false) }}
+                  onClick={() => onNewKey?.()}
                   className={`shrink-0 rounded border px-2 py-1 font-mono text-[10px] transition-all ${
                     keySent
                       ? 'border-amber-500/50 text-amber-400 hover:bg-amber-500/10'
@@ -761,7 +781,7 @@ function ManifestForm({ state, onChange, parentHint, isAutoParent, anchorKeyEmai
                     : undefined}
                   onClick={e => {
                     if (!anchorKeyEmail?.trim() || !tokenId) { e.preventDefault(); return }
-                    setKeySent(true)
+                    onKeySent?.(true)
                   }}
                   className={`shrink-0 rounded border px-3 py-2.5 font-mono text-[12px] font-medium transition-all ${
                     keySent
@@ -907,6 +927,7 @@ export default function Register() {
   const [error, setError]           = useState('')
   const [anchorKeyEmail, setAnchorKeyEmail]       = useState('')
   const [custodyConfirmed, setCustodyConfirmed] = useState(false)
+  const [keySent, setKeySent]                   = useState(false)
   const [tree, setTree]             = useState<TreeCredentials>({
     parentArId: '', anchorKey: '', confirmed: false,
     confirming: false, parentTitle: '', error: '',
@@ -960,10 +981,12 @@ export default function Register() {
     if (t && TIERS.find(x => x.value === t)) setTier(t)
   }, [searchParams])
 
-  // Generate token IDs client-side only — crypto.randomUUID() causes SSR/client mismatch if called at init
+  // Generate a single shared token for all manifests — one anchor key per registration session
+  // All artifacts in a Pair/Tree share the same key so the user only needs to save one
   useEffect(() => {
+    const sharedToken = crypto.randomUUID()
     setManifests(prev => prev.map(m =>
-      m.tokenId ? m : { ...m, tokenId: crypto.randomUUID() }
+      m.tokenId ? m : { ...m, tokenId: sharedToken }
     ))
   }, [])
 
@@ -983,7 +1006,14 @@ export default function Register() {
   const updateManifest = (i: number) => (next: ManifestState) =>
     setManifests(prev => prev.map((m, j) => j === i ? next : m))
 
-  const changeTier = (t: TierValue) => { setTier(t); setActiveTab(0); setCustodyConfirmed(false) }
+  const changeTier = (t: TierValue) => { setTier(t); setActiveTab(0); setCustodyConfirmed(false); setKeySent(false) }
+
+  const handleNewKey = () => {
+    const newToken = crypto.randomUUID()
+    setManifests(prev => prev.map(m => ({ ...m, tokenId: newToken, hash: '' })))
+    setKeySent(false)
+    setCustodyConfirmed(false)
+  }
 
   const buildPayload = (m: ManifestState) => ({
     manifestHash:      m.hash,
@@ -1117,6 +1147,9 @@ export default function Register() {
                 onConfirmTree={activeTab === 0 ? confirmTree : undefined}
                 custodyConfirmed={activeTab === 0 ? custodyConfirmed : undefined}
                 onCustodyChange={activeTab === 0 ? setCustodyConfirmed : undefined}
+                keySent={activeTab === 0 ? keySent : undefined}
+                onKeySent={activeTab === 0 ? setKeySent : undefined}
+                onNewKey={handleNewKey}
               />
             </div>
 
