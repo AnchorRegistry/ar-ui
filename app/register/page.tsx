@@ -66,10 +66,9 @@ const ARTIFACT_TYPES = [
   { value: 'ONCHAIN',   label: 'On-Chain',  desc: 'Addresses, NFTs, contracts'    },
   { value: 'EVENT',     label: 'Event',     desc: 'Human events · machine runs · agent tasks' },
   { value: 'RECEIPT',   label: 'Receipt',   desc: 'Purchase, medical, financial'  },
-  { value: 'LEGAL',     label: 'Legal',     desc: 'Contracts, filings'            },
-  { value: 'ENTITY',    label: 'Entity',    desc: 'Persons, companies'            },
-  { value: 'PROOF',     label: 'Proof',     desc: 'ZK, formal, audit, math'       },
   { value: 'OTHER',     label: 'Other',     desc: 'Everything else'               },
+  // LEGAL (11), ENTITY (12), PROOF (13) — suppressed at launch, no operators added
+  // Reintroduced in V2-V4 with dedicated operator gates and verification infrastructure
 ]
 
 const LICENSES = [
@@ -479,7 +478,7 @@ function ManifestForm({ state, onChange, parentHint, isAutoParent, anchorKeyEmai
               <span>{tree?.confirmed || extendOpen ? '▾' : '▸'}</span>
               {tree?.confirmed
                 ? <span>Extending <span className="text-off-white">{tree.parentArId}</span> · <span className="text-gold">✓ Ownership confirmed</span></span>
-                : <span>Extending an existing tree? Enter parent AR-ID + anchor key</span>}
+                : <span className="text-off-white">Extending an existing tree? Enter parent AR-ID + anchor key</span>}
             </button>
 
             {extendOpen && !tree?.confirmed && (
