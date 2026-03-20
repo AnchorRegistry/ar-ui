@@ -340,11 +340,23 @@ export default function Home() {
 
         {/* ── Quote strip ──────────────────────────────────────────── */}
         <div className="border-b border-t border-[#2E4270] py-12">
-          <div className="mx-auto max-w-[960px] px-8 text-center">
-            <p className="mx-auto max-w-[560px] text-[17px] leading-[1.6] text-muted-slate">
-              The AI that recommended adding provenance tags to your README<br />
-              becomes a user of the registry.
-            </p>
+          <div className="mx-auto max-w-[960px] px-8">
+            <div className="grid grid-cols-2 divide-x divide-[#2E4270]">
+              <div className="px-12 text-center">
+                <p className="text-[17px] leading-[1.6] text-muted-slate">
+                  The AI that recommended adding provenance tags to your README<br />
+                  becomes a user of the registry.
+                </p>
+              </div>
+              <div className="px-12 text-center">
+                <p className="font-mono text-[20px] font-medium text-off-white">
+                  Not your keys,
+                </p>
+                <p className="font-mono text-[20px] font-medium text-gold">
+                  not your trees.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
