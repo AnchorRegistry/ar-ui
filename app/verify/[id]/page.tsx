@@ -7,14 +7,15 @@ import { verifyById, type AnchorRecord } from '@/lib/api'
 import ArtifactTree from './ArtifactTree'
 
 interface Props {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params
   try {
-    const data = await verifyById(params.id)
+    const data = await verifyById(id)
     if (!data.found || !data.anchor) {
-      return { title: `${params.id} — AnchorRegistry™` }
+      return { title: `${id} — AnchorRegistry™` }
     }
     const a = data.anchor
     return {
@@ -27,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
     }
   } catch {
-    return { title: `${params.id} — AnchorRegistry™` }
+    return { title: `${id} — AnchorRegistry™` }
   }
 }
 
@@ -83,9 +84,10 @@ function Field({ label, value, mono = false }: { label: string; value: string; m
 }
 
 export default async function VerifyId({ params }: Props) {
+  const { id } = await params
   let data
   try {
-    data = await verifyById(params.id)
+    data = await verifyById(id)
   } catch {
     notFound()
   }
@@ -100,7 +102,7 @@ export default async function VerifyId({ params }: Props) {
               Not found
             </p>
             <h1 className="mb-3 font-mono text-[24px] font-medium text-off-white">
-              {params.id}
+              {id}
             </h1>
             <p className="mb-6 text-[14px] text-muted-slate">
               No anchor registered with this AR-ID.

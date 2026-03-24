@@ -6,17 +6,18 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
 
   try {
-    const res = await fetch(`${apiUrl}/verify/${params.id}`, {
+    const res = await fetch(`${apiUrl}/verify/${id}`, {
       next: { revalidate: 60 },
     })
 
     if (!res.ok) {
-      return NextResponse.json({ found: false, ar_id: params.id }, { status: 404 })
+      return NextResponse.json({ found: false, ar_id: id }, { status: 404 })
     }
 
     const data = await res.json()
@@ -26,6 +27,6 @@ export async function GET(
       },
     })
   } catch {
-    return NextResponse.json({ found: false, ar_id: params.id }, { status: 502 })
+    return NextResponse.json({ found: false, ar_id: id }, { status: 502 })
   }
 }
