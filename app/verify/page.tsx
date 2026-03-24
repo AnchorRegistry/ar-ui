@@ -1,13 +1,19 @@
-import type { Metadata } from 'next'
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 
-export const metadata: Metadata = {
-  title: 'Verify — AnchorRegistry™',
-  description: 'Verify any AR-ID and view the full provenance record.',
-}
-
 export default function VerifyIndex() {
+  const [arId, setArId] = useState('')
+  const router = useRouter()
+
+  const handleVerify = () => {
+    const trimmed = arId.trim()
+    if (trimmed) router.push(`/verify/${trimmed}`)
+  }
+
   return (
     <>
       <Nav />
@@ -16,22 +22,30 @@ export default function VerifyIndex() {
           <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.1em] text-muted-slate">
             Verify
           </p>
-          <h1 className="mb-4 text-[32px] font-semibold tracking-tight">
+          <h1 className="mb-4 text-[32px] font-semibold tracking-tight text-off-white">
             Enter an AR-ID
           </h1>
           <p className="mb-6 text-[15px] text-muted-slate">
             e.g. AR-2026-K7X9M2P
           </p>
-          <div className="flex gap-2">
+          <form
+            onSubmit={(e) => { e.preventDefault(); handleVerify() }}
+            className="flex gap-2"
+          >
             <input
               type="text"
+              value={arId}
+              onChange={(e) => setArId(e.target.value)}
               placeholder="AR-2026-K7X9M2P"
               className="rounded border border-[#2E4270] bg-surface px-4 py-2.5 font-mono text-[14px] text-off-white placeholder-muted-slate outline-none focus:border-electric-blue w-64"
             />
-            <button className="rounded bg-electric-blue px-5 py-2.5 text-[14px] font-medium text-off-white transition-colors hover:bg-blue-600">
+            <button
+              type="submit"
+              className="rounded bg-electric-blue px-5 py-2.5 text-[14px] font-medium text-off-white transition-colors hover:bg-blue-600"
+            >
               Verify →
             </button>
-          </div>
+          </form>
         </div>
       </main>
       <Footer />
