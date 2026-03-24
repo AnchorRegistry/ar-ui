@@ -407,7 +407,7 @@ function ManifestForm({ state, onChange, parentHint, isAutoParent, anchorKeyEmai
   const [extendOpen, setExtendOpen] = useState(false)
 
   const patch     = (p: Partial<ManifestState>) => onChange({ ...state, ...p })
-  const patchForm = (p: Partial<FormState>)     => patch({ form: { ...form, ...p } })
+  const patchForm = (p: Partial<FormState>)     => patch({ form: { ...form, ...(p as FormState) } })
 
   const handleTypeChange = (type: string) => {
     const oldFields = TYPE_FIELDS[form.artifactType] ?? []
