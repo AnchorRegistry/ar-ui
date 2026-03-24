@@ -11,25 +11,15 @@
       "static/chunks/main-app.js",
       "static/chunks/app/page.js"
     ],
-    "/tree/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/tree/page.js"
-    ],
     "/docs/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/docs/page.js"
     ],
-    "/register/page": [
+    "/tree/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/register/page.js"
-    ],
-    "/verify/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/verify/page.js"
+      "static/chunks/app/tree/page.js"
     ]
   }
 }
