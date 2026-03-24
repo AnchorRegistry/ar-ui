@@ -940,11 +940,12 @@ function RegisterPageInner() {
       // Fetch parent manifest from API
       const res  = await fetch(`/api/verify/${tree.parentArId.trim()}`)
       if (!res.ok) throw new Error('AR-ID not found')
-      const data = await res.json()
+      const resp = await res.json()
+      const data = resp.anchor ?? resp
 
       // Reconstruct canonical string from parent fields and provided anchor key
       const fields = [
-        data.artifact_type, data.title, data.author ?? '',
+        data.artifact_type, data.title ?? '', data.author ?? '',
         data.descriptor ?? '',
         ...(data.type_fields ?? []).map((v: string) => v ?? ''),
         tree.anchorKey.trim(),
@@ -960,7 +961,7 @@ function RegisterPageInner() {
         return
       }
 
-      setTree(t => ({ ...t, confirming: false, confirmed: true, parentTitle: data.title }))
+      setTree(t => ({ ...t, confirming: false, confirmed: true, parentTitle: data.title ?? '' }))
       // Wire parent into root manifest
       setManifests(prev => prev.map((m, i) =>
         i === 0 ? { ...m, form: { ...m.form, parentHash: tree.parentArId.trim() } } : m
