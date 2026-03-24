@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
@@ -919,7 +919,7 @@ function StructureDiagram({ tier }: { tier: TierValue }) {
 // Main page
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function Register() {
+function RegisterPageInner() {
   const searchParams = useSearchParams()
   const [tier, setTier]             = useState<TierValue>('proof')
   const [activeTab, setActiveTab]   = useState(0)
@@ -1236,5 +1236,13 @@ export default function Register() {
       </main>
       <Footer />
     </>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense>
+      <RegisterPageInner />
+    </Suspense>
   )
 }
