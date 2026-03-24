@@ -4,8 +4,8 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source:      '/AR-:id*',
-        destination: '/verify/AR-:id*',
+        source:      '/:arId(AR-\\d{4}-.+)',
+        destination: '/verify/:arId',
       },
       {
         source:      '/api/:path*',
