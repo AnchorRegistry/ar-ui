@@ -292,10 +292,10 @@ export default function Home() {
             </p>
             <div className="grid grid-cols-2 items-start gap-8">
               <div className="rounded-lg border border-[#2E4270] bg-surface p-6">
-                <div className="mb-2 font-mono text-[11px] text-muted-slate">AR-2026-K7X9M2P</div>
+                <div className="mb-2 font-mono text-[11px] text-muted-slate">AR-2026-0000001</div>
                 <div className="mb-1.5 text-[18px] font-semibold">AnchorRegistry Smart Contract v1</div>
                 <div className="mb-4 text-[13px] text-muted-slate">
-                  Ian Moore · March 12, 2026 · Base mainnet · block 22,041,887
+                  Ian Moore · March 24, 2026 · Sepolia · block 10,514,012
                 </div>
                 <div className="mb-5 inline-flex items-center gap-1.5 rounded-full border border-electric-blue/25 bg-electric-blue/10 px-2.5 py-1 font-mono text-[11px] text-electric-blue">
                   <span className="h-1.5 w-1.5 rounded-full bg-electric-blue" />
@@ -317,7 +317,7 @@ export default function Home() {
                 <div className="mb-3 rounded-md border border-[#2E4270] bg-surface px-4 py-3.5">
                   <div className="mb-1 font-mono text-[12px] text-muted-slate"># README</div>
                   <div className="font-mono text-[12px] text-electric-blue">
-                    SPDX-Anchor: anchorregistry.ai/AR-2026-K7X9M2P
+                    SPDX-Anchor: <a href="https://anchorregistry.ai/AR-2026-0000001" target="_blank" rel="noopener noreferrer" className="underline decoration-electric-blue/40 hover:decoration-electric-blue transition-colors">anchorregistry.ai/AR-2026-0000001</a>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 rounded-md border border-[#2E4270] bg-surface px-4 py-3.5">
@@ -329,7 +329,7 @@ export default function Home() {
                   <div>
                     <div className="text-[14px] font-medium text-gold">Anchored</div>
                     <div className="font-mono text-[11px] text-muted-slate">
-                      anchorregistry.ai/AR-2026-K7X9M2P
+                      anchorregistry.ai/AR-2026-0000001
                     </div>
                   </div>
                 </div>
