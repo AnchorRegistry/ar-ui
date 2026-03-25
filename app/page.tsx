@@ -11,7 +11,7 @@ const STEPS = [
   {
     num:   '01',
     title: 'Artifact type',
-    body:  'Twenty-one types across seven groups — code, research, data, models, reports, notes, events, receipts, and more.',
+    body:  'Twenty-two types across seven groups — code, research, data, models, reports, notes, events, receipts, and more.',
   },
   {
     num:   '02',
@@ -232,8 +232,8 @@ export default function Home() {
             </h1>
             <p className="animate-fade-up mb-9 max-w-[420px] text-[17px] font-light leading-[1.65] text-muted-slate"
               style={{ animationDelay: '0.2s' }}>
-              Anchor your work and network it to everything. Code, research,
-              models, reports, notes, receipts — twenty-one types, one registry.
+              Anchor and network your work to everything. Code, research,
+              models, reports, notes, receipts — twenty-two types, one registry.
               Permanent proof of existence and lineage, verifiable by anyone, forever.
             </p>
             <div className="animate-fade-up flex items-center gap-3" style={{ animationDelay: '0.28s' }}>
