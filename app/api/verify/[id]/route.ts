@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getApiUrl } from '@/lib/getApiUrl'
 
 // GET /api/verify/[id]
 // Machine-readable verification endpoint.
@@ -9,7 +10,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+  const apiUrl = await getApiUrl()
 
   try {
     const res = await fetch(`${apiUrl}/verify/${id}`, {

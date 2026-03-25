@@ -1,4 +1,10 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+function getApiUrl(): string {
+  const host = typeof window !== 'undefined' ? window.location.host : ''
+  if (host.includes('testnet')) {
+    return 'https://api.testnet.anchorregistry.ai'
+  }
+  return process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+}
 
 export interface AnchorRecord {
   ar_id:            string
@@ -26,7 +32,7 @@ export interface VerifyResponse {
 }
 
 export async function verifyById(arId: string): Promise<VerifyResponse> {
-  const res = await fetch(`${API_URL}/verify/${arId}`, {
+  const res = await fetch(`${getApiUrl()}/verify/${arId}`, {
     next: { revalidate: 60 },
   })
   if (!res.ok) throw new Error(`Verify failed: ${res.status}`)
@@ -34,7 +40,7 @@ export async function verifyById(arId: string): Promise<VerifyResponse> {
 }
 
 export async function verifyByHash(manifestHash: string): Promise<VerifyResponse> {
-  const res = await fetch(`${API_URL}/verify/hash/${manifestHash}`, {
+  const res = await fetch(`${getApiUrl()}/verify/hash/${manifestHash}`, {
     next: { revalidate: 60 },
   })
   if (!res.ok) throw new Error(`Verify by hash failed: ${res.status}`)
@@ -42,7 +48,7 @@ export async function verifyByHash(manifestHash: string): Promise<VerifyResponse
 }
 
 export async function getStatus() {
-  const res = await fetch(`${API_URL}/status`, {
+  const res = await fetch(`${getApiUrl()}/status`, {
     next: { revalidate: 30 },
   })
   if (!res.ok) throw new Error(`Status failed: ${res.status}`)

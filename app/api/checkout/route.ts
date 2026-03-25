@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getApiUrl } from '@/lib/getApiUrl'
 
 // POST /api/checkout
 // Proxies to ar-api POST /registration/pending.
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
 
-    const apiUrl = process.env.AR_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8001'
+    const apiUrl = await getApiUrl()
 
     const isMulti = MULTI_TIERS.has(body.tier) && Array.isArray(body.manifests)
 

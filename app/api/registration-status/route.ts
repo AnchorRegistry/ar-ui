@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getApiUrl } from '@/lib/getApiUrl'
 
 // GET /api/registration-status?session_id=cs_xxx
 // Polls ar-api for the registration status of a Stripe session.
@@ -11,7 +12,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ detail: 'session_id required' }, { status: 400 })
   }
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+  const apiUrl = await getApiUrl()
 
   try {
     const res = await fetch(`${apiUrl}/registration/status/${sessionId}`, {
