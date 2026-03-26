@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
+import { getNetworkName } from '@/lib/network'
 
 export const metadata: Metadata = {
   title: 'AnchorRegistry™ — Anchor your work on-chain.',
@@ -77,7 +78,7 @@ const TIERS = [
     label:    'Proof',
     price:    '$5',
     anchors:  '1 anchor',
-    body:     'Single artifact anchored on Base mainnet. SHA-256 hash, permanent AR-ID, verify URL.',
+    body:     'Single artifact anchored on {network}. SHA-256 hash, permanent AR-ID, verify URL.',
     icon:     <ProofSVG />,
     featured: true,
     cta:      'Register →',
@@ -108,7 +109,7 @@ const TIERS = [
 // ProvenanceTreeDiagram
 // ─────────────────────────────────────────────────────────────────────────────
 
-function ProvenanceTreeDiagram() {
+function ProvenanceTreeDiagram({ network }: { network: string }) {
   const nodes = {
     root:  { x: 160, y: 72  },
     left:  { x: 68,  y: 218 },
@@ -205,13 +206,14 @@ function ProvenanceTreeDiagram() {
           <svg viewBox="0 0 8 8" width="8" height="8"><circle cx="4" cy="4" r="4" fill={CHILD} /></svg>
           child
         </span>
-        <span className="ml-auto opacity-50">Base mainnet · permanent</span>
+        <span className="ml-auto opacity-50">{network} · permanent</span>
       </div>
     </div>
   )
 }
 
-export default function Home() {
+export default async function Home() {
+  const network = await getNetworkName()
   return (
     <>
       <Nav />
@@ -389,7 +391,7 @@ export default function Home() {
                         <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-muted-slate">{t.label}</span>
                         <span className="font-mono text-[10px] text-muted-slate/50">{t.anchors}</span>
                       </div>
-                      <p className="text-[13px] leading-snug text-muted-slate">{t.body}</p>
+                      <p className="text-[13px] leading-snug text-muted-slate">{t.body.replace('{network}', network)}</p>
                     </div>
                     <Link href={`/register?tier=${t.value}`}
                       className={`shrink-0 rounded px-4 py-2 text-[13px] font-medium transition-all whitespace-nowrap ${
@@ -413,7 +415,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="sticky top-20">
-                <ProvenanceTreeDiagram />
+                <ProvenanceTreeDiagram network={network} />
               </div>
             </div>
           </div>

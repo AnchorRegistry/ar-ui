@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
+import { getNetworkNameClient } from '@/lib/network.client'
 import Footer from '@/components/Footer'
 
 const ROOT  = '#F59E0B'
@@ -438,7 +439,7 @@ export default function TreePage() {
               <p className="ml-auto self-end font-mono text-[11px] text-muted-slate/50">
                 {act.allNodes.length} artifact{act.allNodes.length !== 1 ? 's' : ''} anchored
                 {act.allNodes.length > 1 ? ` · ${act.allEdges.length} link${act.allEdges.length !== 1 ? 's' : ''}` : ''}
-                {' · Base mainnet'}
+                {` · ${getNetworkNameClient()}`}
               </p>
             </div>
           </div>
