@@ -10,7 +10,7 @@ async function getApiUrl(): Promise<string> {
     } catch {}
   }
   if (host.includes('testnet')) {
-    return 'https://api.testnet.anchorregistry.ai'
+    return 'https://api-testnet.anchorregistry.ai'
   }
   return process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
 }
