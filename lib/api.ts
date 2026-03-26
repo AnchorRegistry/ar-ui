@@ -1,5 +1,14 @@
-function getApiUrl(): string {
-  const host = typeof window !== 'undefined' ? window.location.host : ''
+async function getApiUrl(): Promise<string> {
+  let host = ''
+  if (typeof window !== 'undefined') {
+    host = window.location.host
+  } else {
+    try {
+      const { headers } = await import('next/headers')
+      const h = await headers()
+      host = h.get('host') ?? ''
+    } catch {}
+  }
   if (host.includes('testnet')) {
     return 'https://api.testnet.anchorregistry.ai'
   }
@@ -32,7 +41,7 @@ export interface VerifyResponse {
 }
 
 export async function verifyById(arId: string): Promise<VerifyResponse> {
-  const res = await fetch(`${getApiUrl()}/verify/${arId}`, {
+  const res = await fetch(`${await getApiUrl()}/verify/${arId}`, {
     next: { revalidate: 60 },
   })
   if (!res.ok) throw new Error(`Verify failed: ${res.status}`)
@@ -40,7 +49,7 @@ export async function verifyById(arId: string): Promise<VerifyResponse> {
 }
 
 export async function verifyByHash(manifestHash: string): Promise<VerifyResponse> {
-  const res = await fetch(`${getApiUrl()}/verify/hash/${manifestHash}`, {
+  const res = await fetch(`${await getApiUrl()}/verify/hash/${manifestHash}`, {
     next: { revalidate: 60 },
   })
   if (!res.ok) throw new Error(`Verify by hash failed: ${res.status}`)
@@ -48,7 +57,7 @@ export async function verifyByHash(manifestHash: string): Promise<VerifyResponse
 }
 
 export async function getStatus() {
-  const res = await fetch(`${getApiUrl()}/status`, {
+  const res = await fetch(`${await getApiUrl()}/status`, {
     next: { revalidate: 30 },
   })
   if (!res.ok) throw new Error(`Status failed: ${res.status}`)

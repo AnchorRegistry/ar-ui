@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { getNetworkNameClient } from '@/lib/network.client'
 
 type Status = 'polling' | 'confirmed' | 'error'
 
@@ -67,7 +68,7 @@ export default function SuccessContent() {
           Anchoring on-chain
         </p>
         <h1 className="mb-4 text-[24px] font-semibold tracking-tight text-off-white">
-          Writing to Base mainnet…
+          Writing to {getNetworkNameClient()}…
         </h1>
         <p className="text-[14px] text-muted-slate">
           Your artifact is being anchored. This usually takes 10–30 seconds.

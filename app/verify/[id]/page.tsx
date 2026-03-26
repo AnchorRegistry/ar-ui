@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import { verifyById, type AnchorRecord } from '@/lib/api'
+import { getNetworkName, getExplorerTxUrl, getSiteOrigin } from '@/lib/network'
 import ArtifactTree from './ArtifactTree'
 
 interface Props {
@@ -13,18 +14,20 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params
   try {
-    const data = await verifyById(id)
+    const [data, network, origin] = await Promise.all([
+      verifyById(id), getNetworkName(), getSiteOrigin(),
+    ])
     if (!data.found || !data.anchor) {
       return { title: `${id} — AnchorRegistry™` }
     }
     const a = data.anchor
     return {
       title:       `${a.descriptor || a.ar_id} — AnchorRegistry™`,
-      description: `On-chain provenance record for "${a.descriptor || a.ar_id}" by ${a.ar_id}. Registered on Base mainnet. Verifiable by any human or AI agent.`,
+      description: `On-chain provenance record for "${a.descriptor || a.ar_id}" by ${a.ar_id}. Registered on ${network}. Verifiable by any human or AI agent.`,
       openGraph: {
         title:       `${a.descriptor || a.ar_id} — AnchorRegistry™`,
-        description: `Permanent provenance anchor · ${a.artifact_type} · Base mainnet`,
-        url:         `https://anchorregistry.com/verify/${a.ar_id}`,
+        description: `Permanent provenance anchor · ${a.artifact_type} · ${network}`,
+        url:         `${origin}/verify/${a.ar_id}`,
       },
     }
   } catch {
@@ -124,6 +127,9 @@ export default async function VerifyId({ params }: Props) {
   const date = new Date(a.block_timestamp).toLocaleDateString('en-US', {
     month: 'long', day: 'numeric', year: 'numeric',
   })
+  const [network, explorerUrl] = await Promise.all([
+    getNetworkName(), getExplorerTxUrl(a.tx_hash),
+  ])
 
   return (
     <>
@@ -183,7 +189,7 @@ export default async function VerifyId({ params }: Props) {
                   </h2>
                 )}
                 <p className="mb-6 text-[14px] text-muted-slate">
-                  {a.registrant} · {date} · Base mainnet · block {a.block_number.toLocaleString()}
+                  {a.registrant} · {date} · {network} · block {a.block_number.toLocaleString()}
                 </p>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -215,7 +221,7 @@ export default async function VerifyId({ params }: Props) {
                       Transaction Hash
                     </div>
                     <a
-                      href={`https://basescan.org/tx/${a.tx_hash}`}
+                      href={explorerUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="block break-all rounded border border-[#2E4270] bg-bg px-3 py-2.5 font-mono text-[12px] leading-relaxed text-electric-blue transition-opacity hover:opacity-80"

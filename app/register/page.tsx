@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Nav from '@/components/Nav'
+import { getNetworkNameClient } from '@/lib/network.client'
 import Footer from '@/components/Footer'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1169,7 +1170,7 @@ function RegisterPageInner() {
                     {manifests[0].form.title || <span className="text-muted-slate/40">Untitled artifact</span>}
                   </div>
                   <div className="mb-3 text-[13px] text-muted-slate">
-                    {manifests[0].form.author || 'Anonymous'} · Base mainnet
+                    {manifests[0].form.author || 'Anonymous'} · {getNetworkNameClient()}
                   </div>
                   {manifests[0].hash ? (
                     <div className="break-all font-mono text-[10px] leading-relaxed text-muted-slate">
@@ -1191,7 +1192,7 @@ function RegisterPageInner() {
 
               <div className="rounded-lg border border-[#2E4270] bg-surface p-4">
                 <div className="mb-3 space-y-2 font-mono text-[11px] text-muted-slate">
-                  <div className="flex justify-between"><span>SHA-256 on Base mainnet</span><span className="text-gold">✓</span></div>
+                  <div className="flex justify-between"><span>SHA-256 on {getNetworkNameClient()}</span><span className="text-gold">✓</span></div>
                   <div className="flex justify-between">
                     <span>Permanent AR-ID{activeCount > 1 ? ` × ${activeCount}` : ''}</span>
                     <span className="text-gold">✓</span>
