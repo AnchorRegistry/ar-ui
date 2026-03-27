@@ -240,7 +240,7 @@ export default async function VerifyId({ params }: Props) {
                   Embed this anchor
                 </div>
                 <div className="mb-3 rounded border border-[#2E4270] bg-bg px-3 py-2.5 font-mono text-[12px] text-electric-blue">
-                  {a.artifact_type === 'CODE' ? 'SPDX-Anchor' : 'DAPX-Anchor'}: {machineUrl}
+                  {a.artifact_type === 'CODE' ? 'SPDX-Anchor' : 'DAPX-Anchor'}: {a.machine_url}
                 </div>
                 <p className="font-mono text-[11px] text-muted-slate">
                   Add this tag to your README, paper footer, or model card.
