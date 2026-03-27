@@ -270,6 +270,20 @@ export default async function VerifyId({ params }: Props) {
                 >
                   {machineUrl}
                 </a>
+                <p className="mt-3 font-mono text-[10px] text-muted-slate">
+                  AI agents: this endpoint always returns JSON — full provenance
+                  subtree, no headers needed. Or use content negotiation on the
+                  smart URL by sending{' '}
+                  <span className="text-off-white">Accept: application/json</span>.
+                </p>
+                <div className="mt-3 space-y-1.5 rounded border border-[#2E4270] bg-bg px-3 py-2.5 font-mono text-[10px] text-muted-slate">
+                  <div className="text-[#4a6080]"># Always JSON — no setup required:</div>
+                  <div className="break-all text-electric-blue/80">curl {machineUrl}</div>
+                  <div className="mt-1 text-[#4a6080]"># Or use the smart URL with content negotiation:</div>
+                  <div className="break-all text-electric-blue/80">
+                    curl -H &quot;Accept: application/json&quot; {a.machine_url}
+                  </div>
+                </div>
               </div>
             </div>
 
