@@ -727,7 +727,7 @@ function ManifestForm({ state, onChange, parentHint, isAutoParent, anchorKeyEmai
           <span className="text-[14px] font-medium text-off-white">Anchor Key</span>
           {tree?.confirmed && (
             <span className="rounded-full border border-[#2E4270] px-2.5 py-0.5 font-mono text-[10px] text-muted-slate">
-              provided via tree credentials
+              root key · use to extend further
             </span>
           )}
         </div>
@@ -963,10 +963,13 @@ function RegisterPageInner() {
       }
 
       setTree(t => ({ ...t, confirming: false, confirmed: true, parentTitle: data.title ?? '' }))
-      // Wire parent into root manifest
+      // Wire parent into root manifest and propagate anchor key as tokenId —
+      // one key unlocks extension privileges anywhere downstream of the root
       setManifests(prev => prev.map((m, i) =>
-        i === 0 ? { ...m, form: { ...m.form, parentHash: tree.parentArId.trim() } } : m
+        i === 0 ? { ...m, tokenId: tree.anchorKey.trim(), form: { ...m.form, parentHash: tree.parentArId.trim() } } : m
       ))
+      // Ownership proof already demonstrated — auto-confirm custody
+      setCustodyConfirmed(true)
     } catch (e: unknown) {
       setTree(t => ({ ...t, confirming: false, error: e instanceof Error ? e.message : 'Verification failed' }))
     }
