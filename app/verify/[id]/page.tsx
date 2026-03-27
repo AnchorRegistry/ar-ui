@@ -36,7 +36,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 const TYPE_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  // CONTENT (0-8)
   CODE:     { bg: 'rgba(59,130,246,0.1)',  text: '#3B82F6', border: 'rgba(59,130,246,0.3)'  },
   RESEARCH: { bg: 'rgba(168,85,247,0.1)',  text: '#A855F7', border: 'rgba(168,85,247,0.3)'  },
   DATA:     { bg: 'rgba(20,184,166,0.1)',  text: '#14B8A6', border: 'rgba(20,184,166,0.3)'  },
@@ -46,18 +45,13 @@ const TYPE_COLORS: Record<string, { bg: string; text: string; border: string }> 
   TEXT:     { bg: 'rgba(132,204,22,0.1)',  text: '#84CC16', border: 'rgba(132,204,22,0.3)'  },
   POST:     { bg: 'rgba(251,191,36,0.1)',  text: '#FBBF24', border: 'rgba(251,191,36,0.3)'  },
   ONCHAIN:  { bg: 'rgba(99,102,241,0.1)',  text: '#6366F1', border: 'rgba(99,102,241,0.3)'  },
-  // LIFECYCLE (9)
   EVENT:    { bg: 'rgba(234,179,8,0.1)',   text: '#EAB308', border: 'rgba(234,179,8,0.3)'   },
-  // TRANSACTION (10)
   RECEIPT:  { bg: 'rgba(34,197,94,0.1)',   text: '#22C55E', border: 'rgba(34,197,94,0.3)'   },
-  // GATED (11-13)
   LEGAL:    { bg: 'rgba(156,163,175,0.1)', text: '#9CA3AF', border: 'rgba(156,163,175,0.3)' },
   ENTITY:   { bg: 'rgba(251,146,60,0.1)',  text: '#FB923C', border: 'rgba(251,146,60,0.3)'  },
   PROOF:    { bg: 'rgba(52,211,153,0.1)',  text: '#34D399', border: 'rgba(52,211,153,0.3)'  },
-  // CONTENT additions
   REPORT:   { bg: 'rgba(99,102,241,0.1)',  text: '#6366F1', border: 'rgba(99,102,241,0.3)'  },
   NOTE:     { bg: 'rgba(156,163,175,0.1)', text: '#9CA3AF', border: 'rgba(156,163,175,0.3)' },
-  // CATCH-ALL (20)
   OTHER:    { bg: 'rgba(123,147,196,0.1)', text: '#7B93C4', border: 'rgba(123,147,196,0.3)' },
 }
 
@@ -255,7 +249,7 @@ export default async function VerifyId({ params }: Props) {
               <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-slate">
                 Provenance Tree Lineage
               </div>
-              <ArtifactTree anchor={a} typeColors={TYPE_COLORS} />
+              <ArtifactTree anchor={a} />
 
               {/* Machine URL */}
               <div className="mt-4 rounded-lg border border-[#2E4270] bg-surface p-4">

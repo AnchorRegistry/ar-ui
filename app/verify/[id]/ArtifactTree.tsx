@@ -1,5 +1,3 @@
-'use client'
-
 import Link from 'next/link'
 import { type AnchorRecord } from '@/lib/api'
 
@@ -7,9 +5,34 @@ interface TypeColor {
   bg: string; text: string; border: string
 }
 
+const TYPE_COLORS: Record<string, TypeColor> = {
+  // CONTENT (0-8)
+  CODE:     { bg: 'rgba(59,130,246,0.1)',  text: '#3B82F6', border: 'rgba(59,130,246,0.3)'  },
+  RESEARCH: { bg: 'rgba(168,85,247,0.1)',  text: '#A855F7', border: 'rgba(168,85,247,0.3)'  },
+  DATA:     { bg: 'rgba(20,184,166,0.1)',  text: '#14B8A6', border: 'rgba(20,184,166,0.3)'  },
+  MODEL:    { bg: 'rgba(245,158,11,0.1)',  text: '#F59E0B', border: 'rgba(245,158,11,0.3)'  },
+  AGENT:    { bg: 'rgba(239,68,68,0.1)',   text: '#EF4444', border: 'rgba(239,68,68,0.3)'   },
+  MEDIA:    { bg: 'rgba(236,72,153,0.1)',  text: '#EC4899', border: 'rgba(236,72,153,0.3)'  },
+  TEXT:     { bg: 'rgba(132,204,22,0.1)',  text: '#84CC16', border: 'rgba(132,204,22,0.3)'  },
+  POST:     { bg: 'rgba(251,191,36,0.1)',  text: '#FBBF24', border: 'rgba(251,191,36,0.3)'  },
+  ONCHAIN:  { bg: 'rgba(99,102,241,0.1)',  text: '#6366F1', border: 'rgba(99,102,241,0.3)'  },
+  // LIFECYCLE (9)
+  EVENT:    { bg: 'rgba(234,179,8,0.1)',   text: '#EAB308', border: 'rgba(234,179,8,0.3)'   },
+  // TRANSACTION (10)
+  RECEIPT:  { bg: 'rgba(34,197,94,0.1)',   text: '#22C55E', border: 'rgba(34,197,94,0.3)'   },
+  // GATED (11-13)
+  LEGAL:    { bg: 'rgba(156,163,175,0.1)', text: '#9CA3AF', border: 'rgba(156,163,175,0.3)' },
+  ENTITY:   { bg: 'rgba(251,146,60,0.1)',  text: '#FB923C', border: 'rgba(251,146,60,0.3)'  },
+  PROOF:    { bg: 'rgba(52,211,153,0.1)',  text: '#34D399', border: 'rgba(52,211,153,0.3)'  },
+  // CONTENT additions
+  REPORT:   { bg: 'rgba(99,102,241,0.1)',  text: '#6366F1', border: 'rgba(99,102,241,0.3)'  },
+  NOTE:     { bg: 'rgba(156,163,175,0.1)', text: '#9CA3AF', border: 'rgba(156,163,175,0.3)' },
+  // CATCH-ALL (20)
+  OTHER:    { bg: 'rgba(123,147,196,0.1)', text: '#7B93C4', border: 'rgba(123,147,196,0.3)' },
+}
+
 interface Props {
-  anchor:      AnchorRecord
-  typeColors:  Record<string, TypeColor>
+  anchor: AnchorRecord
 }
 
 function TreeNode({
@@ -18,16 +41,14 @@ function TreeNode({
   artifactType,
   layer,
   isCurrent,
-  typeColors,
 }: {
   arId:         string
   parentLabel:  string
   artifactType: string
   layer:        number
   isCurrent:    boolean
-  typeColors:   Record<string, TypeColor>
 }) {
-  const c = typeColors[artifactType] ?? typeColors.OTHER
+  const c = TYPE_COLORS[artifactType] ?? TYPE_COLORS.OTHER
 
   const inner = (
     <div
@@ -76,7 +97,7 @@ function Connector() {
   )
 }
 
-export default function ArtifactTree({ anchor, typeColors }: Props) {
+export default function ArtifactTree({ anchor }: Props) {
   const hasParent   = !!anchor.parent_hash
   const hasChildren = anchor.children && anchor.children.length > 0
   const currentDepth = anchor.depth ?? 0
@@ -91,7 +112,6 @@ export default function ArtifactTree({ anchor, typeColors }: Props) {
           artifactType={anchor.artifact_type}
           layer={currentDepth}
           isCurrent={true}
-          typeColors={typeColors}
         />
         <p className="mt-4 font-mono text-[10px] text-muted-slate">
           Root artifact — no parent or derivatives registered yet.
@@ -112,7 +132,6 @@ export default function ArtifactTree({ anchor, typeColors }: Props) {
             artifactType={anchor.parent_type ?? 'OTHER'}
             layer={parentDepth}
             isCurrent={false}
-            typeColors={typeColors}
           />
           <Connector />
         </>
@@ -125,7 +144,6 @@ export default function ArtifactTree({ anchor, typeColors }: Props) {
         artifactType={anchor.artifact_type}
         layer={currentDepth}
         isCurrent={true}
-        typeColors={typeColors}
       />
 
       {/* Children */}
@@ -145,7 +163,6 @@ export default function ArtifactTree({ anchor, typeColors }: Props) {
                   artifactType={childType}
                   layer={childDepth}
                   isCurrent={false}
-                  typeColors={typeColors}
                 />
               )
             })}
