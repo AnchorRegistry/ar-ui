@@ -79,14 +79,8 @@ function Connector() {
 export default function ArtifactTree({ anchor, typeColors }: Props) {
   const hasParent   = !!anchor.parent_hash
   const hasChildren = anchor.children && anchor.children.length > 0
-
-  // Determine layer depths relative to what we know:
-  // If this node has a parent, parent is layer N and current is N+1.
-  // Without full tree depth info, we show parent as Layer 0 (root-most
-  // visible) and count down from there. When there's no parent, current
-  // node is the root (Layer 0).
-  const currentLayer = hasParent ? 1 : 0
-  const childLayer   = currentLayer + 1
+  const currentDepth = anchor.depth ?? 0
+  const parentDepth  = currentDepth > 0 ? currentDepth - 1 : 0
 
   if (!hasParent && !hasChildren) {
     return (
@@ -95,7 +89,7 @@ export default function ArtifactTree({ anchor, typeColors }: Props) {
           arId={anchor.ar_id}
           parentLabel="Base Node"
           artifactType={anchor.artifact_type}
-          layer={0}
+          layer={currentDepth}
           isCurrent={true}
           typeColors={typeColors}
         />
@@ -114,9 +108,9 @@ export default function ArtifactTree({ anchor, typeColors }: Props) {
         <>
           <TreeNode
             arId={anchor.parent_hash!}
-            parentLabel="Base Node"
+            parentLabel={parentDepth === 0 ? 'Base Node' : `Layer ${parentDepth}`}
             artifactType={anchor.parent_type ?? 'OTHER'}
-            layer={0}
+            layer={parentDepth}
             isCurrent={false}
             typeColors={typeColors}
           />
@@ -129,7 +123,7 @@ export default function ArtifactTree({ anchor, typeColors }: Props) {
         arId={anchor.ar_id}
         parentLabel={hasParent ? `Parent: ${anchor.parent_hash}` : 'Base Node'}
         artifactType={anchor.artifact_type}
-        layer={currentLayer}
+        layer={currentDepth}
         isCurrent={true}
         typeColors={typeColors}
       />
@@ -140,15 +134,16 @@ export default function ArtifactTree({ anchor, typeColors }: Props) {
           <Connector />
           <div className="space-y-2">
             {anchor.children!.map((child) => {
-              const childId   = typeof child === 'string' ? child : child.ar_id
-              const childType = typeof child === 'string' ? 'OTHER' : child.artifact_type
+              const childId    = typeof child === 'string' ? child : child.ar_id
+              const childType  = typeof child === 'string' ? 'OTHER' : child.artifact_type
+              const childDepth = typeof child === 'string' ? currentDepth + 1 : (child.depth ?? currentDepth + 1)
               return (
                 <TreeNode
                   key={childId}
                   arId={childId}
                   parentLabel={`Parent: ${anchor.ar_id}`}
                   artifactType={childType}
-                  layer={childLayer}
+                  layer={childDepth}
                   isCurrent={false}
                   typeColors={typeColors}
                 />
