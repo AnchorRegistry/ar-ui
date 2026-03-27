@@ -957,12 +957,6 @@ function RegisterPageInner() {
       const hash = Array.from(new Uint8Array(h))
         .map(b => b.toString(16).padStart(2, '0')).join('')
 
-      // DEBUG — remove before production
-      console.log('[confirmTree] canonical fields:', fields)
-      console.log('[confirmTree] computed hash:', hash)
-      console.log('[confirmTree] stored hash:', data.manifest_hash)
-      console.log('[confirmTree] type_fields from API:', data.type_fields)
-
       if (hash !== data.manifest_hash) {
         setTree(t => ({ ...t, confirming: false, error: 'Anchor key does not match this AR-ID. Check both and try again.' }))
         return
