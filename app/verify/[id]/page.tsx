@@ -251,7 +251,7 @@ export default async function VerifyId({ params }: Props) {
             {/* ── Right: lineage tree ─────────────────────────────── */}
             <div className="sticky top-20">
               <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-slate">
-                IP Lineage
+                Tree Lineage
               </div>
               <ArtifactTree anchor={a} typeColors={TYPE_COLORS} />
 

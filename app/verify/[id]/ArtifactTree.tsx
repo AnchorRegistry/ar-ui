@@ -49,7 +49,7 @@ function TreeNode({
         className="font-mono text-[10px] mt-0.5"
         style={{ color: c.text, opacity: 0.8 }}
       >
-        {artifactType} &middot; Layer {layer}
+        {artifactType} &middot; Tree Layer {layer}
       </div>
     </div>
   )
