@@ -938,8 +938,9 @@ function RegisterPageInner() {
     if (!tree.parentArId.trim() || !tree.anchorKey.trim()) return
     setTree(t => ({ ...t, confirming: true, error: '' }))
     try {
-      // Fetch parent manifest from API
-      const res  = await fetch(`/api/verify/${tree.parentArId.trim()}`)
+      // Fetch parent manifest fresh from DB (bypass Redis) — must reflect
+      // latest stored type_fields for correct hash reconstruction.
+      const res  = await fetch(`/api/verify/${tree.parentArId.trim()}?fresh=1`)
       if (!res.ok) throw new Error('AR-ID not found')
       const resp = await res.json()
       const data = resp.anchor ?? resp

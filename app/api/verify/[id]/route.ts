@@ -6,14 +6,15 @@ import { getApiUrl } from '@/lib/getApiUrl'
 // This is what anchorregistry.ai/AR-2026-K7X9M2P resolves to for AI agents.
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
   const apiUrl = await getApiUrl()
+  const fresh  = req.nextUrl.searchParams.get('fresh') === '1' ? '?fresh=1' : ''
 
   try {
-    const res = await fetch(`${apiUrl}/verify/${id}`, {
+    const res = await fetch(`${apiUrl}/verify/${id}${fresh}`, {
       cache: 'no-store',
     })
 
