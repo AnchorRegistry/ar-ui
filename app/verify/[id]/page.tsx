@@ -130,6 +130,8 @@ export default async function VerifyId({ params }: Props) {
   const [network, explorerUrl] = await Promise.all([
     getNetworkName(), getExplorerTxUrl(a.tx_hash),
   ])
+  // Explicit /machine/{id} URL — always JSON, no content negotiation
+  const machineUrl = a.machine_url.replace(`/${a.ar_id}`, `/machine/${a.ar_id}`)
 
   return (
     <>
@@ -238,7 +240,7 @@ export default async function VerifyId({ params }: Props) {
                   Embed this anchor
                 </div>
                 <div className="mb-3 rounded border border-[#2E4270] bg-bg px-3 py-2.5 font-mono text-[12px] text-electric-blue">
-                  {a.artifact_type === 'CODE' ? 'SPDX-Anchor' : 'DAPX-Anchor'}: {a.machine_url}
+                  {a.artifact_type === 'CODE' ? 'SPDX-Anchor' : 'DAPX-Anchor'}: {machineUrl}
                 </div>
                 <p className="font-mono text-[11px] text-muted-slate">
                   Add this tag to your README, paper footer, or model card.
@@ -261,12 +263,12 @@ export default async function VerifyId({ params }: Props) {
                   Machine-readable endpoint
                 </div>
                 <a
-                  href={a.machine_url}
+                  href={machineUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="break-all font-mono text-[11px] text-electric-blue transition-opacity hover:opacity-80"
                 >
-                  {a.machine_url}
+                  {machineUrl}
                 </a>
               </div>
             </div>
