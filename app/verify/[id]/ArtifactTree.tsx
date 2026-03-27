@@ -104,7 +104,7 @@ export default function ArtifactTree({ anchor, typeColors }: Props) {
           <TreeNode
             arId={anchor.parent_hash!}
             descriptor={anchor.parent_hash!}
-            artifactType="OTHER"
+            artifactType={anchor.parent_type ?? 'OTHER'}
             isCurrent={false}
             typeColors={typeColors}
           />
@@ -126,12 +126,12 @@ export default function ArtifactTree({ anchor, typeColors }: Props) {
         <>
           <Connector />
           <div className="space-y-2">
-            {anchor.children!.map((childId) => (
+            {anchor.children!.map((child) => (
               <TreeNode
-                key={childId}
-                arId={childId}
-                descriptor={childId}
-                artifactType="OTHER"
+                key={typeof child === 'string' ? child : child.ar_id}
+                arId={typeof child === 'string' ? child : child.ar_id}
+                descriptor={typeof child === 'string' ? child : child.ar_id}
+                artifactType={typeof child === 'string' ? 'OTHER' : child.artifact_type}
                 isCurrent={false}
                 typeColors={typeColors}
               />
