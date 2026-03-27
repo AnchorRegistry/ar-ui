@@ -32,10 +32,10 @@ const STEPS = [
 ]
 
 const STATS = [
-  { value: 'From $5', label: 'Per Anchor'       },
+  { value: 'From $5', label: 'Per Account'      },
   { value: 'Forever', label: 'Record Lifetime'  },
   { value: 'Base L2', label: 'Ethereum Mainnet' },
-  { value: '21',      label: 'Artifact Types'   },
+  { value: '22',      label: 'Artifact Types'   },
 ]
 
 const ROOT  = '#F59E0B'
