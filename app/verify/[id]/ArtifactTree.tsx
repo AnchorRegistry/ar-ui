@@ -14,14 +14,16 @@ interface Props {
 
 function TreeNode({
   arId,
-  descriptor,
+  parentLabel,
   artifactType,
+  layer,
   isCurrent,
   typeColors,
 }: {
   arId:         string
-  descriptor:   string
+  parentLabel:  string
   artifactType: string
+  layer:        number
   isCurrent:    boolean
   typeColors:   Record<string, TypeColor>
 }) {
@@ -36,18 +38,18 @@ function TreeNode({
         opacity:     1,
       }}
     >
-      <div className="font-mono text-[10px] text-muted-slate mb-0.5">{arId}</div>
+      <div className="font-mono text-[10px] text-muted-slate mb-0.5">{parentLabel}</div>
       <div
         className="text-[12px] font-medium truncate"
         style={{ color: isCurrent ? c.text : '#F0F4FF' }}
       >
-        {descriptor || arId}
+        {arId}
       </div>
       <div
         className="font-mono text-[10px] mt-0.5"
         style={{ color: c.text, opacity: 0.8 }}
       >
-        {artifactType}
+        {artifactType} &middot; Layer {layer}
       </div>
     </div>
   )
@@ -78,13 +80,22 @@ export default function ArtifactTree({ anchor, typeColors }: Props) {
   const hasParent   = !!anchor.parent_hash
   const hasChildren = anchor.children && anchor.children.length > 0
 
+  // Determine layer depths relative to what we know:
+  // If this node has a parent, parent is layer N and current is N+1.
+  // Without full tree depth info, we show parent as Layer 0 (root-most
+  // visible) and count down from there. When there's no parent, current
+  // node is the root (Layer 0).
+  const currentLayer = hasParent ? 1 : 0
+  const childLayer   = currentLayer + 1
+
   if (!hasParent && !hasChildren) {
     return (
       <div className="rounded-lg border border-[#2E4270] bg-surface p-5">
         <TreeNode
           arId={anchor.ar_id}
-          descriptor={anchor.descriptor}
+          parentLabel="Base Node"
           artifactType={anchor.artifact_type}
+          layer={0}
           isCurrent={true}
           typeColors={typeColors}
         />
@@ -103,8 +114,9 @@ export default function ArtifactTree({ anchor, typeColors }: Props) {
         <>
           <TreeNode
             arId={anchor.parent_hash!}
-            descriptor={anchor.parent_hash!}
+            parentLabel="Base Node"
             artifactType={anchor.parent_type ?? 'OTHER'}
+            layer={0}
             isCurrent={false}
             typeColors={typeColors}
           />
@@ -115,8 +127,9 @@ export default function ArtifactTree({ anchor, typeColors }: Props) {
       {/* Current */}
       <TreeNode
         arId={anchor.ar_id}
-        descriptor={anchor.descriptor}
+        parentLabel={hasParent ? `Parent: ${anchor.parent_hash}` : 'Base Node'}
         artifactType={anchor.artifact_type}
+        layer={currentLayer}
         isCurrent={true}
         typeColors={typeColors}
       />
@@ -126,16 +139,21 @@ export default function ArtifactTree({ anchor, typeColors }: Props) {
         <>
           <Connector />
           <div className="space-y-2">
-            {anchor.children!.map((child) => (
-              <TreeNode
-                key={typeof child === 'string' ? child : child.ar_id}
-                arId={typeof child === 'string' ? child : child.ar_id}
-                descriptor={typeof child === 'string' ? child : child.ar_id}
-                artifactType={typeof child === 'string' ? 'OTHER' : child.artifact_type}
-                isCurrent={false}
-                typeColors={typeColors}
-              />
-            ))}
+            {anchor.children!.map((child) => {
+              const childId   = typeof child === 'string' ? child : child.ar_id
+              const childType = typeof child === 'string' ? 'OTHER' : child.artifact_type
+              return (
+                <TreeNode
+                  key={childId}
+                  arId={childId}
+                  parentLabel={`Parent: ${anchor.ar_id}`}
+                  artifactType={childType}
+                  layer={childLayer}
+                  isCurrent={false}
+                  typeColors={typeColors}
+                />
+              )
+            })}
           </div>
           {anchor.children!.length > 0 && (
             <p className="mt-3 font-mono text-[10px] text-muted-slate">
