@@ -14,7 +14,7 @@ export async function GET(
 
   try {
     const res = await fetch(`${apiUrl}/verify/${id}`, {
-      next: { revalidate: 60 },
+      cache: 'no-store',
     })
 
     if (!res.ok) {
@@ -24,7 +24,7 @@ export async function GET(
     const data = await res.json()
     return NextResponse.json(data, {
       headers: {
-        'Cache-Control': 'public, max-age=60, stale-while-revalidate=300',
+        'Cache-Control': 'no-store',
       },
     })
   } catch {
