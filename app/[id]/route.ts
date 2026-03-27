@@ -17,6 +17,12 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
+
+  // Only handle AR-ID patterns — let Next.js serve everything else (favicon.ico, etc.)
+  if (!id.startsWith('AR-')) {
+    return new NextResponse(null, { status: 404 })
+  }
+
   const accept = req.headers.get('accept') ?? ''
 
   if (accept.includes('application/json')) {
