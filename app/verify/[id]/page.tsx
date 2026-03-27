@@ -204,6 +204,20 @@ export default async function VerifyId({ params }: Props) {
                 </div>
               </div>
 
+              {/* Embed tag */}
+              <div className="rounded-lg border border-[#2E4270] bg-surface p-5">
+                <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.08em] text-muted-slate">
+                  Embed this anchor
+                </div>
+                <div className="mb-3 rounded border border-[#2E4270] bg-bg px-3 py-2.5 font-mono text-[12px] text-electric-blue">
+                  {a.artifact_type === 'CODE' ? 'SPDX-Anchor' : 'DAPX-Anchor'}: {a.machine_url}
+                </div>
+                <p className="font-mono text-[11px] text-muted-slate">
+                  Add this tag to your README, paper footer, or model card.
+                  Any human or AI that encounters it can resolve this record.
+                </p>
+              </div>
+
               {/* Hash card */}
               <div className="rounded-lg border border-[#2E4270] bg-surface p-6">
                 <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-slate">
@@ -232,20 +246,6 @@ export default async function VerifyId({ params }: Props) {
                     </a>
                   </div>
                 </div>
-              </div>
-
-              {/* Embed tag */}
-              <div className="rounded-lg border border-[#2E4270] bg-surface p-5">
-                <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.08em] text-muted-slate">
-                  Embed this anchor
-                </div>
-                <div className="mb-3 rounded border border-[#2E4270] bg-bg px-3 py-2.5 font-mono text-[12px] text-electric-blue">
-                  {a.artifact_type === 'CODE' ? 'SPDX-Anchor' : 'DAPX-Anchor'}: {a.machine_url}
-                </div>
-                <p className="font-mono text-[11px] text-muted-slate">
-                  Add this tag to your README, paper footer, or model card.
-                  Any human or AI that encounters it can resolve this record.
-                </p>
               </div>
 
             </div>
