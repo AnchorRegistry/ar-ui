@@ -1223,13 +1223,18 @@ function RegisterPageInner() {
                   </div>
                 )}
 
+                <div className="mb-3 flex items-center gap-2 rounded border border-[#F59E0B]/40 bg-[#F59E0B]/10 px-3 py-2">
+                  <span className="text-[13px]">⚠️</span>
+                  <span className="font-mono text-[11px] text-[#F59E0B]">Testnet mode — no real payments processed</span>
+                </div>
+
                 <button onClick={handleSubmit} disabled={!isReady || submitting}
                   className={`w-full rounded py-3 text-[14px] font-semibold transition-all ${
                     isReady && !submitting
                       ? 'cursor-pointer bg-gold text-deep-navy hover:bg-[#FBBF24] active:scale-[0.98]'
                       : 'cursor-not-allowed bg-gold/30 text-deep-navy/50'
                   }`}>
-                  {submitting ? 'Redirecting to Stripe…' : `Pay ${selectedTierDef.price} — Register →`}
+                  {submitting ? 'Redirecting to Stripe…' : `Pay ${selectedTierDef.price} — Register (Testnet) →`}
                 </button>
                 <p className="mt-3 text-center font-mono text-[10px] text-muted-slate">
                   Powered by Stripe · Your file never leaves your browser · Manifest is public on-chain
