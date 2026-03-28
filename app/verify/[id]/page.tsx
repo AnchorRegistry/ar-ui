@@ -127,8 +127,32 @@ export default async function VerifyId({ params }: Props) {
   // Explicit /machine/{id} URL — always JSON, no content negotiation
   const machineUrl = a.machine_url.replace(`/${a.ar_id}`, `/machine/${a.ar_id}`)
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CreativeWork',
+    identifier: a.ar_id,
+    name: a.descriptor || a.ar_id,
+    url: a.verify_url,
+    creator: { '@type': 'Person', identifier: a.registrant },
+    dateCreated: a.block_timestamp,
+    ...(a.license && { license: a.license }),
+    ...(a.url && { sameAs: a.url }),
+    additionalProperty: [
+      { '@type': 'PropertyValue', name: 'manifestHash',   value: a.manifest_hash },
+      { '@type': 'PropertyValue', name: 'txHash',         value: a.tx_hash },
+      { '@type': 'PropertyValue', name: 'blockNumber',    value: a.block_number },
+      { '@type': 'PropertyValue', name: 'artifactType',   value: a.artifact_type },
+      { '@type': 'PropertyValue', name: 'network',        value: network },
+      { '@type': 'PropertyValue', name: 'machineUrl',     value: machineUrl },
+    ],
+  }
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Nav />
       <main className="px-8 py-12">
         <div className="mx-auto max-w-[960px]">
