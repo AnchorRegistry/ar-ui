@@ -288,7 +288,7 @@ function ConfirmPageInner() {
                   ? 'cursor-pointer bg-[#F59E0B] text-[#0D1B2E] hover:bg-[#FBBF24] active:scale-[0.98]'
                   : 'cursor-not-allowed bg-[#F59E0B]/30 text-[#0D1B2E]/50'
               }`}>
-              {submitting ? 'Redirecting to Stripe…' : `Pay ${tierPrice} — Register →`}
+              {submitting ? 'Redirecting to Stripe…' : `Pay ${tierPrice} — Register (Testnet) →`}
             </button>
 
             {/* Section F — Footer trust line */}
