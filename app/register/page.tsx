@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import Nav from '@/components/Nav'
 import { getNetworkNameClient } from '@/lib/network.client'
 import Footer from '@/components/Footer'
@@ -922,10 +922,9 @@ function StructureDiagram({ tier }: { tier: TierValue }) {
 
 function RegisterPageInner() {
   const searchParams = useSearchParams()
+  const router       = useRouter()
   const [tier, setTier]             = useState<TierValue>('proof')
   const [activeTab, setActiveTab]   = useState(0)
-  const [submitting, setSubmitting] = useState(false)
-  const [error, setError]           = useState('')
   const [anchorKeyEmail, setAnchorKeyEmail]       = useState('')
   const [custodyConfirmed, setCustodyConfirmed] = useState(false)
   const [keySent, setKeySent]                   = useState(false)
@@ -1037,26 +1036,20 @@ function RegisterPageInner() {
     ),
   })
 
-  const handleSubmit = async () => {
+  const handleConfirm = () => {
     if (!isReady) return
-    setSubmitting(true); setError('')
-    try {
-      const isMulti = tier !== 'proof'
-      const body = isMulti
-        ? { manifests: activeManifests.map(buildPayload), tier }
-        : { ...buildPayload(manifests[0]), tier }
-
-      const res  = await fetch('/api/checkout', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body:   JSON.stringify(body),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.detail ?? 'Checkout failed')
-      window.location.href = data.url
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
-      setSubmitting(false)
-    }
+    const activeManifestsSlice = manifests.slice(0, tierAnchorCount(tier))
+    const isMulti = tier !== 'proof'
+    const payloads = isMulti
+      ? activeManifestsSlice.map(buildPayload)
+      : [buildPayload(manifests[0])]
+    sessionStorage.setItem('ar_confirm', JSON.stringify({
+      tier,
+      manifests: activeManifestsSlice,
+      anchorKeyEmail,
+      payloads,
+    }))
+    router.push('/register/confirm')
   }
 
   const isMulti = tier !== 'proof'
@@ -1217,24 +1210,19 @@ function RegisterPageInner() {
                   </div>
                 )}
 
-                {error && (
-                  <div className="mb-3 rounded border border-red-500/30 bg-red-500/10 px-3 py-2 font-mono text-[11px] text-red-400">
-                    {error}
-                  </div>
-                )}
 
                 <div className="mb-3 flex items-center gap-2 rounded border border-[#F59E0B]/40 bg-[#F59E0B]/10 px-3 py-2">
                   <span className="text-[13px]">⚠️</span>
                   <span className="font-mono text-[11px] text-[#F59E0B]">Testnet mode — no real payments processed</span>
                 </div>
 
-                <button onClick={handleSubmit} disabled={!isReady || submitting}
+                <button onClick={handleConfirm} disabled={!isReady}
                   className={`w-full rounded py-3 text-[14px] font-semibold transition-all ${
-                    isReady && !submitting
+                    isReady
                       ? 'cursor-pointer bg-gold text-deep-navy hover:bg-[#FBBF24] active:scale-[0.98]'
                       : 'cursor-not-allowed bg-gold/30 text-deep-navy/50'
                   }`}>
-                  {submitting ? 'Redirecting to Stripe…' : `Pay ${selectedTierDef.price} — Register (Testnet) →`}
+                  Continue to Review →
                 </button>
                 <p className="mt-3 text-center font-mono text-[10px] text-muted-slate">
                   Powered by Stripe · Your file never leaves your browser · Manifest is public on-chain
