@@ -63,7 +63,7 @@ function TreeNode({
     >
       <div className="font-mono text-[10px] text-muted-slate mb-0.5">{parentLabel}</div>
       {title && (
-        <div className="text-[10px] text-[#F0F4FF] opacity-70 mb-0.5 truncate">{title}</div>
+        <div className="text-[10px] text-[#F0F4FF] opacity-70 mb-0.5 truncate">Title: {title}</div>
       )}
       <div
         className="text-[12px] font-medium truncate"
