@@ -158,9 +158,10 @@ function ConfirmPageInner() {
   if (!data) return null
 
   const { tier, manifests } = data
-  const tokenId   = manifests[0].tokenId
-  const tierLabel = TIER_LABEL[tier] ?? tier
-  const tierPrice = TIER_PRICE[tier] ?? ''
+  const tokenId      = manifests[0].tokenId
+  const isDerivative = !!manifests[0].form.parentHash
+  const tierLabel    = TIER_LABEL[tier] ?? tier
+  const tierPrice    = TIER_PRICE[tier] ?? ''
 
   return (
     <>
@@ -225,26 +226,36 @@ function ConfirmPageInner() {
           })}
 
           {/* Section C — Ownership Token */}
-          <div className="mb-6 rounded-lg border border-[#F59E0B]/50 bg-[#F59E0B]/5 p-4">
-            <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.08em] text-[#F59E0B]">
-              Your Ownership Token
+          <div className={`mb-6 rounded-lg border p-4 ${isDerivative ? 'border-[#2E4270] bg-[#1C2B4A] opacity-50' : 'border-[#F59E0B]/50 bg-[#F59E0B]/5'}`}>
+            <p className={`mb-3 font-mono text-[11px] uppercase tracking-[0.08em] ${isDerivative ? 'text-muted-slate' : 'text-[#F59E0B]'}`}>
+              {isDerivative ? 'Existing Ownership Token' : 'Your Ownership Token'}
             </p>
             <div className="mb-3 flex items-center gap-2">
-              <code className="min-w-0 flex-1 break-all rounded border border-[#2E4270] bg-[#152038] px-3 py-2 font-mono text-[12px] text-off-white">
+              <code className="min-w-0 flex-1 break-all rounded border border-[#2E4270] bg-[#152038] px-3 py-2 font-mono text-[12px] text-muted-slate">
                 {tokenId}
               </code>
-              <button onClick={handleCopy}
-                className="shrink-0 rounded border border-[#2E4270] bg-[#1C2B4A] px-3 py-2 font-mono text-[11px] text-muted-slate transition-colors hover:text-off-white">
-                {copied ? 'Copied!' : 'Copy'}
-              </button>
+              {!isDerivative && (
+                <button onClick={handleCopy}
+                  className="shrink-0 rounded border border-[#2E4270] bg-[#1C2B4A] px-3 py-2 font-mono text-[11px] text-muted-slate transition-colors hover:text-off-white">
+                  {copied ? 'Copied!' : 'Copy'}
+                </button>
+              )}
             </div>
-            <p className="text-[11px] text-[#F59E0B]/90">
-              ⚠ AnchorRegistry does not store or retain this token.
-              It will be displayed once more on the next page and cannot be recovered if lost.
-            </p>
-            <p className="mt-1.5 text-[10px] text-muted-slate">
-              Token generated client-side. Never transmitted to or retained by AnchorRegistry servers.
-            </p>
+            {isDerivative ? (
+              <p className="text-[11px] text-muted-slate">
+                This is your existing ownership token for the parent anchor. No new token will be issued.
+              </p>
+            ) : (
+              <>
+                <p className="text-[11px] text-[#F59E0B]/90">
+                  ⚠ AnchorRegistry does not store or retain this token.
+                  It will be displayed once more on the next page and cannot be recovered if lost.
+                </p>
+                <p className="mt-1.5 text-[10px] text-muted-slate">
+                  Token generated client-side. Never transmitted to or retained by AnchorRegistry servers.
+                </p>
+              </>
+            )}
           </div>
 
           {/* Section D — Three Mandatory Checkboxes */}
