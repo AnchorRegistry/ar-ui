@@ -1043,11 +1043,18 @@ function RegisterPageInner() {
     const payloads = isMulti
       ? activeManifestsSlice.map(buildPayload)
       : [buildPayload(manifests[0])]
+    // Build label+value pairs for type-specific fields per manifest (for display on confirm page)
+    const typeFieldsByManifest = activeManifestsSlice.map(m =>
+      (TYPE_FIELDS[m.form.artifactType] ?? [])
+        .filter(f => m.form[f.key])
+        .map(f => ({ label: f.label, value: m.form[f.key] as string, mono: !!f.mono }))
+    )
     sessionStorage.setItem('ar_confirm', JSON.stringify({
       tier,
       manifests: activeManifestsSlice,
       anchorKeyEmail,
       payloads,
+      typeFieldsByManifest,
     }))
     router.push('/register/confirm')
   }

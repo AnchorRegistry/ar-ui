@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
+import { isTestnetClient } from '@/lib/network.client'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -28,11 +29,18 @@ interface StoredManifest {
   notes:        string
 }
 
+interface TypeField {
+  label: string
+  value: string
+  mono:  boolean
+}
+
 interface ConfirmData {
-  tier:            string
-  manifests:       StoredManifest[]
-  anchorKeyEmail:  string
-  payloads:        object[]
+  tier:                  string
+  manifests:             StoredManifest[]
+  anchorKeyEmail:        string
+  payloads:              object[]
+  typeFieldsByManifest?: TypeField[][]
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -71,6 +79,13 @@ const PREVIEW_DATA: ConfirmData = {
   manifests:      [PREVIEW_MANIFEST],
   anchorKeyEmail: '',
   payloads:       [{}],
+  typeFieldsByManifest: [[
+    { label: 'License',         value: 'MIT',                  mono: false },
+    { label: 'URL',             value: 'https://github.com/example/repo', mono: true },
+    { label: 'Git Commit Hash', value: 'a1b2c3d4e5f6...',      mono: true },
+    { label: 'Language',        value: 'TypeScript',            mono: false },
+    { label: 'Version',         value: 'v1.0.0',               mono: false },
+  ]],
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -175,16 +190,19 @@ function ConfirmPageInner() {
 
           {/* Section B — Artifact Metadata */}
           {manifests.map((m, i) => {
-            const rows: [string, string][] = [
-              ['Artifact Type', m.form.artifactType],
-              ['Title',         m.form.title],
-              ['Author',        m.form.author],
-              ...(m.form.license ? [['License', m.form.license] as [string, string]] : []),
-              ['Descriptor',    m.form.descriptor],
-              ...(m.form.parentHash ? [['Parent Anchor', m.form.parentHash] as [string, string]] : []),
-              ['Manifest Hash', truncateHash(m.hash)],
-              ...(i === 0 ? [['Price', tierLabel] as [string, string]] : []),
+            const typeFields = data.typeFieldsByManifest?.[i] ?? []
+            const baseRows: { label: string; value: string; mono: boolean }[] = [
+              { label: 'Artifact Type', value: m.form.artifactType, mono: false },
+              { label: 'Title',         value: m.form.title,         mono: false },
+              { label: 'Author',        value: m.form.author,        mono: false },
+              { label: 'Descriptor',    value: m.form.descriptor,    mono: false },
+              ...(m.form.parentHash ? [{ label: 'Parent Anchor', value: m.form.parentHash, mono: true }] : []),
             ]
+            const tailRows: { label: string; value: string; mono: boolean }[] = [
+              { label: 'Manifest Hash', value: truncateHash(m.hash), mono: true },
+              ...(i === 0 ? [{ label: 'Price', value: tierLabel, mono: false }] : []),
+            ]
+            const allRows = [...baseRows, ...typeFields, ...tailRows]
             return (
               <div key={i} className="mb-4 rounded-lg border border-[#2E4270] bg-[#1C2B4A] p-4">
                 {manifests.length > 1 && (
@@ -193,12 +211,10 @@ function ConfirmPageInner() {
                   </p>
                 )}
                 <div className="space-y-2.5">
-                  {rows.map(([label, value]) => (
+                  {allRows.map(({ label, value, mono }) => (
                     <div key={label} className="flex items-baseline justify-between gap-4">
                       <span className="shrink-0 font-mono text-[11px] text-muted-slate">{label}</span>
-                      <span className={`text-right text-[12px] text-off-white ${
-                        label === 'Manifest Hash' || label === 'Parent Anchor' ? 'font-mono' : ''
-                      }`}>
+                      <span className={`text-right text-[12px] text-off-white ${mono ? 'font-mono' : ''}`}>
                         {value}
                       </span>
                     </div>
