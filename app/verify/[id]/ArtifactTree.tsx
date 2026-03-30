@@ -41,12 +41,14 @@ function TreeNode({
   artifactType,
   layer,
   isCurrent,
+  title,
 }: {
   arId:         string
   parentLabel:  string
   artifactType: string
   layer:        number
   isCurrent:    boolean
+  title?:       string
 }) {
   const c = TYPE_COLORS[artifactType] ?? TYPE_COLORS.OTHER
 
@@ -60,6 +62,9 @@ function TreeNode({
       }}
     >
       <div className="font-mono text-[10px] text-muted-slate mb-0.5">{parentLabel}</div>
+      {title && (
+        <div className="font-mono text-[10px] text-[#F0F4FF] opacity-70 mb-0.5 truncate">Title: {title}</div>
+      )}
       <div
         className="text-[12px] font-medium truncate"
         style={{ color: isCurrent ? c.text : '#F0F4FF' }}
@@ -112,6 +117,7 @@ export default function ArtifactTree({ anchor }: Props) {
           artifactType={anchor.artifact_type}
           layer={currentDepth}
           isCurrent={true}
+          title={anchor.title}
         />
         <p className="mt-4 font-mono text-[10px] text-muted-slate">
           Root artifact — no parent or derivatives registered yet.
@@ -132,6 +138,7 @@ export default function ArtifactTree({ anchor }: Props) {
             artifactType={anchor.parent_type ?? 'OTHER'}
             layer={parentDepth}
             isCurrent={false}
+            title={anchor.parent_title}
           />
           <Connector />
         </>
@@ -144,6 +151,7 @@ export default function ArtifactTree({ anchor }: Props) {
         artifactType={anchor.artifact_type}
         layer={currentDepth}
         isCurrent={true}
+        title={anchor.title}
       />
 
       {/* Children */}
@@ -163,6 +171,7 @@ export default function ArtifactTree({ anchor }: Props) {
                   artifactType={childType}
                   layer={childDepth}
                   isCurrent={false}
+                  title={typeof child === 'string' ? undefined : child.title}
                 />
               )
             })}
