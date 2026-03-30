@@ -23,13 +23,15 @@ export interface AnchorRecord {
   registrant:       string
   parent_hash:      string | null
   parent_type:      string | null
+  parent_title?:    string
   depth:            number
+  title?:           string
   tx_hash:          string
   block_number:     number
   block_timestamp:  string
   verify_url:       string
   machine_url:      string
-  children:         { ar_id: string; artifact_type: string; depth: number }[] | null
+  children:         { ar_id: string; artifact_type: string; depth: number; title?: string }[] | null
   url?:             string
   git_hash?:        string
   license?:         string
