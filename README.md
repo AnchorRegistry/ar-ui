@@ -4,11 +4,11 @@
 
 Next.js 14 frontend for AnchorRegistry. App Router, TypeScript, Tailwind CSS. Deployed to Vercel.
 
-**SPDX-Anchor: [anchorregistry.ai/AR-2026-0000001](https://anchorregistry.ai/AR-2026-0000001)**
-
 **BUSL-1.1**
 
 > Patent pending — USPTO Provisional Application #64/009,841, filed March 18, 2026.
+
+**SPDX-Anchor: [anchorregistry.ai/AR-2026-0000001](https://anchorregistry.ai/AR-2026-0000001)**
 
 ---
 
