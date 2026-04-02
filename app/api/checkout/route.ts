@@ -117,6 +117,7 @@ export async function POST(req: NextRequest) {
       participants:     m.participants     ?? '',
       tree_id:          m.tree_id          ?? '',
       token_commitment: m.token_commitment ?? '',
+      reserved_ar_id:   m.reserved_ar_id   ?? '',
     })
 
     const arApiPayload = isMulti

@@ -167,6 +167,7 @@ function ConfirmPageInner() {
       const enrichedPayloads = await Promise.all(
         (data.payloads as Record<string, unknown>[]).map(async (p, i) => ({
           ...p,
+          reserved_ar_id:   ar_ids[i],
           tree_id:          treeId,
           token_commitment: await sha256Hex(ownerToken + ar_ids[i]),
         }))
