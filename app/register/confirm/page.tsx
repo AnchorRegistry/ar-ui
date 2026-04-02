@@ -132,14 +132,50 @@ function ConfirmPageInner() {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const sha256Hex = async (str: string): Promise<string> => {
+    const buf = new TextEncoder().encode(str)
+    if (crypto?.subtle) {
+      const hash = await crypto.subtle.digest('SHA-256', buf)
+      return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('')
+    }
+    // Weak fallback for HTTP localhost only — never runs in production HTTPS
+    let h = 0x811c9dc5
+    for (const b of buf) { h ^= b; h = (Math.imul(h, 0x01000193) >>> 0) }
+    return h.toString(16).padStart(64, '0')
+  }
+
   const handlePay = async () => {
     if (!allChecked || isPreview || !data) return
     setSubmitting(true); setError('')
     try {
-      const isMulti = data.tier !== 'proof'
+      const isMulti    = data.tier !== 'proof'
+      const count      = data.tier === 'tree' ? 3 : data.tier === 'pair' ? 2 : 1
+      const ownerToken = data.manifests[0].tokenId
+
+      // Reserve AR-IDs before payment so we can compute treeId + tokenCommitment
+      const reserveRes = await fetch('/api/reserve', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ count }),
+      })
+      if (!reserveRes.ok) throw new Error('Failed to reserve AR-IDs')
+      const { ar_ids } = await reserveRes.json()
+
+      const rootArId = ar_ids[0]
+      const treeId   = await sha256Hex(ownerToken + rootArId)
+
+      const enrichedPayloads = await Promise.all(
+        (data.payloads as Record<string, unknown>[]).map(async (p, i) => ({
+          ...p,
+          tree_id:          treeId,
+          token_commitment: await sha256Hex(ownerToken + ar_ids[i]),
+        }))
+      )
+
       const body = isMulti
-        ? { manifests: data.payloads, tier: data.tier }
-        : { ...data.payloads[0], tier: data.tier }
+        ? { manifests: enrichedPayloads, tier: data.tier }
+        : { ...enrichedPayloads[0], tier: data.tier }
+
       const res  = await fetch('/api/checkout', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
