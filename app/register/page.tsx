@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { keccak_256 } from 'js-sha3'
 import Nav from '@/components/Nav'
 import { getNetworkNameClient } from '@/lib/network.client'
 import Footer from '@/components/Footer'
@@ -349,7 +350,7 @@ interface FormState {
 interface ManifestState {
   form:         FormState
   registeredAt: string  // ISO 8601 timestamp — Supabase record only, not part of hash
-  tokenId:      string  // generated UUID — user's ownership credential, baked into manifestHash
+  tokenId:      string  // K = keccak256(salt), 0x-prefixed bytes32 — user's ownership credential
   hash:         string
   notes:        string
 }
@@ -374,7 +375,7 @@ async function sha256String(str: string): Promise<string> {
 
 
 // Canonical string — sha256(artifactType|title|author|descriptor|...typeFields|tokenId)
-// tokenId is a UUID generated client-side at form init.
+// tokenId is K = keccak256(salt), generated client-side at form init.
 // Binding tokenId to manifest fields means the same token on two different artifacts
 // produces two different hashes — the token is cryptographically bound to this artifact.
 function buildCanonical(form: FormState, seed: string): string {
@@ -542,7 +543,7 @@ function ManifestForm({ state, onChange, parentHint, isAutoParent, anchorKeyEmai
                   </div>
                   <div>
                     <label className="mb-1.5 block font-mono text-[11px] uppercase tracking-[0.08em] text-muted-slate">Anchor Key</label>
-                    <input type="text" placeholder="550e8400-e29b-41d4-…"
+                    <input type="text" placeholder="0x1a2b3c4d…"
                       value={tree?.anchorKey ?? ''}
                       onChange={e => onTree?.({ ...tree!, anchorKey: e.target.value, error: '' })}
                       className="w-full rounded border border-[#2E4270] bg-bg px-3 py-2.5 font-mono text-[13px] text-off-white placeholder-muted-slate/30 outline-none transition-colors focus:border-electric-blue" />
@@ -1013,18 +1014,17 @@ function RegisterPageInner() {
 
   // Generate a single shared token for all manifests — one anchor key per registration session
   // All artifacts in a Pair/Tree share the same key so the user only needs to save one
+  // K = keccak256(salt), salt = 32 uniform random bytes.
+  // Paper spec Section 4.2: K ∈ {0,1}^256 uniform random.
+  // Stored and displayed as 0x-prefixed 64-char hex string.
   useEffect(() => {
-    const randomUUID = () => {
-      if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-        return crypto.randomUUID()
-      }
-      // Fallback for HTTP localhost (crypto.randomUUID requires secure context)
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-        const r = Math.random() * 16 | 0
-        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16)
-      })
+    const generateK = (): string => {
+      const salt = (typeof crypto !== 'undefined' && crypto.getRandomValues)
+        ? crypto.getRandomValues(new Uint8Array(32))
+        : new Uint8Array(32).map(() => Math.random() * 256 | 0)  // dev fallback only
+      return '0x' + keccak_256(salt)
     }
-    const sharedToken = randomUUID()
+    const sharedToken = generateK()
     setManifests(prev => prev.map(m =>
       m.tokenId ? m : { ...m, tokenId: sharedToken }
     ))
@@ -1049,12 +1049,10 @@ function RegisterPageInner() {
   const changeTier = (t: TierValue) => { setTier(t); setActiveTab(0); setCustodyConfirmed(false); setKeySent(false) }
 
   const handleNewKey = () => {
-    const newToken = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
-      ? crypto.randomUUID()
-      : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-          const r = Math.random() * 16 | 0
-          return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16)
-        })
+    const salt = (typeof crypto !== 'undefined' && crypto.getRandomValues)
+      ? crypto.getRandomValues(new Uint8Array(32))
+      : new Uint8Array(32).map(() => Math.random() * 256 | 0)
+    const newToken = '0x' + keccak_256(salt)
     setManifests(prev => prev.map(m => ({ ...m, tokenId: newToken, hash: '' })))
     setKeySent(false)
     setCustodyConfirmed(false)

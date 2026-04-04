@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { keccak_256 } from 'js-sha3'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
@@ -68,7 +69,7 @@ const PREVIEW_MANIFEST: StoredManifest = {
     parentHash:   '',
     license:      'MIT',
   },
-  tokenId:      'a3f8c2e1-b9d4-f7a2-c8e1-b9d4f7a2c8e1',
+  tokenId:      '0xa3f8c2e1b9d4f7a2c8e1b9d4f7a2c8e1b9d4f7a2a3f8c2e1b9d4f7a2c8e18f2a',
   hash:         'a3f8c2e1b9d4f7a2c8e1b9d4f7a2c8e1b9d4f7a2a3f8c2e1b9d4f7a2c8e18f2a',
   registeredAt: new Date().toISOString(),
   notes:        '',
@@ -132,16 +133,29 @@ function ConfirmPageInner() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const sha256Hex = async (str: string): Promise<string> => {
-    const buf = new TextEncoder().encode(str)
-    if (crypto?.subtle) {
-      const hash = await crypto.subtle.digest('SHA-256', buf)
-      return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('')
+  /** Convert 0x-prefixed hex string to Uint8Array. */
+  function hexToBytes(hex: string): Uint8Array {
+    const h = hex.startsWith('0x') ? hex.slice(2) : hex
+    const out = new Uint8Array(h.length / 2)
+    for (let i = 0; i < out.length; i++) {
+      out[i] = parseInt(h.slice(i * 2, i * 2 + 2), 16)
     }
-    // Weak fallback for HTTP localhost only — never runs in production HTTPS
-    let h = 0x811c9dc5
-    for (const b of buf) { h ^= b; h = (Math.imul(h, 0x01000193) >>> 0) }
-    return h.toString(16).padStart(64, '0')
+    return out
+  }
+
+  /**
+   * keccak256(K || arId) — paper spec Section 4.2.
+   * K: bytes32 as 0x-prefixed hex string → decoded to 32 raw bytes.
+   * arId: AR-ID string → UTF-8 bytes.
+   * Returns 0x-prefixed bytes32 hex string.
+   */
+  function keccakCommitment(K: string, arId: string): string {
+    const kBytes   = hexToBytes(K)
+    const idBytes  = new TextEncoder().encode(arId)
+    const preimage = new Uint8Array(kBytes.length + idBytes.length)
+    preimage.set(kBytes, 0)
+    preimage.set(idBytes, kBytes.length)
+    return '0x' + keccak_256(preimage)
   }
 
   const handlePay = async () => {
@@ -162,16 +176,14 @@ function ConfirmPageInner() {
       const { ar_ids } = await reserveRes.json()
 
       const rootArId = ar_ids[0]
-      const treeId   = await sha256Hex(ownerToken + rootArId)
+      const treeId   = keccakCommitment(ownerToken, rootArId)
 
-      const enrichedPayloads = await Promise.all(
-        (data.payloads as Record<string, unknown>[]).map(async (p, i) => ({
-          ...p,
-          reserved_ar_id:   ar_ids[i],
-          tree_id:          treeId,
-          token_commitment: await sha256Hex(ownerToken + ar_ids[i]),
-        }))
-      )
+      const enrichedPayloads = (data.payloads as Record<string, unknown>[]).map((p, i) => ({
+        ...p,
+        reserved_ar_id:   ar_ids[i],
+        tree_id:          treeId,
+        token_commitment: keccakCommitment(ownerToken, ar_ids[i]),
+      }))
 
       const body = isMulti
         ? { manifests: enrichedPayloads, tier: data.tier }
