@@ -112,6 +112,9 @@ export interface AnchorRecord {
   capacity?:        string
   kind?:            string
   value?:           string
+  sealed_at_block?: number
+  new_tree_root?:   string
+  seal_reason?:     string
 }
 
 export interface VerifyResponse {

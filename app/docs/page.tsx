@@ -33,11 +33,13 @@ const ARTIFACT_TYPES = [
   { id: 14, group: 'Gated',        name: 'LEGAL',      status: 'v2',     desc: 'Contracts, patents, filings, disclosures.' },
   { id: 15, group: 'Gated',        name: 'ENTITY',     status: 'v2',     desc: 'Verified persons, companies, AI systems.' },
   { id: 16, group: 'Gated',        name: 'PROOF',      status: 'v4',     desc: 'ZK proofs, formal verifications, security audits.' },
-  { id: 17, group: 'Self-service', name: 'RETRACTION', status: 'active', desc: 'Owner-initiated anchor retraction.' },
-  { id: 18, group: 'Review',       name: 'REVIEW',     status: 'active', desc: 'Soft flag — anchor under review.' },
-  { id: 19, group: 'Review',       name: 'VOID',       status: 'active', desc: 'Hard finding — subtree condemned.' },
-  { id: 20, group: 'Review',       name: 'AFFIRMED',   status: 'active', desc: 'Exoneration — review resolved.' },
-  { id: 21, group: 'Catch-all',    name: 'OTHER',      status: 'active', desc: 'Anything that does not fit above.' },
+  { id: 17, group: 'Self-service', name: 'SEAL',       status: 'active', desc: 'Tree sealed — authentic, complete, permanent.' },
+  { id: 18, group: 'Self-service', name: 'RETRACTION', status: 'active', desc: 'Owner-initiated anchor retraction.' },
+  { id: 19, group: 'Review',       name: 'REVIEW',     status: 'active', desc: 'Soft flag — anchor under review.' },
+  { id: 20, group: 'Review',       name: 'VOID',       status: 'active', desc: 'Hard finding — subtree condemned.' },
+  { id: 21, group: 'Review',       name: 'AFFIRMED',   status: 'active', desc: 'Exoneration — review resolved.' },
+  { id: 22, group: 'Billing',      name: 'ACCOUNT',    status: 'active', desc: 'Billing account with anchor capacity.' },
+  { id: 23, group: 'Catch-all',    name: 'OTHER',      status: 'active', desc: 'Anything that does not fit above.' },
 ]
 
 const VERTICALS = [
