@@ -180,10 +180,17 @@ function ConfirmPageInner() {
       const parentHash = data.manifests[0].form.parentHash
       let treeId: string
       if (parentHash) {
-        const verifyRes = await fetch(`/api/verify/${parentHash}`)
-        if (!verifyRes.ok) throw new Error('Failed to resolve parent tree')
-        const parentData = await verifyRes.json()
-        treeId = parentData.tree_id
+        // Walk up the tree to find the root AR-ID, then compute treeId from it.
+        let cursor = parentHash
+        let rootArId = parentHash
+        while (cursor) {
+          const res = await fetch(`/api/verify/${cursor}`)
+          if (!res.ok) throw new Error('Failed to resolve parent tree')
+          const anchor = await res.json()
+          rootArId = anchor.ar_id
+          cursor = anchor.parent_hash || ''
+        }
+        treeId = keccakCommitment(ownerToken, rootArId)
       } else {
         treeId = keccakCommitment(ownerToken, ar_ids[0])
       }
