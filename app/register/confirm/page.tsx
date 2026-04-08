@@ -175,8 +175,18 @@ function ConfirmPageInner() {
       if (!reserveRes.ok) throw new Error('Failed to reserve AR-IDs')
       const { ar_ids } = await reserveRes.json()
 
-      const rootArId = ar_ids[0]
-      const treeId   = keccakCommitment(ownerToken, rootArId)
+      // For child anchors, treeId must match the existing tree — fetch parent's tree_id.
+      // For root anchors (and Pair/Tree batch roots), ar_ids[0] IS the root.
+      const parentHash = data.manifests[0].form.parentHash
+      let treeId: string
+      if (parentHash) {
+        const verifyRes = await fetch(`/api/verify/${parentHash}`)
+        if (!verifyRes.ok) throw new Error('Failed to resolve parent tree')
+        const parentData = await verifyRes.json()
+        treeId = parentData.tree_id
+      } else {
+        treeId = keccakCommitment(ownerToken, ar_ids[0])
+      }
 
       const enrichedPayloads = (data.payloads as Record<string, unknown>[]).map((p, i) => ({
         ...p,
