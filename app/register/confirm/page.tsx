@@ -197,6 +197,7 @@ function ConfirmPageInner() {
       const json = await res.json()
       if (!res.ok) throw new Error(json.detail ?? 'Checkout failed')
       sessionStorage.removeItem('ar_confirm')
+      sessionStorage.setItem('ar_owner_token', ownerToken)
       window.location.href = json.url
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
