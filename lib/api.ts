@@ -115,6 +115,9 @@ export interface AnchorRecord {
   sealed_at_block?: number
   new_tree_root?:   string
   seal_reason?:     string
+  is_sealed?:       boolean
+  is_retracted?:    boolean
+  retracted_by?:    string
 }
 
 export interface VerifyResponse {

@@ -167,12 +167,26 @@ export default async function VerifyId({ params }: Props) {
               <h1 className="font-mono text-[22px] font-medium text-off-white">
                 {a.ar_id}
               </h1>
-              {data.verified_on_chain && (
-                <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-electric-blue/25 bg-electric-blue/10 px-3 py-1 font-mono text-[11px] text-electric-blue">
-                  <span className="h-1.5 w-1.5 rounded-full bg-electric-blue" />
-                  Verified on-chain
-                </div>
-              )}
+              <div className="flex shrink-0 items-center gap-2">
+                {a.is_retracted && (
+                  <div className="flex items-center gap-1.5 rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1 font-mono text-[11px] text-red-400">
+                    <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
+                    Retracted
+                  </div>
+                )}
+                {a.is_sealed && (
+                  <div className="flex items-center gap-1.5 rounded-full border border-[#F59E0B]/25 bg-[#F59E0B]/10 px-3 py-1 font-mono text-[11px] text-[#F59E0B]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#F59E0B]" />
+                    Sealed
+                  </div>
+                )}
+                {data.verified_on_chain && (
+                  <div className="flex items-center gap-1.5 rounded-full border border-electric-blue/25 bg-electric-blue/10 px-3 py-1 font-mono text-[11px] text-electric-blue">
+                    <span className="h-1.5 w-1.5 rounded-full bg-electric-blue" />
+                    Verified on-chain
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
