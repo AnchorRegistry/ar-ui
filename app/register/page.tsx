@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { keccak_256 } from 'js-sha3'
 import Nav from '@/components/Nav'
 import { getNetworkNameClient } from '@/lib/network.client'
 import Footer from '@/components/Footer'
@@ -67,10 +68,11 @@ const ARTIFACT_TYPES = [
   { value: 'ONCHAIN',   label: 'On-Chain',  desc: 'Addresses, NFTs, contracts'    },
   { value: 'REPORT',    label: 'Report',    desc: 'Consulting, compliance, ESG, audits' },
   { value: 'NOTE',      label: 'Note',      desc: 'Memos, meeting notes, correspondence' },
+  { value: 'WEBSITE',   label: 'Website',   desc: 'Canonical domain presence'     },
   { value: 'EVENT',     label: 'Event',     desc: 'Human events · machine runs · agent tasks' },
   { value: 'RECEIPT',   label: 'Receipt',   desc: 'Purchase, medical, financial'  },
   { value: 'OTHER',     label: 'Other',     desc: 'Everything else'               },
-  // LEGAL (13), ENTITY (14), PROOF (15) — suppressed at launch, no operators added
+  // LEGAL (14), ENTITY (15), PROOF (16) — suppressed at launch, no operators added
   // Reintroduced in V2-V4 with dedicated operator gates and verification infrastructure
 ]
 
@@ -199,46 +201,47 @@ const TYPE_FIELDS: Record<string, FieldDef[]> = {
     { key: 'version',  label: 'Version',         placeholder: 'e.g. v1.0.0' },
   ],
   RESEARCH: [
-    { key: 'license',     label: 'License',     placeholder: '', type: 'license' },
-    { key: 'url',         label: 'URL',         placeholder: 'https://arxiv.org/...', mono: true },
     { key: 'doi',         label: 'DOI',         placeholder: 'e.g. 10.1234/example', mono: true },
     { key: 'institution', label: 'Institution', placeholder: 'e.g. MIT, Stanford' },
     { key: 'co_authors',  label: 'Co-authors',  placeholder: 'e.g. Jane Smith, John Doe', span: 'full' },
+    { key: 'url',         label: 'URL',         placeholder: 'https://arxiv.org/...', mono: true, span: 'full' },
   ],
   DATA: [
-    { key: 'license',    label: 'License',    placeholder: '', type: 'license' },
-    { key: 'url',        label: 'URL',        placeholder: 'https://...', mono: true },
-    { key: 'format',     label: 'Format',     placeholder: 'e.g. CSV, Parquet, JSON' },
-    { key: 'row_count',  label: 'Row Count',  placeholder: 'e.g. 1,000,000' },
-    { key: 'schema_url', label: 'Schema URL', placeholder: 'https://...', mono: true, span: 'full' },
+    { key: 'data_version', label: 'Data Version', placeholder: 'e.g. v1.0.0' },
+    { key: 'format',       label: 'Format',       placeholder: 'e.g. CSV, Parquet, JSON' },
+    { key: 'row_count',    label: 'Row Count',    placeholder: 'e.g. 1,000,000' },
+    { key: 'schema_url',   label: 'Schema URL',   placeholder: 'https://...', mono: true, span: 'full' },
+    { key: 'url',          label: 'URL',          placeholder: 'https://...', mono: true, span: 'full' },
   ],
   MODEL: [
-    { key: 'license',          label: 'License',          placeholder: '', type: 'license' },
-    { key: 'url',              label: 'URL',              placeholder: 'https://huggingface.co/...', mono: true },
+    { key: 'model_version',    label: 'Model Version',    placeholder: 'e.g. v1.0' },
     { key: 'architecture',     label: 'Architecture',     placeholder: 'e.g. Transformer, CNN' },
     { key: 'parameters',       label: 'Parameters',       placeholder: 'e.g. 7B, 70B' },
     { key: 'training_dataset', label: 'Training Dataset', placeholder: 'e.g. CommonCrawl', span: 'full' },
+    { key: 'url',              label: 'URL',              placeholder: 'https://huggingface.co/...', mono: true, span: 'full' },
   ],
   AGENT: [
-    { key: 'license',      label: 'License',      placeholder: '', type: 'license' },
-    { key: 'url',          label: 'URL',          placeholder: 'https://...', mono: true },
-    { key: 'runtime',      label: 'Runtime',      placeholder: 'e.g. Python 3.11, Node 20' },
-    { key: 'version',      label: 'Version',      placeholder: 'e.g. v1.0.0' },
-    { key: 'capabilities', label: 'Capabilities', placeholder: 'e.g. web search, code execution', span: 'full' },
+    { key: 'agent_version', label: 'Agent Version', placeholder: 'e.g. v1.0.0' },
+    { key: 'runtime',       label: 'Runtime',       placeholder: 'e.g. Python 3.11, Node 20' },
+    { key: 'capabilities',  label: 'Capabilities',  placeholder: 'e.g. web search, code execution', span: 'full' },
+    { key: 'url',           label: 'URL',           placeholder: 'https://...', mono: true, span: 'full' },
   ],
   MEDIA: [
-    { key: 'license',  label: 'License',     placeholder: '', type: 'license' },
-    { key: 'url',      label: 'Media URL',   placeholder: 'https://...', mono: true },
-    { key: 'format',   label: 'Format',      placeholder: 'e.g. MP4, PNG, MP3' },
-    { key: 'duration', label: 'Duration',    placeholder: 'e.g. 3:45 or 1920x1080' },
-    { key: 'isrc',     label: 'ISRC / ISAN', placeholder: 'e.g. USRC17607839', mono: true },
+    { key: 'media_type', label: 'Media Type', placeholder: '', type: 'select',
+      options: ['IMAGE', 'VIDEO', 'AUDIO', 'PHOTOGRAPHY', 'OTHER'] },
+    { key: 'platform',   label: 'Platform',   placeholder: 'e.g. YouTube, SoundCloud, IPFS' },
+    { key: 'format',     label: 'Format',     placeholder: 'e.g. MP4, PNG, MP3' },
+    { key: 'duration',   label: 'Duration',   placeholder: 'e.g. 3:45 or 1920x1080' },
+    { key: 'isrc',       label: 'ISRC / ISAN', placeholder: 'e.g. USRC17607839', mono: true },
+    { key: 'url',        label: 'Media URL',  placeholder: 'https://...', mono: true, span: 'full' },
   ],
   TEXT: [
-    { key: 'license',   label: 'License',   placeholder: '', type: 'license' },
-    { key: 'url',       label: 'URL',       placeholder: 'https://...', mono: true },
+    { key: 'text_type', label: 'Text Type', placeholder: '', type: 'select',
+      options: ['BLOG', 'BOOK', 'ESSAY', 'ARTICLE', 'WHITEPAPER', 'OTHER'] },
     { key: 'isbn',      label: 'ISBN',      placeholder: 'e.g. 978-3-16-148410-0', mono: true },
     { key: 'publisher', label: 'Publisher', placeholder: 'e.g. O\'Reilly Media' },
     { key: 'language',  label: 'Language',  placeholder: 'e.g. English, French' },
+    { key: 'url',       label: 'URL',       placeholder: 'https://...', mono: true, span: 'full' },
   ],
   POST: [
     { key: 'platform',  label: 'Platform',  placeholder: 'e.g. Twitter, LinkedIn, Farcaster' },
@@ -273,6 +276,7 @@ const TYPE_FIELDS: Record<string, FieldDef[]> = {
     { key: 'order_id',    label: 'Order ID',    placeholder: 'e.g. ORD-2026-XK9M', mono: true },
     { key: 'platform',    label: 'Platform',    placeholder: 'e.g. shopify, stripe, square', mono: true },
     { key: 'receipt_url', label: 'Receipt URL', placeholder: 'https://...', mono: true, span: 'full' },
+    { key: 'file_manifest_hash', label: 'File Hash (SHA-256)', placeholder: 'SHA-256 of the receipt file', mono: true, span: 'full' },
   ],
   LEGAL: [
     { key: 'document_type',  label: 'Document Type', placeholder: 'e.g. NDA, Patent, Contract' },
@@ -300,11 +304,13 @@ const TYPE_FIELDS: Record<string, FieldDef[]> = {
   REPORT: [
     { key: 'report_type',  label: 'Report Type', placeholder: '', type: 'select',
       options: ['CONSULTING', 'FINANCIAL', 'COMPLIANCE', 'ESG', 'TECHNICAL', 'AUDIT', 'OTHER'] },
-    { key: 'institution',  label: 'Institution',  placeholder: 'e.g. Hive Advisory Inc.' },
+    { key: 'client',       label: 'Client',       placeholder: 'e.g. Acme Corp' },
     { key: 'engagement',   label: 'Engagement',   placeholder: 'e.g. Q1-2026-ESG', mono: true },
     { key: 'version',      label: 'Version',      placeholder: 'e.g. v1.0, draft, final' },
     { key: 'authors',      label: 'Authors',      placeholder: 'e.g. Stefan P., Ian Moore', span: 'full' },
+    { key: 'institution',  label: 'Institution',  placeholder: 'e.g. Hive Advisory Inc.', span: 'full' },
     { key: 'url',          label: 'URL',          placeholder: 'https://...', mono: true, span: 'full' },
+    { key: 'file_manifest_hash', label: 'File Hash (SHA-256)', placeholder: 'SHA-256 of the report file', mono: true, span: 'full' },
   ],
   NOTE: [
     { key: 'note_type',    label: 'Note Type', placeholder: '', type: 'select',
@@ -312,8 +318,20 @@ const TYPE_FIELDS: Record<string, FieldDef[]> = {
     { key: 'date',         label: 'Date',         placeholder: 'e.g. 2026-03-20', mono: true },
     { key: 'participants', label: 'Participants',  placeholder: 'e.g. Stefan P., Ian Moore', span: 'full' },
     { key: 'url',          label: 'URL',          placeholder: 'https://...', mono: true, span: 'full' },
+    { key: 'file_manifest_hash', label: 'File Hash (SHA-256)', placeholder: 'SHA-256 of the note file', mono: true, span: 'full' },
   ],
-  OTHER: [],
+  WEBSITE: [
+    { key: 'url',         label: 'Canonical URL', placeholder: 'https://example.com', mono: true },
+    { key: 'platform',    label: 'Platform',      placeholder: 'e.g. Next.js, WordPress, Vercel' },
+    { key: 'description', label: 'Description',   placeholder: 'Brief description of the site', span: 'full' },
+  ],
+  OTHER: [
+    { key: 'kind',     label: 'Kind',     placeholder: 'e.g. course, dataset, presentation' },
+    { key: 'platform', label: 'Platform', placeholder: 'e.g. Thinkific, Gumroad' },
+    { key: 'url',      label: 'URL',      placeholder: 'https://...', mono: true },
+    { key: 'value',    label: 'Value',    placeholder: 'Any additional value or identifier' },
+    { key: 'file_manifest_hash', label: 'File Hash (SHA-256)', placeholder: 'SHA-256 of an associated file', mono: true, span: 'full' },
+  ],
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -332,7 +350,7 @@ interface FormState {
 interface ManifestState {
   form:         FormState
   registeredAt: string  // ISO 8601 timestamp — Supabase record only, not part of hash
-  tokenId:      string  // generated UUID — user's ownership credential, baked into manifestHash
+  tokenId:      string  // K = keccak256(salt), 0x-prefixed bytes32 — user's ownership credential
   hash:         string
   notes:        string
 }
@@ -342,14 +360,22 @@ interface ManifestState {
 // ─────────────────────────────────────────────────────────────────────────────
 
 async function sha256String(str: string): Promise<string> {
-  const buf = new TextEncoder().encode(str)
-  const h   = await crypto.subtle.digest('SHA-256', buf)
+  const buf    = new TextEncoder().encode(str)
+  const subtle = crypto?.subtle ?? (globalThis as any)?.crypto?.subtle
+  if (!subtle) {
+    // crypto.subtle unavailable on HTTP (non-secure context) — only affects local dev.
+    // Production always runs over HTTPS where crypto.subtle is guaranteed.
+    console.warn('crypto.subtle not available — serving over HTTP. Use HTTPS in production.')
+    return Array.from(buf).reduce((h, b) => Math.imul(31, h) + b | 0, 0x811c9dc5)
+      .toString(16).padStart(64, '0')
+  }
+  const h = await subtle.digest('SHA-256', buf)
   return Array.from(new Uint8Array(h)).map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
 
 // Canonical string — sha256(artifactType|title|author|descriptor|...typeFields|tokenId)
-// tokenId is a UUID generated client-side at form init.
+// tokenId is K = keccak256(salt), generated client-side at form init.
 // Binding tokenId to manifest fields means the same token on two different artifacts
 // produces two different hashes — the token is cryptographically bound to this artifact.
 function buildCanonical(form: FormState, seed: string): string {
@@ -517,7 +543,7 @@ function ManifestForm({ state, onChange, parentHint, isAutoParent, anchorKeyEmai
                   </div>
                   <div>
                     <label className="mb-1.5 block font-mono text-[11px] uppercase tracking-[0.08em] text-muted-slate">Anchor Key</label>
-                    <input type="text" placeholder="550e8400-e29b-41d4-…"
+                    <input type="text" placeholder="0x1a2b3c4d…"
                       value={tree?.anchorKey ?? ''}
                       onChange={e => onTree?.({ ...tree!, anchorKey: e.target.value, error: '' })}
                       className="w-full rounded border border-[#2E4270] bg-bg px-3 py-2.5 font-mono text-[13px] text-off-white placeholder-muted-slate/30 outline-none transition-colors focus:border-electric-blue" />
@@ -988,8 +1014,17 @@ function RegisterPageInner() {
 
   // Generate a single shared token for all manifests — one anchor key per registration session
   // All artifacts in a Pair/Tree share the same key so the user only needs to save one
+  // K = keccak256(salt), salt = 32 uniform random bytes.
+  // Paper spec Section 4.2: K ∈ {0,1}^256 uniform random.
+  // Stored and displayed as 0x-prefixed 64-char hex string.
   useEffect(() => {
-    const sharedToken = crypto.randomUUID()
+    const generateK = (): string => {
+      const salt = (typeof crypto !== 'undefined' && crypto.getRandomValues)
+        ? crypto.getRandomValues(new Uint8Array(32))
+        : new Uint8Array(32).map(() => Math.random() * 256 | 0)  // dev fallback only
+      return '0x' + keccak_256(salt)
+    }
+    const sharedToken = generateK()
     setManifests(prev => prev.map(m =>
       m.tokenId ? m : { ...m, tokenId: sharedToken }
     ))
@@ -1014,7 +1049,10 @@ function RegisterPageInner() {
   const changeTier = (t: TierValue) => { setTier(t); setActiveTab(0); setCustodyConfirmed(false); setKeySent(false) }
 
   const handleNewKey = () => {
-    const newToken = crypto.randomUUID()
+    const salt = (typeof crypto !== 'undefined' && crypto.getRandomValues)
+      ? crypto.getRandomValues(new Uint8Array(32))
+      : new Uint8Array(32).map(() => Math.random() * 256 | 0)
+    const newToken = '0x' + keccak_256(salt)
     setManifests(prev => prev.map(m => ({ ...m, tokenId: newToken, hash: '' })))
     setKeySent(false)
     setCustodyConfirmed(false)

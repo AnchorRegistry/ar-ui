@@ -12,6 +12,8 @@ export default function SuccessContent() {
   const sessionId                = searchParams.get('session_id')
   const [status, setStatus]      = useState<Status>('polling')
   const [arId, setArId]          = useState<string>('')
+  const [ownerToken, setOwnerToken] = useState<string>('')
+  const [tokenCopied, setTokenCopied] = useState(false)
   const [attempts, setAttempts]  = useState(0)
   const MAX_ATTEMPTS             = 24  // 24 × 5s = 2 minutes
 
@@ -28,6 +30,9 @@ export default function SuccessContent() {
 
         if (data.status === 'confirmed' && data.ar_id) {
           setArId(data.ar_id)
+          const token = sessionStorage.getItem('ar_owner_token') ?? ''
+          setOwnerToken(token)
+          sessionStorage.removeItem('ar_owner_token')
           setStatus('confirmed')
           return
         }
@@ -149,6 +154,33 @@ export default function SuccessContent() {
           Copy verify URL
         </button>
       </div>
+
+      {/* Ownership Token */}
+      {ownerToken && (
+        <div className="mb-4 rounded-lg border border-[#F59E0B]/30 bg-[#F59E0B]/5 p-4">
+          <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.08em] text-[#F59E0B]">
+            Your Ownership Token
+          </div>
+          <div className="mb-2 flex items-center gap-2">
+            <code className="min-w-0 flex-1 break-all rounded border border-[#2E4270] bg-[#152038] px-3 py-2 font-mono text-[12px] text-muted-slate">
+              {ownerToken}
+            </code>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(ownerToken)
+                setTokenCopied(true)
+                setTimeout(() => setTokenCopied(false), 2000)
+              }}
+              className="shrink-0 rounded border border-[#2E4270] bg-[#1C2B4A] px-3 py-2 font-mono text-[11px] text-muted-slate transition-colors hover:text-off-white"
+            >
+              {tokenCopied ? 'Copied!' : 'Copy'}
+            </button>
+          </div>
+          <p className="text-[11px] text-[#F59E0B]/90">
+            Save this token. It proves ownership of your anchor and is required for SEAL and RETRACTION operations. AnchorRegistry does not store it.
+          </p>
+        </div>
+      )}
 
       {/* Embed tag */}
       <div className="mb-4 rounded-lg border border-[#2E4270] bg-surface p-4">

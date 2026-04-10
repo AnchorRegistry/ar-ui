@@ -19,6 +19,7 @@ const TC: Record<string, string> = {
   NOTE:     '#9CA3AF',
   EVENT:    '#EAB308',
   RECEIPT:  '#F97316',
+  SEAL:     '#10B981',
 }
 
 const GOLD  = '#F59E0B'

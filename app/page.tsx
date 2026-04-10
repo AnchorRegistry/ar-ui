@@ -12,7 +12,7 @@ const STEPS = [
   {
     num:   '01',
     title: 'Artifact type',
-    body:  'Twenty-two types across seven groups — code, research, data, models, reports, notes, events, receipts, and more.',
+    body:  'Twenty-three types across seven groups — code, research, data, models, media, websites, reports, notes, receipts, and more.',
   },
   {
     num:   '02',
@@ -35,7 +35,7 @@ const STATS = [
   { value: 'From $5', label: 'Per Account'      },
   { value: 'Forever', label: 'Record Lifetime'  },
   { value: 'Base L2', label: 'Ethereum Mainnet' },
-  { value: '22',      label: 'Artifact Types'   },
+  { value: '23',      label: 'Artifact Types'   },
 ]
 
 const ROOT  = '#F59E0B'
@@ -235,7 +235,7 @@ export default async function Home() {
             <p className="animate-fade-up mb-9 max-w-[420px] text-[17px] font-light leading-[1.65] text-muted-slate"
               style={{ animationDelay: '0.2s' }}>
               Anchor and network your work to everything. Code, research,
-              models, reports, notes, receipts — twenty-two types, one registry.
+              models, reports, notes, receipts — twenty-three types, one registry.
               Permanent proof of existence and lineage, verifiable by anyone, forever.
             </p>
             <div className="animate-fade-up flex items-center gap-3" style={{ animationDelay: '0.28s' }}>

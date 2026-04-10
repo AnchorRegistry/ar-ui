@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { keccak_256 } from 'js-sha3'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
@@ -68,7 +69,7 @@ const PREVIEW_MANIFEST: StoredManifest = {
     parentHash:   '',
     license:      'MIT',
   },
-  tokenId:      'a3f8c2e1-b9d4-f7a2-c8e1-b9d4f7a2c8e1',
+  tokenId:      '0xa3f8c2e1b9d4f7a2c8e1b9d4f7a2c8e1b9d4f7a2a3f8c2e1b9d4f7a2c8e18f2a',
   hash:         'a3f8c2e1b9d4f7a2c8e1b9d4f7a2c8e1b9d4f7a2a3f8c2e1b9d4f7a2c8e18f2a',
   registeredAt: new Date().toISOString(),
   notes:        '',
@@ -132,14 +133,79 @@ function ConfirmPageInner() {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  /** Convert 0x-prefixed hex string to Uint8Array. */
+  function hexToBytes(hex: string): Uint8Array {
+    const h = hex.startsWith('0x') ? hex.slice(2) : hex
+    const out = new Uint8Array(h.length / 2)
+    for (let i = 0; i < out.length; i++) {
+      out[i] = parseInt(h.slice(i * 2, i * 2 + 2), 16)
+    }
+    return out
+  }
+
+  /**
+   * keccak256(K || arId) — paper spec Section 4.2.
+   * K: bytes32 as 0x-prefixed hex string → decoded to 32 raw bytes.
+   * arId: AR-ID string → UTF-8 bytes.
+   * Returns 0x-prefixed bytes32 hex string.
+   */
+  function keccakCommitment(K: string, arId: string): string {
+    const kBytes   = hexToBytes(K)
+    const idBytes  = new TextEncoder().encode(arId)
+    const preimage = new Uint8Array(kBytes.length + idBytes.length)
+    preimage.set(kBytes, 0)
+    preimage.set(idBytes, kBytes.length)
+    return '0x' + keccak_256(preimage)
+  }
+
   const handlePay = async () => {
     if (!allChecked || isPreview || !data) return
     setSubmitting(true); setError('')
     try {
-      const isMulti = data.tier !== 'proof'
+      const isMulti    = data.tier !== 'proof'
+      const count      = data.tier === 'tree' ? 3 : data.tier === 'pair' ? 2 : 1
+      const ownerToken = data.manifests[0].tokenId
+
+      // Reserve AR-IDs before payment so we can compute treeId + tokenCommitment
+      const reserveRes = await fetch('/api/reserve', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ count }),
+      })
+      if (!reserveRes.ok) throw new Error('Failed to reserve AR-IDs')
+      const { ar_ids } = await reserveRes.json()
+
+      // For child anchors, treeId must match the existing tree — fetch parent's tree_id.
+      // For root anchors (and Pair/Tree batch roots), ar_ids[0] IS the root.
+      const parentHash = data.manifests[0].form.parentHash
+      let treeId: string
+      if (parentHash) {
+        // Walk up the tree to find the root AR-ID, then compute treeId from it.
+        let cursor = parentHash
+        let rootArId = parentHash
+        while (cursor) {
+          const res = await fetch(`/api/verify/${cursor}`)
+          if (!res.ok) throw new Error('Failed to resolve parent tree')
+          const anchor = await res.json()
+          rootArId = anchor.ar_id
+          cursor = anchor.parent_hash || ''
+        }
+        treeId = keccakCommitment(ownerToken, rootArId)
+      } else {
+        treeId = keccakCommitment(ownerToken, ar_ids[0])
+      }
+
+      const enrichedPayloads = (data.payloads as Record<string, unknown>[]).map((p, i) => ({
+        ...p,
+        reserved_ar_id:   ar_ids[i],
+        tree_id:          treeId,
+        token_commitment: keccakCommitment(ownerToken, ar_ids[i]),
+      }))
+
       const body = isMulti
-        ? { manifests: data.payloads, tier: data.tier }
-        : { ...data.payloads[0], tier: data.tier }
+        ? { manifests: enrichedPayloads, tier: data.tier }
+        : { ...enrichedPayloads[0], tier: data.tier }
+
       const res  = await fetch('/api/checkout', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -148,6 +214,7 @@ function ConfirmPageInner() {
       const json = await res.json()
       if (!res.ok) throw new Error(json.detail ?? 'Checkout failed')
       sessionStorage.removeItem('ar_confirm')
+      sessionStorage.setItem('ar_owner_token', ownerToken)
       window.location.href = json.url
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong')

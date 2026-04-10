@@ -18,6 +18,7 @@ const TYPE_COLORS: Record<string, string> = {
   MODEL:    '#F59E0B',
   AGENT:    '#EF4444',
   MEDIA:    '#14B8A6',
+  SEAL:     '#10B981',
 }
 
 const CW = 190
