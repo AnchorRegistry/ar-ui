@@ -35,7 +35,7 @@ const STATS = [
   { value: 'From $5', label: 'Per Account'      },
   { value: 'Forever', label: 'Record Lifetime'  },
   { value: 'Base L2', label: 'Ethereum Mainnet' },
-  { value: '23',      label: 'Artifact Types'   },
+  { value: '24',      label: 'Artifact Types'   },
 ]
 
 const ROOT  = '#F59E0B'
@@ -294,7 +294,7 @@ export default async function Home() {
             </p>
             <div className="grid grid-cols-2 items-start gap-8">
               <div className="rounded-lg border border-[#2E4270] bg-surface p-6">
-                <div className="mb-2 font-mono text-[11px] text-muted-slate">AR-2026-0000001</div>
+                <div className="mb-2 font-mono text-[11px] text-muted-slate">AR-2026-qnPOJ1z</div>
                 <div className="mb-1.5 text-[18px] font-semibold">AnchorRegistry Smart Contract v1</div>
                 <div className="mb-4 text-[13px] text-muted-slate">
                   Ian Moore · March 24, 2026 · Sepolia · block 10,514,012
@@ -319,7 +319,7 @@ export default async function Home() {
                 <div className="mb-3 rounded-md border border-[#2E4270] bg-surface px-4 py-3.5">
                   <div className="mb-1 font-mono text-[12px] text-muted-slate"># README</div>
                   <div className="font-mono text-[12px] text-electric-blue">
-                    SPDX-Anchor: <a href="https://anchorregistry.ai/AR-2026-0000001" target="_blank" rel="noopener noreferrer" className="underline decoration-electric-blue/40 hover:decoration-electric-blue transition-colors">anchorregistry.ai/AR-2026-0000001</a>
+                    SPDX-Anchor: <a href="https://anchorregistry.ai/AR-2026-qnPOJ1z" target="_blank" rel="noopener noreferrer" className="underline decoration-electric-blue/40 hover:decoration-electric-blue transition-colors">anchorregistry.ai/AR-2026-qnPOJ1z</a>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 rounded-md border border-[#2E4270] bg-surface px-4 py-3.5">
@@ -331,7 +331,7 @@ export default async function Home() {
                   <div>
                     <div className="text-[14px] font-medium text-gold">Anchored</div>
                     <div className="font-mono text-[11px] text-muted-slate">
-                      anchorregistry.ai/AR-2026-0000001
+                      anchorregistry.ai/AR-2026-qnPOJ1z
                     </div>
                   </div>
                 </div>
