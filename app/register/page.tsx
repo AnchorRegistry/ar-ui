@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { keccak_256 } from 'js-sha3'
 import Nav from '@/components/Nav'
-import { getNetworkNameClient } from '@/lib/network.client'
+import { getNetworkNameClient, isTestnetClient } from '@/lib/network.client'
 import Footer from '@/components/Footer'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1256,10 +1256,12 @@ function RegisterPageInner() {
                 )}
 
 
-                <div className="mb-3 flex items-center gap-2 rounded border border-[#F59E0B]/40 bg-[#F59E0B]/10 px-3 py-2">
-                  <span className="text-[13px]">⚠️</span>
-                  <span className="font-mono text-[11px] text-[#F59E0B]">Testnet mode — no real payments processed</span>
-                </div>
+                {isTestnetClient() && (
+                  <div className="mb-3 flex items-center gap-2 rounded border border-[#F59E0B]/40 bg-[#F59E0B]/10 px-3 py-2">
+                    <span className="text-[13px]">⚠️</span>
+                    <span className="font-mono text-[11px] text-[#F59E0B]">Testnet mode — no real payments processed</span>
+                  </div>
+                )}
 
                 <button onClick={handleConfirm} disabled={!isReady}
                   className={`w-full rounded py-3 text-[14px] font-semibold transition-all ${
