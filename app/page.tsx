@@ -5,7 +5,7 @@ import Footer from '@/components/Footer'
 import { getNetworkName } from '@/lib/network'
 
 export const metadata: Metadata = {
-  title: 'AnchorRegistry™ — The open provenance layer for the open agentic economy.',
+  title: 'AnchorRegistry™ — The open provenance layer for the agentic economy.',
 }
 
 const STEPS = [
@@ -230,7 +230,7 @@ export default async function Home() {
             <h1 className="animate-fade-up mb-4 max-w-[700px] text-[48px] font-semibold leading-[1.1] tracking-tight text-off-white sm:text-[56px]"
               style={{ animationDelay: '0.12s' }}>
               The open provenance layer for the{' '}
-              <span className="text-gold">open agentic economy.</span>
+              <span className="text-gold">agentic economy.</span>
             </h1>
             <h2 className="animate-fade-up mb-9 font-mono text-[15px] font-normal tracking-tight text-muted-slate sm:text-[17px]"
               style={{ animationDelay: '0.2s' }}>
