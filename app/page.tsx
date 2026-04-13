@@ -5,14 +5,14 @@ import Footer from '@/components/Footer'
 import { getNetworkName } from '@/lib/network'
 
 export const metadata: Metadata = {
-  title: 'AnchorRegistry™ — Anchor your work on-chain.',
+  title: 'AnchorRegistry™ — The open provenance layer for the agentic economy.',
 }
 
 const STEPS = [
   {
     num:   '01',
     title: 'Artifact type',
-    body:  'Twenty-three types across seven groups — code, research, data, models, media, websites, reports, notes, receipts, and more.',
+    body:  'Twenty-four types across eight groups — code, research, data, models, media, websites, reports, notes, receipts, and more.',
   },
   {
     num:   '02',
@@ -227,21 +227,19 @@ export default async function Home() {
               style={{ animationDelay: '0.05s' }}>
               Immutable Provenance Infrastructure
             </p>
-            <h1 className="animate-fade-up mb-5 max-w-[580px] text-[52px] font-semibold leading-[1.08] tracking-tight text-off-white"
+            <h1 className="animate-fade-up mb-4 max-w-[700px] text-[48px] font-semibold leading-[1.1] tracking-tight text-off-white sm:text-[56px]"
               style={{ animationDelay: '0.12s' }}>
-              Anchor your work<br />
-              <span className="text-gold">on-chain.</span>
+              The open provenance layer for the{' '}
+              <span className="text-gold">agentic economy.</span>
             </h1>
-            <p className="animate-fade-up mb-9 max-w-[420px] text-[17px] font-light leading-[1.65] text-muted-slate"
+            <h2 className="animate-fade-up mb-9 font-mono text-[15px] font-normal tracking-tight text-muted-slate sm:text-[17px]"
               style={{ animationDelay: '0.2s' }}>
-              Anchor and network your work to everything. Code, research,
-              models, reports, notes, receipts — twenty-three types, one registry.
-              Permanent proof of existence and lineage, verifiable by anyone, forever.
-            </p>
+              AnchorRegistry — Trustless Provenance Trees on Base
+            </h2>
             <div className="animate-fade-up flex items-center gap-3" style={{ animationDelay: '0.28s' }}>
               <Link href="/register"
                 className="inline-flex items-center gap-1.5 rounded bg-gold px-5 py-2.5 text-[14px] font-semibold text-deep-navy transition-all hover:bg-[#FBBF24] active:scale-[0.98]">
-                Register →
+                Anchor your work on-chain →
               </Link>
               <Link href="/verify"
                 className="inline-flex items-center rounded border border-[#2E4270] px-5 py-2.5 text-[14px] text-muted-slate transition-all hover:border-muted-slate hover:text-off-white">
