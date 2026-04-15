@@ -40,10 +40,5 @@ export function useTokenVisibility() {
 
 /** Renders token text as masked or visible. */
 export default function MaskedToken({ token, visible }: { token: string; visible: boolean }) {
-  if (visible) return <>{token}</>
-  return (
-    <span className="block overflow-hidden whitespace-nowrap" style={{ lineHeight: '1.4' }}>
-      {'••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••'}
-    </span>
-  )
+  return <>{visible ? token : '••••••••••••••••••••••••••••••••••••••••••••••••'}</>
 }
