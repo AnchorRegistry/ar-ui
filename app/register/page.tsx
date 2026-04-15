@@ -789,7 +789,7 @@ function ManifestForm({ state, onChange, parentHint, isAutoParent, anchorKeyEmai
           </p>
           <div className="flex items-center gap-2 rounded border border-[#2E4270] bg-bg px-3 py-2.5">
             <span className="flex-1 break-all font-mono text-[12px] text-gold">
-              {tokenId ? <MaskedToken token={tokenId} visible={tokenVis.visible} /> : <span className="text-muted-slate/30">Generating…</span>}
+              {tokenId ? <MaskedToken token={tokenId} visible={!tree?.confirmed && tokenVis.visible} /> : <span className="text-muted-slate/30">Generating…</span>}
             </span>
             {tokenId && (
               <>
