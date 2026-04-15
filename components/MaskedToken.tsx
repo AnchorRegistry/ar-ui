@@ -40,5 +40,5 @@ export function useTokenVisibility() {
 
 /** Renders token text as masked or visible. */
 export default function MaskedToken({ token, visible }: { token: string; visible: boolean }) {
-  return <>{visible ? token : '••••••••••••••••••••••••••••••••'}</>
+  return <>{visible ? token : '•••••••••••••'}</>
 }
