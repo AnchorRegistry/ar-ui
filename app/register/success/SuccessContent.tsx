@@ -165,7 +165,7 @@ export default function SuccessContent() {
           </div>
           <div className="mb-2 flex items-center gap-2">
             <code className="min-w-0 flex-1 break-all rounded border border-[#2E4270] bg-[#152038] px-3 py-2 font-mono text-[12px] text-muted-slate">
-              <MaskedToken token={ownerToken} visible={tokenVis.visible} />
+              <MaskedToken token={ownerToken} visible={tokenVis.visible} short />
             </code>
             <TokenToggleButton visible={tokenVis.visible} onToggle={tokenVis.toggle} />
             <button

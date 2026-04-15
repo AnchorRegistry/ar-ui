@@ -38,7 +38,10 @@ export function useTokenVisibility() {
   return { visible, toggle: () => setVisible(v => !v) }
 }
 
+const MASK_46 = '••••••••••••••••••••••••••••••••••••••••••••••'
+const MASK_35 = '•••••••••••••••••••••••••••••••••••'
+
 /** Renders token text as masked or visible. */
-export default function MaskedToken({ token, visible }: { token: string; visible: boolean }) {
-  return <>{visible ? token : '••••••••••••••••••••••••••••••••••••••••••••••••'}</>
+export default function MaskedToken({ token, visible, short }: { token: string; visible: boolean; short?: boolean }) {
+  return <>{visible ? token : (short ? MASK_35 : MASK_46)}</>
 }
