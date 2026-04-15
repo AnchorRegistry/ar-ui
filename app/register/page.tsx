@@ -6,7 +6,7 @@ import { keccak_256 } from 'js-sha3'
 import Nav from '@/components/Nav'
 import { getNetworkNameClient, isTestnetClient } from '@/lib/network.client'
 import Footer from '@/components/Footer'
-import MaskedToken from '@/components/MaskedToken'
+import MaskedToken, { TokenToggleButton, useTokenVisibility } from '@/components/MaskedToken'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tier icon components
@@ -434,6 +434,7 @@ function ManifestForm({ state, onChange, parentHint, isAutoParent, anchorKeyEmai
 
   const [extendOpen, setExtendOpen] = useState(false)
   const [parentOpen, setParentOpen] = useState(false)
+  const tokenVis = useTokenVisibility()
 
   const patch     = (p: Partial<ManifestState>) => onChange({ ...state, ...p })
   const patchForm = (p: Partial<FormState>)     => patch({ form: { ...form, ...(p as FormState) } })
@@ -788,10 +789,11 @@ function ManifestForm({ state, onChange, parentHint, isAutoParent, anchorKeyEmai
           </p>
           <div className="flex items-center gap-2 rounded border border-[#2E4270] bg-bg px-3 py-2.5">
             <span className="flex-1 break-all font-mono text-[12px] text-gold">
-              {tokenId ? <MaskedToken token={tokenId} /> : <span className="text-muted-slate/30">Generating…</span>}
+              {tokenId ? <MaskedToken token={tokenId} visible={tokenVis.visible} /> : <span className="text-muted-slate/30">Generating…</span>}
             </span>
             {tokenId && (
               <>
+                <TokenToggleButton visible={tokenVis.visible} onToggle={tokenVis.toggle} />
                 <button
                   onClick={() => navigator.clipboard.writeText(tokenId)}
                   className="shrink-0 rounded border border-[#2E4270] px-2 py-1 font-mono text-[10px] text-muted-slate transition-all hover:border-muted-slate hover:text-off-white"

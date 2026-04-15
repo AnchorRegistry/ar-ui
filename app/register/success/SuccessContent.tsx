@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { getNetworkNameClient } from '@/lib/network.client'
-import MaskedToken from '@/components/MaskedToken'
+import MaskedToken, { TokenToggleButton, useTokenVisibility } from '@/components/MaskedToken'
 
 type Status = 'polling' | 'confirmed' | 'error'
 
@@ -16,6 +16,7 @@ export default function SuccessContent() {
   const [ownerToken, setOwnerToken] = useState<string>('')
   const [tokenCopied, setTokenCopied] = useState(false)
   const [attempts, setAttempts]  = useState(0)
+  const tokenVis = useTokenVisibility()
   const MAX_ATTEMPTS             = 24  // 24 × 5s = 2 minutes
 
   useEffect(() => {
@@ -164,8 +165,9 @@ export default function SuccessContent() {
           </div>
           <div className="mb-2 flex items-center gap-2">
             <code className="min-w-0 flex-1 break-all rounded border border-[#2E4270] bg-[#152038] px-3 py-2 font-mono text-[12px] text-muted-slate">
-              <MaskedToken token={ownerToken} />
+              <MaskedToken token={ownerToken} visible={tokenVis.visible} />
             </code>
+            <TokenToggleButton visible={tokenVis.visible} onToggle={tokenVis.toggle} />
             <button
               onClick={() => {
                 navigator.clipboard.writeText(ownerToken)
