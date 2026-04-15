@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { getNetworkNameClient } from '@/lib/network.client'
+import MaskedToken from '@/components/MaskedToken'
 
 type Status = 'polling' | 'confirmed' | 'error'
 
@@ -163,7 +164,7 @@ export default function SuccessContent() {
           </div>
           <div className="mb-2 flex items-center gap-2">
             <code className="min-w-0 flex-1 break-all rounded border border-[#2E4270] bg-[#152038] px-3 py-2 font-mono text-[12px] text-muted-slate">
-              {ownerToken}
+              <MaskedToken token={ownerToken} />
             </code>
             <button
               onClick={() => {

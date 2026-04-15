@@ -6,6 +6,7 @@ import { keccak_256 } from 'js-sha3'
 import Nav from '@/components/Nav'
 import { getNetworkNameClient, isTestnetClient } from '@/lib/network.client'
 import Footer from '@/components/Footer'
+import MaskedToken from '@/components/MaskedToken'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tier icon components
@@ -432,6 +433,7 @@ function ManifestForm({ state, onChange, parentHint, isAutoParent, anchorKeyEmai
   const { form, tokenId, hash, notes } = state
 
   const [extendOpen, setExtendOpen] = useState(false)
+  const [parentOpen, setParentOpen] = useState(false)
 
   const patch     = (p: Partial<ManifestState>) => onChange({ ...state, ...p })
   const patchForm = (p: Partial<FormState>)     => patch({ form: { ...form, ...(p as FormState) } })
@@ -604,18 +606,41 @@ function ManifestForm({ state, onChange, parentHint, isAutoParent, anchorKeyEmai
                 value={form.descriptor} onChange={setField('descriptor')} className={cls} />
             </div>
             <div>
-              <label className={clsLbl}>
-                Parent AR-ID
-                {isAutoParent
-                  ? <span className="ml-1 font-mono text-[10px] normal-case tracking-normal text-gold/70"> — {parentHint}</span>
-                  : <span className="text-muted-slate/50"> (optional)</span>}
-              </label>
-              <input type="text"
-                placeholder={isAutoParent ? parentHint : 'AR-2026-K7X9M2P'}
-                value={tree?.confirmed ? tree.parentArId : form.parentHash}
-                onChange={setField('parentHash')}
-                readOnly={isAutoParent || tree?.confirmed}
-                className={`${clsMono} ${isAutoParent || tree?.confirmed ? 'opacity-40 cursor-not-allowed' : ''}`} />
+              {isAutoParent ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setParentOpen(v => !v)}
+                    className="mb-1.5 flex items-center gap-1.5 font-mono text-[11px] text-muted-slate/60 transition-colors hover:text-muted-slate"
+                  >
+                    <span>{parentOpen ? '▾' : '▸'}</span>
+                    <span>Parent AR-ID <span className="text-gold/70">— {parentHint}</span></span>
+                  </button>
+                  {parentOpen && (
+                    <input type="text"
+                      placeholder={parentHint}
+                      value={tree?.confirmed ? tree.parentArId : form.parentHash}
+                      onChange={setField('parentHash')}
+                      readOnly
+                      className={`${clsMono} opacity-40 cursor-not-allowed`} />
+                  )}
+                </>
+              ) : (
+                <>
+                  <label className={clsLbl}>
+                    Parent AR-ID
+                    {tree?.confirmed
+                      ? <span className="ml-1 font-mono text-[10px] normal-case tracking-normal text-gold/70"> — {tree.parentArId}</span>
+                      : <span className="text-muted-slate/50"> (optional)</span>}
+                  </label>
+                  <input type="text"
+                    placeholder="AR-2026-K7X9M2P"
+                    value={tree?.confirmed ? tree.parentArId : form.parentHash}
+                    onChange={setField('parentHash')}
+                    readOnly={tree?.confirmed}
+                    className={`${clsMono} ${tree?.confirmed ? 'opacity-40 cursor-not-allowed' : ''}`} />
+                </>
+              )}
             </div>
           </div>
 
@@ -763,7 +788,7 @@ function ManifestForm({ state, onChange, parentHint, isAutoParent, anchorKeyEmai
           </p>
           <div className="flex items-center gap-2 rounded border border-[#2E4270] bg-bg px-3 py-2.5">
             <span className="flex-1 break-all font-mono text-[12px] text-gold">
-              {tokenId || <span className="text-muted-slate/30">Generating…</span>}
+              {tokenId ? <MaskedToken token={tokenId} /> : <span className="text-muted-slate/30">Generating…</span>}
             </span>
             {tokenId && (
               <>
