@@ -7,6 +7,7 @@ import Link from 'next/link'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import { isTestnetClient } from '@/lib/network.client'
+import MaskedToken, { TokenToggleButton, useTokenVisibility } from '@/components/MaskedToken'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -112,6 +113,8 @@ function ConfirmPageInner() {
   const [copied, setCopied]       = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError]         = useState('')
+  const [parentOpen, setParentOpen] = useState(false)
+  const tokenVis = useTokenVisibility()
 
   useEffect(() => {
     if (isPreview) { setData(PREVIEW_DATA); return }
@@ -293,37 +296,57 @@ function ConfirmPageInner() {
           })}
 
           {/* Section C — Ownership Token */}
-          <div className={`mb-6 rounded-lg border p-4 ${isDerivative ? 'border-[#2E4270] bg-[#1C2B4A] opacity-50' : 'border-[#F59E0B]/50 bg-[#F59E0B]/5'}`}>
-            <p className={`mb-3 font-mono text-[11px] uppercase tracking-[0.08em] ${isDerivative ? 'text-muted-slate' : 'text-[#F59E0B]'}`}>
-              {isDerivative ? 'Existing Ownership Token' : 'Your Ownership Token'}
-            </p>
-            <div className="mb-3 flex items-center gap-2">
-              <code className="min-w-0 flex-1 break-all rounded border border-[#2E4270] bg-[#152038] px-3 py-2 font-mono text-[12px] text-muted-slate">
-                {tokenId}
-              </code>
-              {!isDerivative && (
+          {isDerivative ? (
+            <div className="mb-6">
+              <button
+                type="button"
+                onClick={() => setParentOpen(v => !v)}
+                className="mb-2 flex items-center gap-1.5 font-mono text-[11px] text-muted-slate/60 transition-colors hover:text-muted-slate"
+              >
+                <span>{parentOpen ? '▾' : '▸'}</span>
+                <span>Parent token details</span>
+              </button>
+              {parentOpen && (
+                <div className="rounded-lg border border-[#2E4270] bg-[#1C2B4A] p-4 opacity-50">
+                  <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.08em] text-muted-slate">
+                    Existing Ownership Token
+                  </p>
+                  <div className="mb-3 flex items-center gap-2">
+                    <code className="min-w-0 flex-1 break-all rounded border border-[#2E4270] bg-[#152038] px-3 py-2 font-mono text-[12px] text-muted-slate">
+                      <MaskedToken token={tokenId} visible={tokenVis.visible} />
+                    </code>
+                    <TokenToggleButton visible={tokenVis.visible} onToggle={tokenVis.toggle} />
+                  </div>
+                  <p className="text-[11px] text-muted-slate">
+                    This is your existing ownership token for the parent anchor. No new token will be issued.
+                  </p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="mb-6 rounded-lg border border-[#F59E0B]/50 bg-[#F59E0B]/5 p-4">
+              <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.08em] text-[#F59E0B]">
+                Your Ownership Token
+              </p>
+              <div className="mb-3 flex items-center gap-2">
+                <code className="min-w-0 flex-1 break-all rounded border border-[#2E4270] bg-[#152038] px-3 py-2 font-mono text-[12px] text-muted-slate">
+                  <MaskedToken token={tokenId} visible={tokenVis.visible} />
+                </code>
+                <TokenToggleButton visible={tokenVis.visible} onToggle={tokenVis.toggle} />
                 <button onClick={handleCopy}
                   className="shrink-0 rounded border border-[#2E4270] bg-[#1C2B4A] px-3 py-2 font-mono text-[11px] text-muted-slate transition-colors hover:text-off-white">
                   {copied ? 'Copied!' : 'Copy'}
                 </button>
-              )}
-            </div>
-            {isDerivative ? (
-              <p className="text-[11px] text-muted-slate">
-                This is your existing ownership token for the parent anchor. No new token will be issued.
+              </div>
+              <p className="text-[11px] text-[#F59E0B]/90">
+                ⚠ AnchorRegistry does not store or retain this token.
+                It will be displayed once more on the next page and cannot be recovered if lost.
               </p>
-            ) : (
-              <>
-                <p className="text-[11px] text-[#F59E0B]/90">
-                  ⚠ AnchorRegistry does not store or retain this token.
-                  It will be displayed once more on the next page and cannot be recovered if lost.
-                </p>
-                <p className="mt-1.5 text-[10px] text-muted-slate">
-                  Token generated client-side. Never transmitted to or retained by AnchorRegistry servers.
-                </p>
-              </>
-            )}
-          </div>
+              <p className="mt-1.5 text-[10px] text-muted-slate">
+                Token generated client-side. Never transmitted to or retained by AnchorRegistry servers.
+              </p>
+            </div>
+          )}
 
           {/* Section D — Three Mandatory Checkboxes */}
           <div className="mb-6 space-y-3">
