@@ -234,7 +234,7 @@ export default async function Home() {
             </h1>
             <h2 className="animate-fade-up mb-9 font-mono text-[15px] font-normal tracking-tight text-muted-slate sm:text-[17px]"
               style={{ animationDelay: '0.2s' }}>
-              AnchorRegistry — Onchain provenance for creators and their agents.
+              AnchorRegistry — On-chain provenance for creators and their agents.
             </h2>
             <div className="animate-fade-up flex items-center gap-3" style={{ animationDelay: '0.28s' }}>
               <Link href="/register"
