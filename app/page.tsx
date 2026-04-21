@@ -32,10 +32,10 @@ const STEPS = [
 ]
 
 const STATS = [
-  { value: 'From $5', label: 'Per Account'      },
-  { value: 'Forever', label: 'Record Lifetime'  },
-  { value: 'Base L2', label: 'Ethereum Mainnet' },
-  { value: '24',      label: 'Artifact Types'   },
+  { value: 'From $0.50',   label: 'Per Anchor'      },
+  { value: 'Forever',      label: 'Record Lifetime' },
+  { value: 'Base L2',      label: 'Settlement'      },
+  { value: 'x402 + Stripe', label: 'Payment Rails'  },
 ]
 
 const ROOT  = '#F59E0B'
@@ -234,7 +234,7 @@ export default async function Home() {
             </h1>
             <h2 className="animate-fade-up mb-9 font-mono text-[15px] font-normal tracking-tight text-muted-slate sm:text-[17px]"
               style={{ animationDelay: '0.2s' }}>
-              AnchorRegistry — Trustless Provenance Trees on Base
+              AnchorRegistry — Provenance for creators and their agents.
             </h2>
             <div className="animate-fade-up flex items-center gap-3" style={{ animationDelay: '0.28s' }}>
               <Link href="/register"
@@ -367,53 +367,172 @@ export default async function Home() {
               Pricing
             </p>
             <h2 className="mb-2 text-[28px] font-semibold tracking-tight text-off-white">
-              Simple, permanent, no surprises
+              Two paths to permanent provenance
             </h2>
-            <p className="mb-8 text-[15px] text-muted-slate">
-              Build your provenance tree one anchor at a time, or register a linked set in one payment.
+            <p className="mb-10 text-[15px] text-muted-slate">
+              One for humans. One for their agents. Both settle to Base.
             </p>
 
+            {/* ── Creative tier ─────────────────────────────────── */}
             <div className="grid grid-cols-[1fr_340px] items-start gap-8">
-              <div className="space-y-3">
-                {TIERS.map(t => (
-                  <div key={t.value}
-                    className={`flex items-center gap-5 rounded-lg border bg-surface p-5 ${
-                      t.featured ? 'border-electric-blue' : 'border-[#2E4270]'
-                    }`}>
-                    <div className="flex w-[72px] shrink-0 items-center justify-center rounded border border-[#2E4270] bg-[#152038] px-3 py-2.5">
-                      {t.icon}
-                    </div>
-                    <div className="flex-1">
-                      <div className="mb-0.5 flex items-baseline gap-2">
-                        <span className="text-[18px] font-semibold text-off-white">{t.price}</span>
-                        <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-muted-slate">{t.label}</span>
-                        <span className="font-mono text-[10px] text-muted-slate/50">{t.anchors}</span>
-                      </div>
-                      <p className="text-[13px] leading-snug text-muted-slate">{t.body.replace('{network}', network)}</p>
-                    </div>
-                    <Link href={`/register?tier=${t.value}`}
-                      className={`shrink-0 rounded px-4 py-2 text-[13px] font-medium transition-all whitespace-nowrap ${
-                        t.featured
-                          ? 'border border-electric-blue bg-electric-blue text-off-white hover:bg-blue-600'
-                          : 'border border-[#2E4270] text-muted-slate hover:border-muted-slate hover:text-off-white'
-                      }`}>
-                      {t.cta}
-                    </Link>
+              <div className="rounded-lg border border-[#2E4270] bg-surface p-6">
+                <div className="mb-4 flex items-start justify-between gap-4">
+                  <div>
+                    <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.12em] text-gold">
+                      Creative Tier
+                    </p>
+                    <h3 className="mb-1 text-[18px] font-semibold tracking-tight text-off-white">
+                      For creators, researchers, and developers
+                    </h3>
+                    <p className="text-[13px] text-muted-slate">
+                      Pay with card. Register through the web.
+                    </p>
                   </div>
-                ))}
-                <div className="flex items-center gap-5 pt-1 font-mono text-[10px] text-muted-slate">
-                  <span className="flex items-center gap-1.5">
-                    <svg viewBox="0 0 8 8" width="8" height="8"><circle cx="4" cy="4" r="4" fill={ROOT} /></svg>
-                    root artifact — share this AR-ID
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <svg viewBox="0 0 8 8" width="8" height="8"><circle cx="4" cy="4" r="4" fill={CHILD} /></svg>
-                    child artifact
+                </div>
+
+                <div className="space-y-3">
+                  {TIERS.map(t => (
+                    <div key={t.value}
+                      className={`flex items-center gap-5 rounded-md border bg-[#152038] p-4 ${
+                        t.featured ? 'border-electric-blue' : 'border-[#2E4270]'
+                      }`}>
+                      <div className="flex w-[72px] shrink-0 items-center justify-center rounded border border-[#2E4270] bg-surface px-3 py-2.5">
+                        {t.icon}
+                      </div>
+                      <div className="flex-1">
+                        <div className="mb-0.5 flex items-baseline gap-2">
+                          <span className="text-[18px] font-semibold text-off-white">{t.price}</span>
+                          <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-muted-slate">{t.label}</span>
+                          <span className="font-mono text-[10px] text-muted-slate/50">{t.anchors}</span>
+                        </div>
+                        <p className="text-[13px] leading-snug text-muted-slate">{t.body.replace('{network}', network)}</p>
+                      </div>
+                      <Link href={`/register?tier=${t.value}`}
+                        className={`shrink-0 rounded px-4 py-2 text-[13px] font-medium transition-all whitespace-nowrap ${
+                          t.featured
+                            ? 'border border-electric-blue bg-electric-blue text-off-white hover:bg-blue-600'
+                            : 'border border-[#2E4270] text-muted-slate hover:border-muted-slate hover:text-off-white'
+                        }`}>
+                        {t.cta}
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4 flex items-center gap-5 border-t border-[#2E4270] pt-4 font-mono text-[10px] text-muted-slate">
+                  <span>Stripe · credit card · instant</span>
+                  <span className="ml-auto flex items-center gap-4">
+                    <span className="flex items-center gap-1.5">
+                      <svg viewBox="0 0 8 8" width="8" height="8"><circle cx="4" cy="4" r="4" fill={ROOT} /></svg>
+                      root
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <svg viewBox="0 0 8 8" width="8" height="8"><circle cx="4" cy="4" r="4" fill={CHILD} /></svg>
+                      child
+                    </span>
                   </span>
                 </div>
               </div>
               <div className="sticky top-20">
                 <ProvenanceTreeDiagram network={network} />
+              </div>
+            </div>
+
+            {/* ── Agentic tier ──────────────────────────────────── */}
+            <div className="relative mt-6 rounded-lg border border-gold/30 bg-surface p-6">
+              <div className="absolute right-5 top-5 inline-flex items-center gap-1.5 rounded-full border border-gold/30 bg-gold/10 px-2.5 py-1 font-mono text-[10px] text-gold">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-gold" />
+                x402
+              </div>
+
+              <div className="mb-5">
+                <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.12em] text-gold">
+                  Agentic Tier
+                </p>
+                <h3 className="mb-1 text-[18px] font-semibold tracking-tight text-off-white">
+                  For AI agents and developer workflows
+                </h3>
+                <p className="text-[13px] text-muted-slate">
+                  Pay with USDC on Base. Register via API. Listed on{' '}
+                  <a
+                    href="https://www.x402scan.com/server/c7c5463d-6fa1-413e-8844-fe05e7689119"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-electric-blue hover:underline"
+                  >
+                    x402scan
+                  </a>{' '}
+                  — any agent can discover and pay for provenance anchoring autonomously.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-md border border-[#2E4270] bg-[#152038] p-5">
+                  <div className="mb-1 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-slate">Starter</div>
+                  <div className="mb-0.5 flex items-baseline gap-2">
+                    <span className="text-[22px] font-semibold tracking-tight text-off-white">$50</span>
+                    <span className="font-mono text-[11px] text-muted-slate">· 50 anchors</span>
+                  </div>
+                  <div className="mb-4 font-mono text-[11px] text-muted-slate/70">$1.00/anchor</div>
+                  <Link href="/developers#account"
+                    className="inline-flex items-center rounded border border-[#2E4270] px-3.5 py-1.5 text-[12px] font-medium text-muted-slate transition-all hover:border-muted-slate hover:text-off-white">
+                    Developers →
+                  </Link>
+                </div>
+
+                <div className="rounded-md border border-[#2E4270] bg-[#152038] p-5">
+                  <div className="mb-1 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-slate">Builder</div>
+                  <div className="mb-0.5 flex items-baseline gap-2">
+                    <span className="text-[22px] font-semibold tracking-tight text-off-white">$100</span>
+                    <span className="font-mono text-[11px] text-muted-slate">· 200 anchors</span>
+                  </div>
+                  <div className="mb-4 font-mono text-[11px] text-muted-slate/70">$0.50/anchor</div>
+                  <Link href="/developers#account"
+                    className="inline-flex items-center rounded border border-[#2E4270] px-3.5 py-1.5 text-[12px] font-medium text-muted-slate transition-all hover:border-muted-slate hover:text-off-white">
+                    Developers →
+                  </Link>
+                </div>
+              </div>
+
+              <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-[#2E4270] pt-4 font-mono text-[10px] text-muted-slate">
+                <span>USDC on Base · x402 protocol · bearer key</span>
+                <span className="ml-auto flex items-center gap-4">
+                  <Link href="/developers" className="text-electric-blue hover:underline">
+                    Developer docs →
+                  </Link>
+                  <a
+                    href="https://www.x402scan.com/server/c7c5463d-6fa1-413e-8844-fe05e7689119"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-electric-blue hover:underline"
+                  >
+                    x402scan listing ↗
+                  </a>
+                </span>
+              </div>
+            </div>
+
+            {/* ── Verify ───────────────────────────────────────── */}
+            <div className="mt-6 rounded-lg border border-[#2E4270] bg-surface p-6">
+              <div className="flex flex-wrap items-center gap-6">
+                <div className="flex-1 min-w-[260px]">
+                  <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-slate">
+                    Verify
+                  </p>
+                  <h3 className="mb-1 text-[18px] font-semibold tracking-tight text-off-white">
+                    Always free. Always public. No account needed.
+                  </h3>
+                  <p className="text-[13px] text-muted-slate">
+                    Resolve any AR-ID — returns the full provenance record.{' '}
+                    <span className="font-mono text-electric-blue">anchorregistry.ai/&#123;AR-ID&#125;</span>
+                  </p>
+                </div>
+                <Link
+                  href="/verify"
+                  className="shrink-0 rounded border border-[#2E4270] px-5 py-2.5 text-[13px] font-medium text-muted-slate transition-all hover:border-muted-slate hover:text-off-white"
+                >
+                  Verify an AR-ID →
+                </Link>
               </div>
             </div>
           </div>

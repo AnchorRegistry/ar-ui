@@ -87,8 +87,8 @@ export default function DevelopersPage() {
           </Prose>
 
           <div className="mb-6 flex gap-4">
-            <TierCard tier="Starter" price="$50" capacity="25 anchors" />
-            <TierCard tier="Builder" price="$100" capacity="100 anchors" />
+            <TierCard tier="Starter" price="$50" capacity="50 anchors" />
+            <TierCard tier="Builder" price="$100" capacity="200 anchors" />
           </div>
 
           <h3 className="mb-3 mt-8 text-[15px] font-medium text-off-white">
@@ -125,7 +125,7 @@ export default function DevelopersPage() {
 {`{
   "ar_id":        "AR-2026-XXXXXXX",
   "anchor_key":   "<32-byte hex>",      // shown ONCE — save this
-  "capacity":     25,
+  "capacity":     50,
   "tier":         "starter",
   "tx_hash":      "0x...",
   "block_number": 12345678,
@@ -205,9 +205,9 @@ export default function DevelopersPage() {
 
 # {
 #   "root_ar_id":     "AR-2026-XXXXXXX",
-#   "total_capacity": 25,
+#   "total_capacity": 50,
 #   "used":           1,
-#   "remaining":      24
+#   "remaining":      49
 # }`}
           </CopyCodeBlock>
 
