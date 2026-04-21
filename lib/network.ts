@@ -18,6 +18,13 @@ export async function getExplorerTxUrl(txHash: string): Promise<string> {
     : `https://basescan.org/tx/${txHash}`
 }
 
+/** Returns the block explorer URL for a contract/wallet address (server-side) */
+export async function getExplorerAddressUrl(address: string): Promise<string> {
+  return (await isTestnet())
+    ? `https://sepolia.basescan.org/address/${address}`
+    : `https://basescan.org/address/${address}`
+}
+
 /** Returns the current site origin, e.g. https://testnet.anchorregistry.com (server-side) */
 export async function getSiteOrigin(): Promise<string> {
   const h = await headers()
