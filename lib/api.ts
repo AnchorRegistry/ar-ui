@@ -29,6 +29,11 @@ export interface AnchorRecord {
   tx_hash:          string
   block_number:     number
   block_timestamp:  string
+  // Contract Continuity — AnchorRegistry contract this anchor lives on.
+  // Populated for Phase-6+ anchors. Distinct from the top-level
+  // `contract_address` below (which is the ONCHAIN artifact type's
+  // external contract reference).
+  registry_address?: string
   verify_url:       string
   machine_url:      string
   children:         { ar_id: string; artifact_type: string; depth: number; title?: string }[] | null

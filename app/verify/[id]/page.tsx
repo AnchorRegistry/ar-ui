@@ -4,8 +4,9 @@ import Link from 'next/link'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import { verifyById, type AnchorRecord } from '@/lib/api'
-import { getNetworkName, getExplorerTxUrl, getSiteOrigin } from '@/lib/network'
+import { getNetworkName, getExplorerTxUrl, getExplorerAddressUrl, getSiteOrigin } from '@/lib/network'
 import ArtifactTree from './ArtifactTree'
+import ProvenanceActions from './ProvenanceActions'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -122,8 +123,13 @@ export default async function VerifyId({ params }: Props) {
   const date = new Date(a.block_timestamp).toLocaleDateString('en-US', {
     month: 'long', day: 'numeric', year: 'numeric',
   })
-  const [network, explorerUrl] = await Promise.all([
-    getNetworkName(), getExplorerTxUrl(a.tx_hash),
+  // Contract Continuity — link to the contract this anchor lives on, falling
+  // back to the tx's contract if a pre-Phase-6 row lacks registry_address.
+  const registryAddress = a.registry_address ?? ''
+  const [network, explorerUrl, contractUrl] = await Promise.all([
+    getNetworkName(),
+    getExplorerTxUrl(a.tx_hash),
+    registryAddress ? getExplorerAddressUrl(registryAddress) : Promise.resolve(''),
   ])
   // Explicit /machine/{id} URL — always JSON, no content negotiation
   const machineUrl = a.machine_url.replace(`/${a.ar_id}`, `/machine/${a.ar_id}`)
@@ -139,12 +145,15 @@ export default async function VerifyId({ params }: Props) {
     ...(a.license && { license: a.license }),
     ...(a.url && { sameAs: a.url }),
     additionalProperty: [
-      { '@type': 'PropertyValue', name: 'manifestHash',   value: a.manifest_hash },
-      { '@type': 'PropertyValue', name: 'txHash',         value: a.tx_hash },
-      { '@type': 'PropertyValue', name: 'blockNumber',    value: a.block_number },
-      { '@type': 'PropertyValue', name: 'artifactType',   value: a.artifact_type },
-      { '@type': 'PropertyValue', name: 'network',        value: network },
-      { '@type': 'PropertyValue', name: 'machineUrl',     value: machineUrl },
+      { '@type': 'PropertyValue', name: 'manifestHash',    value: a.manifest_hash },
+      { '@type': 'PropertyValue', name: 'txHash',          value: a.tx_hash },
+      { '@type': 'PropertyValue', name: 'blockNumber',     value: a.block_number },
+      { '@type': 'PropertyValue', name: 'artifactType',    value: a.artifact_type },
+      { '@type': 'PropertyValue', name: 'network',         value: network },
+      { '@type': 'PropertyValue', name: 'machineUrl',      value: machineUrl },
+      ...(registryAddress
+        ? [{ '@type': 'PropertyValue', name: 'registryAddress', value: registryAddress }]
+        : []),
     ],
   }
 
@@ -278,8 +287,33 @@ export default async function VerifyId({ params }: Props) {
                       {a.tx_hash}
                     </a>
                   </div>
+                  {registryAddress && (
+                    <div>
+                      <div className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-muted-slate">
+                        Registry Contract
+                      </div>
+                      <a
+                        href={contractUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block break-all rounded border border-[#2E4270] bg-bg px-3 py-2.5 font-mono text-[12px] leading-relaxed text-electric-blue transition-opacity hover:opacity-80"
+                      >
+                        {registryAddress}
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
+
+              {/* Owner actions — SEAL / RETRACTION. Visibility is driven by
+                  the anchor's current state; the component returns null when
+                  neither action applies. */}
+              <ProvenanceActions
+                arId={a.ar_id}
+                isTreeRoot={a.depth === 0 || !a.parent_hash}
+                isSealed={a.is_sealed ?? false}
+                isRetracted={a.is_retracted ?? false}
+              />
 
             </div>
 
