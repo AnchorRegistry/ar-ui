@@ -568,17 +568,6 @@ ORDER BY block_timestamp ASC`}
             <section id="security">
               <SectionLabel>05</SectionLabel>
               <SectionHeading>Security &amp; trust</SectionHeading>
-              <Prose className="mb-6">
-                The formal model, proofs, and threat analysis are published in{' '}
-                <a
-                  href="https://arxiv.org/abs/2604.03434"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-electric-blue hover:underline"
-                >
-                  Trustless Provenance Trees (Moore, 2026)
-                </a>.
-              </Prose>
               <Prose className="mb-2">The governing principle:</Prose>
               <blockquote className="mb-8 border-l-2 border-gold pl-5">
                 <p className="text-[17px] font-medium text-off-white">
@@ -654,6 +643,18 @@ ORDER BY block_timestamp ASC`}
                 Anchored event log for zero commitments and you have the complete
                 governance record.
               </Prose>
+
+              <p className="mt-10 border-t border-[#2E4270] pt-5 text-[12px] leading-[1.6] text-muted-slate/70">
+                The formal model, proofs, and threat analysis are published in{' '}
+                <a
+                  href="https://arxiv.org/abs/2604.03434"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-electric-blue hover:underline"
+                >
+                  Trustless Provenance Trees (Moore, 2026)
+                </a>.
+              </p>
             </section>
 
             <Divider />
