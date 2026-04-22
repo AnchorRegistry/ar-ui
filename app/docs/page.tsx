@@ -160,6 +160,61 @@ const FAQ = [
     a: 'Every flag is reviewed by a human and triggers a REVIEW anchor — a soft on-chain flag that marks the anchor as contested and opens a 14-day response window for both parties. If fraud is confirmed, a VOID anchor is attached to the parent of the fraud origin and cascades down the subtree, disabling resolution while leaving the original records permanently visible on-chain. If the finding is overturned on appeal, an AFFIRMED anchor reinstates the tree — a tree that has been challenged, investigated, and vindicated carries the strongest possible trust signal.',
   },
   {
+    q: 'Can anyone cite my tree?',
+    a: "Yes. Anyone can register an anchor in their own tree that points at any anchor in yours — like a paper citing another paper, no consent required. The citing anchor lives in the citer's tree, not yours. Your tree is defined by your Anchor Key: only anchors you authored carry your tree's identity commitment. Structural links in the on-chain graph are public; tree ownership is cryptographic. If someone attaches a malicious child to a node in your tree, the dispute process handles it — a VOID anchor targets the fraudulent subtree's root and cascades, removing it from resolution without touching your original anchors.",
+  },
+  {
+    q: 'Can I verify on-chain records without AnchorRegistry?',
+    a: (
+      <>
+        <p className="mb-3">
+          Yes. Every AnchorRegistry record is stored immutably on Base L2
+          and can be read directly from the blockchain by anyone, with no
+          dependency on anchorregistry.com, anchorregistry.ai, or the
+          AnchorRegistry orchestrator. This is the core legal-and-compliance
+          property of the system: if you need to demonstrate to a counterparty
+          that a record exists and is authentic, you can do so independently.
+          AR cannot revoke the record, take it offline, or alter it — and a
+          verifier does not need to trust AR in any way.
+        </p>
+        <p className="mb-3">
+          Technical users can reach the same records programmatically. The
+          open-source <span className="font-mono text-electric-blue">anchorregistry</span>{' '}
+          Python package (Apache 2.0) connects to Base via any Ethereum RPC,
+          reads the contract&apos;s Anchored events, and reconstructs the full
+          registry — trees, lineage, metadata — with no API key, no login,
+          and no call to AR infrastructure.
+        </p>
+        <p className="mb-3">
+          A holder of an Anchor Key can also cryptographically authenticate
+          a tree they own:
+        </p>
+        <pre className="mb-3 overflow-x-auto rounded border border-[#2E4270] bg-[#0d1829] px-4 py-3 font-mono text-[12px] leading-relaxed text-electric-blue">
+{`from anchorregistry import authenticate_tree
+
+result = authenticate_tree(
+    ownership_token = K,
+    root_ar_id      = R,
+)
+# result["authenticated"] == True iff
+#   keccak256(K ‖ R)   == treeId        AND
+#   keccak256(K ‖ C_i) == tokenCommitment_i  for every anchor in the tree`}
+        </pre>
+        <p>
+          Full API and examples in the{' '}
+          <a
+            href="https://anchorregistry.readthedocs.io"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-electric-blue hover:underline"
+          >
+            anchorregistry python docs
+          </a>.
+        </p>
+      </>
+    ),
+  },
+  {
     q: 'Can the same artifact be registered twice?',
     a: 'No. The contract enforces uniqueness on manifestHash. AlreadyRegistered() reverts any duplicate. First registration wins — permanently, on-chain.',
   },
@@ -667,9 +722,13 @@ ORDER BY block_timestamp ASC`}
                 {FAQ.map((item, i) => (
                   <div key={i} className={`px-5 py-5 ${i < FAQ.length - 1 ? 'border-b border-[#2E4270]' : ''}`}>
                     <div className="mb-2 text-[14px] font-medium text-off-white">{item.q}</div>
-                    <p className="text-[13px] leading-[1.65] text-muted-slate whitespace-pre-line">
-                      <LinkifiedProse text={item.a} />
-                    </p>
+                    {typeof item.a === 'string' ? (
+                      <p className="text-[13px] leading-[1.65] text-muted-slate whitespace-pre-line">
+                        <LinkifiedProse text={item.a} />
+                      </p>
+                    ) : (
+                      <div className="text-[13px] leading-[1.65] text-muted-slate">{item.a}</div>
+                    )}
                   </div>
                 ))}
               </div>
