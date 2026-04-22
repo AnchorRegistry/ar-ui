@@ -350,7 +350,7 @@ export default function Docs() {
                   </a>
                 ))}
               </nav>
-              <div className="mt-6 border-t border-[#2E4270] pt-4">
+              <div className="mt-6 flex flex-col gap-1 border-t border-[#2E4270] pt-4">
                 <a
                   href="https://arxiv.org/abs/2604.03434"
                   target="_blank"
@@ -358,6 +358,14 @@ export default function Docs() {
                   className="inline-flex items-center gap-1 rounded px-2 py-1.5 text-[13px] text-muted-slate transition-colors hover:bg-surface hover:text-off-white"
                 >
                   Paper <span className="text-muted-slate/60">↗</span>
+                </a>
+                <a
+                  href="https://anchorregistry.readthedocs.io"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 rounded px-2 py-1.5 text-[13px] text-muted-slate transition-colors hover:bg-surface hover:text-off-white"
+                >
+                  Python docs <span className="text-muted-slate/60">↗</span>
                 </a>
               </div>
             </div>
@@ -555,19 +563,45 @@ executor: AGENT   → agent-initiated tasks, pipeline runs, evaluations`}
                 artifact is a node. The root AR-ID resolves the full tree.
               </Prose>
 
-              <h3 className="mb-3 text-[16px] font-medium text-off-white">The tree ID</h3>
+              <h3 className="mb-3 text-[16px] font-medium text-off-white">The dual commitment scheme</h3>
               <Prose className="mb-4">
-                Every node in a tree carries the same{' '}
-                <span className="font-mono text-electric-blue">treeId</span> —
-                a cryptographic commitment derived as:
+                Every tree carries two cryptographic commitments, both derived from
+                your single Anchor Key K. Together they prove both who owns the tree
+                and who wrote each individual anchor.
               </Prose>
-              <CodeBlock label="Tree ID derivation">
-{`treeId = keccak256(K ‖ rootArId)
+
+              <Prose className="mb-3">
+                The <span className="text-off-white">tree identity commitment</span> T
+                proves tree ownership. It is the same for every anchor in your tree:
+              </Prose>
+              <CodeBlock label="Tree identity commitment">
+{`T = keccak256(K ‖ rootArId)
 
 # K         — your Anchor Key (32 random bytes, generated in your browser, never sent to AnchorRegistry)
 # rootArId  — the AR-ID of the root anchor in your tree
 # ‖         — byte-level concatenation`}
               </CodeBlock>
+
+              <Prose className="mb-3 mt-6">
+                The <span className="text-off-white">per-anchor initiation commitment</span> Φᵢ
+                proves authorship of each individual anchor. Every anchor in your tree
+                carries a distinct Φᵢ, but all derive from the same K:
+              </Prose>
+              <CodeBlock label="Per-anchor initiation commitment">
+{`Φᵢ = keccak256(K ‖ arIdᵢ)
+
+# K       — your Anchor Key (same one used for T)
+# arIdᵢ   — the AR-ID of anchor i`}
+              </CodeBlock>
+
+              <Prose className="mt-6 mb-4">
+                This is the unified property: one credential proves both tree ownership
+                (via T) and per-anchor authorship (via every Φᵢ). AnchorRegistry
+                cannot forge either commitment — K never leaves your browser, and
+                without K, producing a matching commitment is computationally infeasible.
+                This is what makes &ldquo;not your keys, not your trees&rdquo; literally true rather
+                than a policy promise. Full proofs in the arXiv paper.
+              </Prose>
               <div className="mt-5 mb-6 rounded-lg border border-gold/30 bg-gold/5 p-5">
                 <p className="mb-1 font-mono text-[13px] font-medium text-gold">
                   Not your keys, not your trees.
