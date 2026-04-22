@@ -1,26 +1,36 @@
 'use client'
 
 import { useState } from 'react'
+import { keccak_256 } from 'js-sha3'
 import { TokenToggleButton } from '@/components/MaskedToken'
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
-async function sha256Hex(input: string): Promise<string> {
-  const buf = new TextEncoder().encode(input)
-  const subtle =
-    (typeof crypto !== 'undefined' && crypto.subtle) ||
-    (globalThis as unknown as { crypto?: { subtle?: SubtleCrypto } })?.crypto?.subtle
-  if (!subtle) {
-    throw new Error('crypto.subtle unavailable — use HTTPS')
+/** Convert 0x-prefixed hex string to Uint8Array. */
+function hexToBytes(hex: string): Uint8Array {
+  const h = hex.startsWith('0x') ? hex.slice(2) : hex
+  const out = new Uint8Array(h.length / 2)
+  for (let i = 0; i < out.length; i++) {
+    out[i] = parseInt(h.slice(i * 2, i * 2 + 2), 16)
   }
-  const out = await subtle.digest('SHA-256', buf)
-  return Array.from(new Uint8Array(out))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
+  return out
 }
 
-async function tokenCommitment(anchorKey: string, arId: string): Promise<string> {
-  return '0x' + (await sha256Hex(anchorKey.trim() + arId.trim()))
+/**
+ * keccak256(K ‖ arId) — paper spec §4.2.
+ * K: Anchor Key as 0x-prefixed bytes32 hex string → decoded to 32 raw bytes.
+ * arId: AR-ID string → UTF-8 bytes.
+ * Matches the construction in ar-ui/app/register/confirm/page.tsx so the
+ * same Anchor Key produces consistent commitments across registration,
+ * SEAL, and RETRACTION. Returns 0x-prefixed bytes32 hex string.
+ */
+function tokenCommitment(anchorKey: string, arId: string): string {
+  const kBytes   = hexToBytes(anchorKey.trim())
+  const idBytes  = new TextEncoder().encode(arId.trim())
+  const preimage = new Uint8Array(kBytes.length + idBytes.length)
+  preimage.set(kBytes, 0)
+  preimage.set(idBytes, kBytes.length)
+  return '0x' + keccak_256(preimage)
 }
 
 // ─── shared bits ─────────────────────────────────────────────────────────────
@@ -87,7 +97,7 @@ function SealForm({ arId }: { arId: string }) {
     setError('')
     setSubmitting(true)
     try {
-      const tc   = await tokenCommitment(token, arId)
+      const tc   = tokenCommitment(token, arId)
       const res  = await fetch('/api/seal', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -252,7 +262,7 @@ function RetractionForm({ arId }: { arId: string }) {
     setError('')
     setSubmitting(true)
     try {
-      const tc  = await tokenCommitment(token, arId)
+      const tc  = tokenCommitment(token, arId)
       const res = await fetch('/api/retraction', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -109,7 +109,7 @@ const FAQ = [
   },
   {
     q: 'What is the Anchor Key and why does it matter?',
-    a: 'The Anchor Key is a private key you generate and hold. Your tree token — sha256(anchorKey + rootArId) — is derived from it and stored on every node in your tree. This means only you can prove ownership of your tree. AnchorRegistry never has access to your Anchor Key and cannot read who owns a given tree. Not your keys, not your trees.',
+    a: 'The Anchor Key is a 32-byte random private credential you generate and hold. Your tree ID — keccak256(K ‖ rootArId) — is derived from it and written to every node in your tree. This means only the holder of K can produce a matching commitment on any future anchor in this tree. AnchorRegistry never has access to your Anchor Key and cannot read which trees you own. Not your keys, not your trees.',
   },
   {
     q: 'What if I lose my Anchor Key?',
@@ -122,6 +122,10 @@ const FAQ = [
   {
     q: 'Can I retract a registration?',
     a: 'Yes. Retraction is a self-service operation ($2) that attaches a RETRACTION anchor to the original record. All blockchain records are permanent and cannot be deleted — that is by design. What retraction does is signal intent: the resolution layer reads the latest state of your provenance tree and renders it accordingly, so a retracted anchor is surfaced as retracted and a replacement AR-ID, if provided, is followed automatically. The tree always reflects your most current preference. The on-chain record of everything that happened remains intact and auditable.',
+  },
+  {
+    q: 'What does it mean to seal a tree?',
+    a: 'Sealing marks a provenance tree as authentic and complete — no new anchors may be appended. Only the tree root can be sealed, and only by someone holding the original Anchor Key. The contract enforces several conditions at registerSeal(): the anchor must be a tree root, it must not already be sealed, it must not be voided or under review, and a non-zero token commitment is required. Sealing is permanent and cannot be reversed — not by the tree owner and not by AnchorRegistry. AR governance (VOID, REVIEW, AFFIRMED) can still target anchors inside sealed trees, so sealing is not a shield against fraud findings.',
   },
   {
     q: 'Is this legal proof in court?',
@@ -293,7 +297,7 @@ anchorregistry.ai/AR-2026-K7X9M2P`}
               <h3 className="mb-3 mt-8 text-[16px] font-medium text-off-white">How to register</h3>
               <div className="mb-6 grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-[#2E4270] bg-[#2E4270] sm:grid-cols-4">
                 {[
-                  { n: '01', t: 'Choose type',   b: 'Pick from 21 artifact types across 7 groups.' },
+                  { n: '01', t: 'Choose type',   b: 'Pick from 24 artifact types across 8 groups.' },
                   { n: '02', t: 'Fill manifest', b: 'Title, author, descriptor, type-specific fields.' },
                   { n: '03', t: 'Anchor Key',    b: 'Your private key. Controls your provenance tree. Save it.' },
                   { n: '04', t: 'Pay & anchor',  b: '$5. Hash computed in browser. Nothing uploaded.' },
@@ -358,7 +362,7 @@ DAPX-Anchor: anchorregistry.ai/AR-2026-K7X9M2P`}
               <Prose className="mb-12">
                 Every use case is the same fundamental problem: prove something existed, in this
                 exact form, at this exact moment, and that it has not been altered since.
-                Twenty-one artifact types. Five verticals. One registry.
+                Twenty-four artifact types. Five verticals. One registry.
               </Prose>
 
               <div className="space-y-20">
@@ -387,9 +391,9 @@ DAPX-Anchor: anchorregistry.ai/AR-2026-K7X9M2P`}
               <SectionLabel>03</SectionLabel>
               <SectionHeading>Artifact types</SectionHeading>
               <Prose className="mb-8">
-                Twenty-one types across seven logical groups. All types (0–12, 16–20)
-                are active at launch. Gated types (13–15) require verification infrastructure
-                and open progressively in V2–V4.
+                Twenty-four types across eight logical groups. All non-gated types are active
+                at launch. Gated types (LEGAL, ENTITY, PROOF — IDs 14–16) require verification
+                infrastructure and open progressively in V2–V4.
               </Prose>
 
               <div className="overflow-hidden rounded-lg border border-[#2E4270]">
@@ -454,17 +458,18 @@ executor: AGENT   → agent-initiated tasks, pipeline runs, evaluations`}
                 artifact is a node. The root AR-ID resolves the full tree.
               </Prose>
 
-              <h3 className="mb-3 text-[16px] font-medium text-off-white">The tree token</h3>
+              <h3 className="mb-3 text-[16px] font-medium text-off-white">The tree ID</h3>
               <Prose className="mb-4">
                 Every node in a tree carries the same{' '}
                 <span className="font-mono text-electric-blue">treeId</span> —
-                a cryptographic token derived as:
+                a cryptographic commitment derived as:
               </Prose>
-              <CodeBlock label="Tree token derivation">
-{`treeId = sha256(anchorKey + rootArId)
+              <CodeBlock label="Tree ID derivation">
+{`treeId = keccak256(K ‖ rootArId)
 
-# anchorKey  — your private key, never sent to AnchorRegistry
-# rootArId   — the AR-ID of the root anchor in your tree`}
+# K         — your Anchor Key (32 random bytes, generated in your browser, never sent to AnchorRegistry)
+# rootArId  — the AR-ID of the root anchor in your tree
+# ‖         — byte-level concatenation`}
               </CodeBlock>
               <div className="mt-5 mb-6 rounded-lg border border-gold/30 bg-gold/5 p-5">
                 <p className="mb-1 font-mono text-[13px] font-medium text-gold">
@@ -477,20 +482,6 @@ executor: AGENT   → agent-initiated tasks, pipeline runs, evaluations`}
                   from your key, AR cannot compute it, cannot read which trees you own,
                   and cannot impersonate you. Self-custody is structural, not a policy.
                 </p>
-              </div>
-
-              <h3 className="mb-3 text-[16px] font-medium text-off-white">Tree permissions</h3>
-              <div className="mb-6 overflow-hidden rounded-lg border border-[#2E4270]">
-                {[
-                  { mode: 'CLOSED',      desc: 'Default. Only the owner can add children. No one else can attach to your tree.' },
-                  { mode: 'OPEN',        desc: 'Anyone can add a child to any node. Useful for public, collaborative lineage.' },
-                  { mode: 'WHITELISTED', desc: 'Specific addresses approved by the owner can add children.' },
-                ].map((p, i) => (
-                  <div key={p.mode} className={`flex items-start gap-4 px-4 py-3.5 ${i < 2 ? 'border-b border-[#2E4270]' : ''}`}>
-                    <span className="mt-0.5 w-[110px] shrink-0 font-mono text-[12px] font-medium text-gold">{p.mode}</span>
-                    <span className="text-[13px] leading-[1.55] text-muted-slate">{p.desc}</span>
-                  </div>
-                ))}
               </div>
 
               <h3 className="mb-3 text-[16px] font-medium text-off-white">Tree recovery</h3>
@@ -539,7 +530,7 @@ ORDER BY block_timestamp ASC`}
               <div className="mb-6 overflow-hidden rounded-lg border border-[#2E4270]">
                 {[
                   { role: 'Owner',            desc: 'Governance only. Add/remove operators. Transfer ownership. Cancel recovery. Cannot register anchors.' },
-                  { role: 'Operator',         desc: 'Registration only. All register() functions for active types. Cannot touch governance.' },
+                  { role: 'Operator',         desc: 'Registration only. Calls registerContent, registerTargeted, and registerSeal. Cannot call registerGated (LEGAL/ENTITY/PROOF) or any governance function.' },
                   { role: 'Recovery address', desc: 'Last resort. Initiate and execute ownership transfer after 7-day timelock. Can rotate itself.' },
                   { role: 'Gated operators',  desc: 'Legal, Entity, Proof — each can only call their single register function. No operators at deployment.' },
                 ].map((r, i) => (
@@ -567,10 +558,15 @@ ORDER BY block_timestamp ASC`}
 
               <h3 className="mb-3 text-[16px] font-medium text-off-white">Can a record be faked?</h3>
               <Prose className="mb-4">
-                The manifest hash is SHA-256 of your full manifest fields bound to your Anchor Key.
-                The contract enforces uniqueness —{' '}
+                The manifest hash is SHA-256 of your full manifest fields bound to your Anchor Key —
+                anyone reconstructing it needs the same K, and K never leaves your browser.
+                The contract additionally requires a non-zero token commitment
+                (<span className="font-mono text-electric-blue">keccak256(K ‖ arId)</span>) on every user-initiated registration;
+                governance anchors (REVIEW, VOID, AFFIRMED) hardcode this to zero, so
+                AnchorRegistry cannot impersonate a user-initiated registration.
+                The contract also enforces AR-ID uniqueness —{' '}
                 <span className="font-mono text-electric-blue">AlreadyRegistered()</span> reverts
-                any duplicate hash. First registration wins permanently.
+                any duplicate. First registration wins permanently.
               </Prose>
 
               <h3 className="mb-3 text-[16px] font-medium text-off-white">The dispute system</h3>
