@@ -30,9 +30,9 @@ const ARTIFACT_TYPES = [
   { id: 11, group: 'Content',      name: 'WEBSITE',    status: 'active', desc: 'Web pages, apps, online platforms.' },
   { id: 12, group: 'Lifecycle',    name: 'EVENT',      status: 'active', desc: 'Human events and machine/agent processes.' },
   { id: 13, group: 'Transaction',  name: 'RECEIPT',    status: 'active', desc: 'Purchase, medical, financial, government receipts.' },
-  { id: 14, group: 'Gated',        name: 'LEGAL',      status: 'v2',     desc: 'Contracts, patents, filings, disclosures.' },
-  { id: 15, group: 'Gated',        name: 'ENTITY',     status: 'v2',     desc: 'Verified persons, companies, AI systems.' },
-  { id: 16, group: 'Gated',        name: 'PROOF',      status: 'v4',     desc: 'ZK proofs, formal verifications, security audits.' },
+  { id: 14, group: 'Gated',        name: 'LEGAL',      status: 'pending', desc: 'Contracts, patents, filings, disclosures.' },
+  { id: 15, group: 'Gated',        name: 'ENTITY',     status: 'pending', desc: 'Verified persons, companies, AI systems.' },
+  { id: 16, group: 'Gated',        name: 'PROOF',      status: 'pending', desc: 'ZK proofs, formal verifications, security audits.' },
   { id: 17, group: 'Self-service', name: 'SEAL',       status: 'active', desc: 'Tree sealed — authentic, complete, permanent.' },
   { id: 18, group: 'Self-service', name: 'RETRACTION', status: 'active', desc: 'Owner-initiated anchor retraction.' },
   { id: 19, group: 'Review',       name: 'REVIEW',     status: 'active', desc: 'Soft flag — anchor under review.' },
@@ -129,7 +129,7 @@ const FAQ = [
   },
   {
     q: 'Is there a paper?',
-    a: 'Yes. "Trustless Provenance Trees: A Game-Theoretic Framework for Operator-Gated Blockchain Registries" (I. Moore, 2026) — https://arxiv.org/abs/2604.03434. The paper defines the construction formally: tree ID derivation, the keccak256(K ‖ arId) commitment scheme, Theorem 3 (governance separation via hardcoded zero commitments on REVIEW/VOID/AFFIRMED), and the trust model. It is the source of record for the formal guarantees users and agents rely on — everything on this page is downstream of what the paper proves.',
+    a: 'Yes. "Trustless Provenance Trees: A Game-Theoretic Framework for Operator-Gated Blockchain Registries" (I. Moore, 2026) — https://arxiv.org/abs/2604.03434. The paper defines the construction formally: tree ID derivation, the keccak256(K ‖ arId) commitment scheme, Theorem 3 (governance separation via hardcoded zero commitments), and the trust model. It is the source of record for the formal guarantees users and agents rely on — everything on this page is downstream of what the paper proves.',
   },
   {
     q: 'Is this legal proof in court?',
@@ -425,7 +425,7 @@ DAPX-Anchor: anchorregistry.ai/AR-2026-K7X9M2P`}
               <Prose className="mb-8">
                 Twenty-four types across eight logical groups. All non-gated types are active
                 at launch. Gated types (LEGAL, ENTITY, PROOF — IDs 14–16) require verification
-                infrastructure and open progressively in V2–V4.
+                infrastructure and remain pending until that infrastructure is in place.
               </Prose>
 
               <div className="overflow-hidden rounded-lg border border-[#2E4270]">
