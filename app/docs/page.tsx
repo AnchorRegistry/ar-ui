@@ -295,6 +295,16 @@ export default function Docs() {
                   </a>
                 ))}
               </nav>
+              <div className="mt-6 border-t border-[#2E4270] pt-4">
+                <a
+                  href="https://arxiv.org/abs/2604.03434"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 rounded px-2 py-1.5 text-[13px] text-muted-slate transition-colors hover:bg-surface hover:text-off-white"
+                >
+                  Paper <span className="text-muted-slate/60">↗</span>
+                </a>
+              </div>
             </div>
           </aside>
 
@@ -558,6 +568,17 @@ ORDER BY block_timestamp ASC`}
             <section id="security">
               <SectionLabel>05</SectionLabel>
               <SectionHeading>Security &amp; trust</SectionHeading>
+              <Prose className="mb-6">
+                The formal model, proofs, and threat analysis are published in{' '}
+                <a
+                  href="https://arxiv.org/abs/2604.03434"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-electric-blue hover:underline"
+                >
+                  Trustless Provenance Trees (Moore, 2026)
+                </a>.
+              </Prose>
               <Prose className="mb-2">The governing principle:</Prose>
               <blockquote className="mb-8 border-l-2 border-gold pl-5">
                 <p className="text-[17px] font-medium text-off-white">
