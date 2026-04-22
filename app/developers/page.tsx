@@ -306,6 +306,101 @@ export default function DevelopersPage() {
           </CopyCodeBlock>
         </section>
 
+        <Divider />
+
+        {/* ── §6 Python Package ───────────────────────────────────────── */}
+        <section id="python">
+          <SectionLabel>§6 · Python Package</SectionLabel>
+          <SectionHeading>Read the registry directly from Base</SectionHeading>
+          <Prose className="mb-6">
+            <span className="text-off-white">No API key. No account. No dependency on
+            AnchorRegistry infrastructure.</span>{' '}
+            Just an RPC endpoint and the contract address. The{' '}
+            <span className="font-mono text-electric-blue">anchorregistry</span> Python
+            package reads on-chain event logs directly — trustless by construction. If
+            anchorregistry.com goes offline tomorrow, every anchor remains queryable
+            with this package and any Ethereum RPC provider.
+          </Prose>
+
+          <CopyCodeBlock label="Install">
+{`pip install anchorregistry`}
+          </CopyCodeBlock>
+
+          <div className="mt-4">
+            <CopyCodeBlock label="Configure for Base mainnet (default)">
+{`from anchorregistry import configure
+
+configure(network="base")`}
+            </CopyCodeBlock>
+          </div>
+
+          <div className="mt-4">
+            <CopyCodeBlock label="Look up an anchor by AR-ID">
+{`from anchorregistry import get_by_arid
+
+record = get_by_arid("AR-2026-x1llnO1")
+print(record["artifact_type_name"])   # CODE
+print(record["manifest_hash"])        # sha256 of the artifact
+print(record["contract_address"])     # which deployment holds it`}
+            </CopyCodeBlock>
+          </div>
+
+          <div className="mt-4">
+            <CopyCodeBlock label="Authenticate a full provenance tree">
+{`from anchorregistry import authenticate_tree
+
+result = authenticate_tree(
+    ownership_token="0x1a2b3c...",
+    root_ar_id="AR-2026-x1llnO1",
+)
+print(result["authenticated"])      # True
+print(result["anchors_verified"])   # 3
+print(result["anchors_failed"])     # 0`}
+            </CopyCodeBlock>
+          </div>
+
+          <div className="mt-4">
+            <CopyCodeBlock label="Verify an anchor + check file integrity">
+{`from anchorregistry import verify
+
+result = verify("AR-2026-x1llnO1", file_path="./my_artifact.py")
+print(result["verified"])     # True
+print(result["hash_match"])   # True`}
+            </CopyCodeBlock>
+          </div>
+
+          <div className="mt-4">
+            <CopyCodeBlock label="Generate the correct embed tag">
+{`from anchorregistry import watermark
+
+tag = watermark("AR-2026-x1llnO1")
+# "SPDX-Anchor: anchorregistry.ai/AR-2026-x1llnO1"`}
+            </CopyCodeBlock>
+          </div>
+
+          <div className="mt-4">
+            <CopyCodeBlock label="Check if a tree is sealed">
+{`from anchorregistry import is_sealed
+
+status = is_sealed("AR-2026-x1llnO1")
+print(status["sealed"])         # True
+print(status["continuation"])   # AR-2026-YYYYYYY`}
+            </CopyCodeBlock>
+          </div>
+
+          <p className="mt-6 text-[13px] leading-[1.7] text-muted-slate">
+            Full documentation:{' '}
+            <a
+              href="https://anchorregistry.readthedocs.io/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-electric-blue hover:underline"
+            >
+              anchorregistry.readthedocs.io
+            </a>
+          </p>
+        </section>
+
         <div className="mt-16 rounded-lg border border-[#2E4270] bg-surface px-6 py-5">
           <div className="mb-1 text-[14px] font-medium text-off-white">Need more?</div>
           <p className="text-[13px] leading-[1.65] text-muted-slate">
