@@ -246,28 +246,28 @@ const ACTS: Act[] = [
   {
     step: 2, tier: 'Tree', tierPrice: '$12', tierColor: ROOT, who: 'You',
     headline: 'Announce it. Ship the code.',
-    body: 'You post the announcement thread and release the implementation. One Tree payment registers both, linked back to the paper. Your root AR-ID now resolves the announcement and the code — all yours, all traceable.',
+    body: 'You post the announcement thread and release the implementation. One Tree payment registers both, linked back to the paper. Your root AR-ID now resolves the announcement and the code.',
     newNodes: ['post', 'code'], newEdges: ['researchToPost', 'researchToCode'],
     allNodes: ['research', 'post', 'code'],
     allEdges: ['researchToPost', 'researchToCode'],
   },
   {
-    step: 3, tier: 'Pair', tierPrice: '$9', tierColor: '#7B93C4', who: 'A collaborator',
-    headline: 'Others declare their lineage.',
-    body: 'A collaborator trains a model on your code and builds an agent from it. They register both and declare your code as their parent — that declaration is theirs to make. The registry records it. Your root anchor is unchanged.',
-    newNodes: ['model', 'agent'], newEdges: ['codeToModel', 'codeToAgent'],
-    allNodes: ['research', 'post', 'code', 'model', 'agent'],
-    allEdges: ['researchToPost', 'researchToCode', 'codeToModel', 'codeToAgent'],
+    step: 3, tier: 'Anchor', tierPrice: '$5', tierColor: ROOT, who: 'You',
+    headline: 'Publish the model.',
+    body: 'You train a model on your code and anchor it as a child of the repo. Your tree now resolves the paper, the announcement, the code, and the model that followed from it — one AR-ID, full lineage.',
+    newNodes: ['model'], newEdges: ['codeToModel'],
+    allNodes: ['research', 'post', 'code', 'model'],
+    allEdges: ['researchToPost', 'researchToCode', 'codeToModel'],
   },
   {
-    step: 4, tier: 'Anchor', tierPrice: '$5', tierColor: '#EC4899', who: 'Another collaborator',
-    headline: 'The record grows on its own.',
-    body: "A second collaborator makes a concept video based on the code and anchors it, declaring the GitHub repo as their parent. They wrote their own provenance — you didn't need to approve it. Like a citation. The tree is a public record, not a managed collaboration. Permissions are coming in V2.",
-    newNodes: ['media'], newEdges: ['codeToMedia'],
-    allNodes: ['research', 'post', 'code', 'model', 'agent', 'media'],
-    allEdges: ['researchToPost', 'researchToCode', 'codeToModel', 'codeToAgent', 'codeToMedia'],
+    step: 4, tier: 'Anchor', tierPrice: '$5', tierColor: ROOT, who: 'You',
+    headline: 'Build the agent.',
+    body: "You wrap the model in an agent and anchor it alongside. Everything you built — paper, announcement, code, model, agent — resolves from a single AR-ID. A lineage that can be cited: others can point at your root from their own trees, the same way papers cite papers.",
+    newNodes: ['agent'], newEdges: ['codeToAgent'],
+    allNodes: ['research', 'post', 'code', 'model', 'agent'],
+    allEdges: ['researchToPost', 'researchToCode', 'codeToModel', 'codeToAgent'],
     entryPoint: 'AR-2026-K7X9M2P',
-    entryNote: 'Share this AR-ID — it resolves everything rooted here. Every artifact, every contributor, every timestamp. Permanently.',
+    entryNote: 'Share this AR-ID — it resolves everything rooted here. Every artifact, every link, every timestamp. Permanently.',
   },
 ]
 
@@ -346,8 +346,9 @@ export default function TreePage() {
               <span className="text-gold">everything.</span>
             </h1>
             <p className="max-w-[600px] text-[16px] font-light leading-[1.75] text-muted-slate">
-              Your root anchor is yours. Machines can scrape it. Humans can share it.
-              Anyone can cite it — like a paper, like a repo, like an X post.
+              Your tree is a lineage that can be cited. One AR-ID at the root resolves
+              the full record of how the work came to be — every artifact, every link,
+              every timestamp.
             </p>
             <button
               onClick={() => setStep(ACTS.length - 1)}
@@ -453,18 +454,18 @@ export default function TreePage() {
           <div className="mt-8 flex items-center gap-8 border-t border-[#2E4270] pt-8 font-mono text-[12px] text-muted-slate">
             <span className="flex items-center gap-2">
               <svg viewBox="0 0 10 10" width="10" height="10"><circle cx="5" cy="5" r="5" fill={ROOT} /></svg>
-              root artifact — yours
+              root artifact
             </span>
             <span className="flex items-center gap-2">
               <svg viewBox="0 0 10 10" width="10" height="10"><circle cx="5" cy="5" r="5" fill={CHILD} /></svg>
-              child — declared by its author
+              child artifact
             </span>
             <span className="flex items-center gap-2">
               <svg viewBox="0 0 10 10" width="10" height="10"><circle cx="5" cy="5" r="5" fill={PULSE} /></svg>
               new this step
             </span>
             <span className="ml-auto text-muted-slate/40">
-              Permissionless in V1 · permissions coming in V2
+              One AR-ID · full lineage
             </span>
           </div>
 
