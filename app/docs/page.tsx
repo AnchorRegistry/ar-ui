@@ -137,7 +137,7 @@ const FAQ = [
   },
   {
     q: 'What happens if AnchorRegistry shuts down?',
-    a: 'Nothing happens to your records. They are on Ethereum permanently. The contract address is the registry — anyone can query it directly via Etherscan or any Ethereum RPC endpoint. The open-source anchorid CLI includes a recovery command that reconstructs the full registry from on-chain events alone, with no dependency on our infrastructure.',
+    a: 'Nothing happens to your records. They are on Ethereum permanently. The contract address is the registry — anyone can query it directly via Etherscan or any Ethereum RPC endpoint. The open-source anchorregistry Python package includes a recovery command that reconstructs the full registry from on-chain events alone, with no dependency on our infrastructure.',
   },
   {
     q: 'Will my record exist in 50 years?',
@@ -327,10 +327,13 @@ DAPX-Anchor: anchorregistry.ai/AR-2026-K7X9M2P`}
                   <div className="px-4 py-2.5 font-mono text-[11px] text-muted-slate">Off-chain (Supabase · rebuildable)</div>
                 </div>
                 {[
-                  ['AR-ID, manifest hash, parent hash', 'Title, author notes, tag fields'],
-                  ['Artifact type, descriptor',         'Full manifest JSON'],
-                  ['Tree ID, registrant address',       'Stripe payment linkage'],
-                  ['Block timestamp',                   'Verify page rendering cache'],
+                  ['AR-ID, manifest hash, parent hash', 'Stripe payment linkage'],
+                  ['Artifact type, descriptor',         'Verify page rendering cache'],
+                  ['Title, author, tag fields',         'Email (optional, for token recovery)'],
+                  ['Tree ID, registrant address',       ''],
+                  ['Artifact metadata (type-specific)', ''],
+                  ['Token commitment',                  ''],
+                  ['Block timestamp',                   ''],
                 ].map(([on, off], i) => (
                   <div key={i} className="grid grid-cols-2 divide-x divide-[#2E4270] border-b border-[#2E4270] last:border-b-0">
                     <div className="px-4 py-3 text-[13px] text-off-white">{on}</div>
@@ -341,7 +344,7 @@ DAPX-Anchor: anchorregistry.ai/AR-2026-K7X9M2P`}
               <p className="mt-3 text-[12px] leading-relaxed text-muted-slate">
                 If all off-chain infrastructure disappears, the complete registry is recoverable
                 from Ethereum events alone using{' '}
-                <span className="font-mono text-electric-blue">anchorid recover</span>.
+                <span className="font-mono text-electric-blue">anchorregistry recover</span>.
                 Ethereum is the ground truth.
               </p>
             </section>
