@@ -128,6 +128,10 @@ const FAQ = [
     a: 'Sealing marks a provenance tree as authentic and complete — no new anchors may be appended. Only the tree root can be sealed, and only by someone holding the original Anchor Key. The contract enforces several conditions at registerSeal(): the anchor must be a tree root, it must not already be sealed, it must not be voided or under review, and a non-zero token commitment is required. Sealing is permanent and cannot be reversed — not by the tree owner and not by AnchorRegistry. AR governance (VOID, REVIEW, AFFIRMED) can still target anchors inside sealed trees, so sealing is not a shield against fraud findings.',
   },
   {
+    q: 'Is there a paper?',
+    a: 'Yes. "AnchorRegistry: A Tamper-Evident Provenance Registry with Governance Separation" (I. Moore, 2026) — https://arxiv.org/abs/2604.03434. The paper defines the construction formally: tree ID derivation, the keccak256(K ‖ arId) commitment scheme, Theorem 3 (governance separation via hardcoded zero commitments on REVIEW/VOID/AFFIRMED), and the trust model. It is the source of record for the formal guarantees users and agents rely on — everything on this page is downstream of what the paper proves.',
+  },
+  {
     q: 'Is this legal proof in court?',
     a: 'AnchorRegistry provides a timestamped, cryptographic, independently verifiable record of what existed and when. It is strong prior art evidence and has been compared to a notary stamp with a blockchain witness. We are not lawyers and this is not legal advice. Consult counsel for your specific jurisdiction.',
   },
@@ -499,13 +503,24 @@ WHERE tree_id = '<treeId>'
 ORDER BY block_timestamp ASC`}
               </CodeBlock>
 
-              <h3 className="mb-3 mt-8 text-[16px] font-medium text-off-white">AR dispute trees</h3>
+              <h3 className="mb-3 mt-8 text-[16px] font-medium text-off-white">Distinguishing governance from user-initiated anchors</h3>
               <Prose>
-                All REVIEW, VOID, and AFFIRMED anchors registered by AnchorRegistry carry
-                a reserved tree ID:{' '}
-                <span className="font-mono text-electric-blue">ar-operator-v1</span>.
-                This separates AR dispute actions from tree holder actions on-chain,
-                making the dispute chain independently queryable and auditable by anyone.
+                REVIEW, VOID, and AFFIRMED anchors are registered by AnchorRegistry as
+                governance actions. The smart contract hardcodes their token commitment
+                to <span className="font-mono text-electric-blue">bytes32(0)</span> —
+                a value that user-initiated content can never carry, since{' '}
+                <span className="font-mono text-electric-blue">registerContent</span>{' '}
+                reverts with <span className="font-mono text-electric-blue">MissingTokenCommitment</span>{' '}
+                on a zero value. This makes the two classes of anchor cryptographically
+                distinguishable forever: user-initiated anchors carry a non-zero{' '}
+                <span className="font-mono text-electric-blue">keccak256(K ‖ arId)</span>{' '}
+                commitment; governance anchors carry zero. Anyone can filter the
+                Anchored event log for governance actions by scanning for zero
+                commitments, making the dispute chain independently queryable and
+                auditable. This separation is enforced immutably by the deployed
+                bytecode — AnchorRegistry cannot impersonate a user-initiated
+                registration because it cannot produce a valid non-zero commitment
+                without the user&apos;s Anchor Key.
               </Prose>
             </section>
 
@@ -583,10 +598,12 @@ ORDER BY block_timestamp ASC`}
                 ))}
               </div>
               <Prose>
-                Every enforcement decision is logged on-chain permanently via the{' '}
-                <span className="font-mono text-electric-blue">ar-operator-v1</span> tree ID.
-                AnchorRegistry cannot act in secret. The full dispute chain is always public
-                and queryable by anyone.
+                Every enforcement decision is logged on-chain permanently and carries
+                a zero token commitment, marking it as a governance action that no user
+                could have produced. AnchorRegistry cannot act in secret. The full
+                dispute chain is always public and queryable by anyone — filter the
+                Anchored event log for zero commitments and you have the complete
+                governance record.
               </Prose>
             </section>
 
