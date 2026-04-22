@@ -129,7 +129,7 @@ const FAQ = [
   },
   {
     q: 'Is there a paper?',
-    a: 'Yes. "AnchorRegistry: A Tamper-Evident Provenance Registry with Governance Separation" (I. Moore, 2026) — https://arxiv.org/abs/2604.03434. The paper defines the construction formally: tree ID derivation, the keccak256(K ‖ arId) commitment scheme, Theorem 3 (governance separation via hardcoded zero commitments on REVIEW/VOID/AFFIRMED), and the trust model. It is the source of record for the formal guarantees users and agents rely on — everything on this page is downstream of what the paper proves.',
+    a: 'Yes. "Trustless Provenance Trees: A Game-Theoretic Framework for Operator-Gated Blockchain Registries" (I. Moore, 2026) — https://arxiv.org/abs/2604.03434. The paper defines the construction formally: tree ID derivation, the keccak256(K ‖ arId) commitment scheme, Theorem 3 (governance separation via hardcoded zero commitments on REVIEW/VOID/AFFIRMED), and the trust model. It is the source of record for the formal guarantees users and agents rely on — everything on this page is downstream of what the paper proves.',
   },
   {
     q: 'Is this legal proof in court?',
@@ -229,6 +229,34 @@ function CodeBlock({ children, label }: { children: string; label?: string }) {
         {children}
       </pre>
     </div>
+  )
+}
+
+/**
+ * Render a prose string with bare http(s) URLs turned into clickable
+ * anchor tags. Opens in a new tab with noopener/noreferrer. Preserves
+ * whitespace-pre-line newline behavior via React text node splitting.
+ */
+function LinkifiedProse({ text }: { text: string }) {
+  const parts = text.split(/(https?:\/\/[^\s)]+)/g)
+  return (
+    <>
+      {parts.map((part, i) =>
+        /^https?:\/\//.test(part) ? (
+          <a
+            key={i}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-electric-blue hover:underline break-all"
+          >
+            {part}
+          </a>
+        ) : (
+          <span key={i}>{part}</span>
+        ),
+      )}
+    </>
   )
 }
 
@@ -617,7 +645,9 @@ ORDER BY block_timestamp ASC`}
                 {FAQ.map((item, i) => (
                   <div key={i} className={`px-5 py-5 ${i < FAQ.length - 1 ? 'border-b border-[#2E4270]' : ''}`}>
                     <div className="mb-2 text-[14px] font-medium text-off-white">{item.q}</div>
-                    <p className="text-[13px] leading-[1.65] text-muted-slate whitespace-pre-line">{item.a}</p>
+                    <p className="text-[13px] leading-[1.65] text-muted-slate whitespace-pre-line">
+                      <LinkifiedProse text={item.a} />
+                    </p>
                   </div>
                 ))}
               </div>
