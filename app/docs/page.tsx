@@ -770,8 +770,8 @@ ORDER BY block_timestamp ASC`}
                 <div className="mb-1 text-[14px] font-medium text-off-white">Still have questions?</div>
                 <p className="text-[13px] text-muted-slate">
                   The contract source is fully open.{' '}
-                  <a href="https://github.com/anchorregistry/ar-onchain" target="_blank" rel="noopener noreferrer"
-                    className="text-electric-blue hover:underline">github.com/anchorregistry/ar-onchain</a>.
+                  <a href="https://github.com/anchorregistry/ar-contracts-v1" target="_blank" rel="noopener noreferrer"
+                    className="text-electric-blue hover:underline">github.com/anchorregistry/ar-contracts-v1</a>.
                   Or reach us at{' '}
                   <a href="mailto:support@anchorregistry.com" className="text-electric-blue hover:underline">
                     support@anchorregistry.com

@@ -1,0 +1,64 @@
+# AnchorRegistry
+
+> AnchorRegistry is the open provenance layer for the agentic economy. Every digital artifact — code, research, data, models, media, agents, transactions — can be anchored to Base L2 with a permanent, machine-resolvable identifier (an AR-ID). Humans pay with Stripe; AI agents pay with USDC over the [x402 protocol](https://x402.org). Verification is always free, always public. The Python SDK reads on-chain directly with no dependency on AnchorRegistry infrastructure.
+
+The two domains:
+
+- `anchorregistry.com` — human-facing product (registration UI, verify pages, docs)
+- `anchorregistry.ai` — machine-facing endpoint (smart URLs, content negotiation, JSON-first)
+
+Embedding `SPDX-Anchor: anchorregistry.ai/AR-{YYYY}-{hash}` in any artifact lets any human or AI resolve the full provenance tree in one request.
+
+## Developer docs
+
+- [Developer guide](https://anchorregistry.com/developers): ACCOUNT purchase, artifact registration, SEAL, verify flows. Full curl examples.
+- [User docs](https://anchorregistry.com/docs): Concepts — provenance trees, dual commitment scheme, dispute system, security model.
+- [OpenAPI specification](https://api.anchorregistry.ai/openapi.json): Machine-readable spec for the full REST surface.
+- [Swagger UI](https://api.anchorregistry.ai/docs): Human-readable interactive API explorer.
+
+## Core API surface
+
+Base URL: `https://api.anchorregistry.ai`
+
+- [POST /register/account](https://api.anchorregistry.ai/openapi.json): Purchase an ACCOUNT (Starter $50 / 50 anchors, Builder $100 / 200 anchors). Returns 402 with x402 payment requirements; retry with `X-PAYMENT` header. Anchor key returned once.
+- [POST /register/x402](https://api.anchorregistry.ai/openapi.json): Register an artifact using your anchor key as a bearer token. One call deducts one from your ACCOUNT balance.
+- [POST /registration/seal](https://api.anchorregistry.ai/openapi.json): Seal a provenance tree. Permanent and irreversible. Only the tree root can be sealed.
+- [GET /verify/{ar_id}](https://api.anchorregistry.ai/openapi.json): Resolve any AR-ID to its full provenance record. Free, public, no auth.
+- [GET /verify/hash/{manifest_hash}](https://api.anchorregistry.ai/openapi.json): Resolve by manifest hash. Useful when only the artifact itself is in hand.
+- [GET /account/{anchor_key}/balance](https://api.anchorregistry.ai/openapi.json): Capacity, used, remaining.
+- [GET /account/{anchor_key}/tree](https://api.anchorregistry.ai/openapi.json): Full ACCOUNT provenance tree.
+
+## Machine-readable resolution
+
+- [Smart URL — content negotiated](https://anchorregistry.ai/AR-2026-qnPOJ1z): `Accept: application/json` returns JSON; `text/html` returns the verify card. No header returns HTML.
+- [Machine endpoint — always JSON](https://anchorregistry.ai/machine/AR-2026-qnPOJ1z): Unconditional JSON, no content negotiation.
+
+## Python SDK
+
+- [PyPI package](https://pypi.org/project/anchorregistry/): `pip install anchorregistry`. Reads Base L2 directly — no API key, no AnchorRegistry account, no dependency on `api.anchorregistry.ai`. Apache 2.0.
+- [Python documentation](https://anchorregistry.readthedocs.io/): Full reference for `get_by_arid`, `verify`, `authenticate_tree`, `is_sealed`, `watermark`, and the recovery command.
+
+## Embed tags
+
+- [SPDX-Anchor convention](https://anchorregistry.com/docs#getting-started): For software artifacts (code, packages, repos). Format: `SPDX-Anchor: anchorregistry.ai/AR-{YYYY}-{hash}`.
+- [DAPX-Anchor convention](https://anchorregistry.com/docs#getting-started): For everything else (research, data, models, media, reports). Same format.
+
+## Trust and architecture
+
+- [arXiv paper](https://arxiv.org/abs/2604.03434): "Trustless Provenance Trees: A Game-Theoretic Framework for Operator-Gated Blockchain Registries" (Moore, 2026). Formal model, dual-commitment scheme, governance separation theorem.
+- [Contract source — ar-contracts-v1](https://github.com/anchorregistry/ar-contracts-v1): Solidity source under BUSL-1.1.
+- [Python SDK source — ar-python](https://github.com/anchorregistry/ar-python): Reference reader, recovery tool. Apache 2.0.
+- [BaseScan — mainnet contract](https://basescan.org/): Live event log for every anchor.
+
+## Agent-native surfaces
+
+- [x402scan listing](https://www.x402scan.com/server/c7c5463d-6fa1-413e-8844-fe05e7689119): Discoverable from any x402-aware agent. USDC on Base, autonomous payment, no human in the loop.
+- [agents.json](https://anchorregistry.ai/agents.json): Named flows derived from the OpenAPI spec — `purchase_account`, `register_artifact`, `seal_tree`, `verify_arid`.
+
+## Optional
+
+- [Pricing — Creative tier](https://anchorregistry.com/#pricing): Stripe / credit card. $5 single anchor, $9 pair, $12 tree.
+- [Pricing — Agentic tier](https://anchorregistry.com/#pricing): USDC / x402. $50 starter (50 anchors), $100 builder (200 anchors).
+- [Verify a record](https://anchorregistry.com/verify): Web form for human-driven verification.
+- [Terms of Service](https://anchorregistry.com/terms): Clickwrap ToS (V1).
+- [Support](mailto:support@anchorregistry.com): `support@anchorregistry.com`.
