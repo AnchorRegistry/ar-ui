@@ -1,0 +1,179 @@
+{
+  "$schema": "https://wildcard.com/agents.json/v1.draft",
+  "agentsJson": "0.1.0",
+  "info": {
+    "title": "AnchorRegistry",
+    "description": "On-chain provenance for digital artifacts. Anchor any artifact (code, research, data, models, media, agents, transactions) to Base L2 and receive a permanent AR-ID resolvable by any human or AI. Pay with USDC over x402 (agents) or Stripe (humans).",
+    "version": "1.5.0",
+    "contact": {
+      "name": "AnchorRegistry support",
+      "email": "support@anchorregistry.com",
+      "url": "https://anchorregistry.com"
+    },
+    "license": {
+      "name": "Service: proprietary. Contracts: BUSL-1.1. SDK: Apache-2.0.",
+      "url": "https://anchorregistry.com/terms"
+    }
+  },
+  "sources": [
+    {
+      "id": "anchorregistry-rest",
+      "type": "openapi",
+      "path": "https://api.anchorregistry.ai/openapi.json",
+      "description": "Authoritative OpenAPI 3.x specification. All endpoints, request/response schemas, and error semantics."
+    }
+  ],
+  "overrides": [],
+  "flows": [
+    {
+      "id": "verify_arid",
+      "title": "Verify an AR-ID",
+      "description": "Resolve any AR-ID to its full provenance record. Free, public, no auth, no account. Use this when you encounter an SPDX-Anchor or DAPX-Anchor tag and need to confirm what the artifact is, who anchored it, when, and whether the tree has been sealed, retracted, voided, or affirmed. Also use to check a manifest hash against on-chain records.",
+      "actions": [
+        {
+          "id": "get_verify",
+          "sourceId": "anchorregistry-rest",
+          "operationId": "verify_by_ar_id_verify__ar_id__get",
+          "method": "GET",
+          "path": "/verify/{ar_id}"
+        },
+        {
+          "id": "get_verify_by_hash",
+          "sourceId": "anchorregistry-rest",
+          "operationId": "verify_by_manifest_hash_verify_hash__manifest_hash__get",
+          "method": "GET",
+          "path": "/verify/hash/{manifest_hash}"
+        }
+      ],
+      "fields": {
+        "parameters": [
+          {
+            "fieldName": "ar_id",
+            "description": "Permanent identifier in the form AR-YYYY-XXXXXXX (7-char hash suffix).",
+            "examples": ["AR-2026-qnPOJ1z"]
+          },
+          {
+            "fieldName": "manifest_hash",
+            "description": "Hex-encoded SHA-256 manifest hash, no 0x prefix.",
+            "examples": ["a3f8c2e1b9d4f7a2c6e3b1d8f5a9c2e4b7d1f3a6c9e2b5d8f1a4c7e0b3d6f9a2"]
+          }
+        ]
+      }
+    },
+    {
+      "id": "purchase_account",
+      "title": "Purchase an ACCOUNT",
+      "description": "Buy an anchor key and capacity quota in one transaction. Two tiers: Starter ($50, 50 anchors, $1.00/anchor) or Builder ($100, 200 anchors, $0.50/anchor). Payment is x402 over USDC on Base via the Coinbase CDP facilitator. The first POST returns 402 with payment requirements; sign an EIP-712 USDC transfer authorization and retry with the X-PAYMENT header. The anchor key is returned exactly once — store it. The anchor key is the bearer token for every subsequent registration on this ACCOUNT and is the master credential for the resulting provenance tree.",
+      "actions": [
+        {
+          "id": "post_register_account",
+          "sourceId": "anchorregistry-rest",
+          "operationId": "register_account_register_account_post",
+          "method": "POST",
+          "path": "/register/account"
+        }
+      ],
+      "fields": {
+        "parameters": [
+          {
+            "fieldName": "capacity_tier",
+            "description": "One of `starter` (50 anchors / $50) or `builder` (200 anchors / $100).",
+            "examples": ["starter", "builder"]
+          }
+        ]
+      }
+    },
+    {
+      "id": "register_artifact",
+      "title": "Register an artifact",
+      "description": "Anchor a digital artifact using your existing anchor key. One call deducts one from the ACCOUNT capacity — no per-call payment, no per-call signing. The manifest hash should be a SHA-256 over the canonical artifact bytes or canonical metadata. Pick an artifact type from the supported list (CODE, RESEARCH, DATA, MODEL, AGENT, MEDIA, TEXT, POST, ONCHAIN, REPORT, NOTE, WEBSITE, EVENT, RECEIPT, OTHER) — type-specific fields can be passed alongside the required fields and will be persisted with the anchor.",
+      "actions": [
+        {
+          "id": "post_register_artifact",
+          "sourceId": "anchorregistry-rest",
+          "operationId": "register_with_account_register_x402_post",
+          "method": "POST",
+          "path": "/register/x402"
+        },
+        {
+          "id": "get_balance",
+          "sourceId": "anchorregistry-rest",
+          "operationId": "get_account_balance_account__anchor_key__balance_get",
+          "method": "GET",
+          "path": "/account/{anchor_key}/balance"
+        }
+      ],
+      "fields": {
+        "parameters": [
+          {
+            "fieldName": "Authorization",
+            "description": "Bearer token: your anchor key as `Bearer <anchor_key>`. Treat this like a private key. Anyone with the anchor key can register, seal, or retract artifacts in this tree."
+          },
+          {
+            "fieldName": "manifest_hash",
+            "description": "Hex-encoded SHA-256 of the artifact bytes or canonical metadata. Required.",
+            "examples": ["a3f8c2e1b9d4f7a2c6e3b1d8f5a9c2e4b7d1f3a6c9e2b5d8f1a4c7e0b3d6f9a2"]
+          },
+          {
+            "fieldName": "artifact_type",
+            "description": "Artifact type. Required.",
+            "examples": ["CODE", "RESEARCH", "MODEL", "POST"]
+          },
+          {
+            "fieldName": "title",
+            "description": "Short human-readable title. Required."
+          },
+          {
+            "fieldName": "descriptor",
+            "description": "Stable canonical identifier for the artifact (e.g. `MY-PROJECT-V1`, package name, paper short-id)."
+          }
+        ]
+      }
+    },
+    {
+      "id": "seal_tree",
+      "title": "Seal a provenance tree",
+      "description": "Mark a provenance tree as authentic, complete, and permanent. After sealing, no new children can be added under the tree root. Useful at release boundaries — lock a v1.0 tree before opening a v2.0 tree. SEAL is on-chain and irreversible. Only the tree root AR-ID can be sealed, and only by the holder of the original anchor key. The token_commitment is `0x` + SHA-256(anchor_key || ar_id) — bind the action cryptographically to the key without revealing it.",
+      "actions": [
+        {
+          "id": "post_seal",
+          "sourceId": "anchorregistry-rest",
+          "operationId": "seal_tree_registration_seal_post",
+          "method": "POST",
+          "path": "/registration/seal"
+        }
+      ],
+      "fields": {
+        "parameters": [
+          {
+            "fieldName": "ar_id",
+            "description": "AR-ID of the tree root. Must be a root anchor; child anchors cannot be sealed."
+          },
+          {
+            "fieldName": "reason",
+            "description": "Free-text reason persisted with the SEAL anchor (e.g. `Release v1.0 finalized`)."
+          },
+          {
+            "fieldName": "token_commitment",
+            "description": "`0x` + hex-encoded SHA-256 of anchor_key concatenated with the ar_id being sealed. Required.",
+            "examples": ["0x9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"]
+          },
+          {
+            "fieldName": "new_tree_root",
+            "description": "Optional continuation pointer — AR-ID of a successor tree readers should follow. Empty string if none."
+          }
+        ]
+      }
+    }
+  ],
+  "links": {
+    "humanDocs": "https://anchorregistry.com/developers",
+    "openapi": "https://api.anchorregistry.ai/openapi.json",
+    "swaggerUi": "https://api.anchorregistry.ai/docs",
+    "llmsTxt": "https://anchorregistry.ai/llms.txt",
+    "pythonSdk": "https://pypi.org/project/anchorregistry/",
+    "x402scan": "https://www.x402scan.com/server/c7c5463d-6fa1-413e-8844-fe05e7689119",
+    "paper": "https://arxiv.org/abs/2604.03434",
+    "contractSource": "https://github.com/anchorregistry/ar-contracts-v1"
+  }
+}
