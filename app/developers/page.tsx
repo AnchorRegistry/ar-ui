@@ -478,6 +478,85 @@ export default function DevelopersPage() {
                   {' '}— find any AR-ID in the README and resolve it.&rdquo;
                 </p>
               </div>
+
+              <div className="mt-4 rounded-md border border-[#2E4270] bg-surface px-4 py-4">
+                <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.1em] text-gold">
+                  Expected output
+                </div>
+                <p className="mb-3 text-[13px] leading-[1.7] text-muted-slate">
+                  Found and resolved. Here&rsquo;s what&rsquo;s anchored at{' '}
+                  <span className="font-mono text-electric-blue">AR-2026-qnPOJ1z</span>:
+                </p>
+                <p className="mb-3 text-[13px] leading-[1.7]">
+                  <span className="font-medium text-off-white">AnchorRegistry V1</span>{' '}
+                  <span className="text-muted-slate">— the genesis CODE anchor for the v1 contracts repo.</span>
+                </p>
+                <ul className="mb-4 space-y-1.5 text-[13px] leading-[1.6] text-muted-slate">
+                  <li>
+                    <span className="text-off-white">Author:</span> Ian Moore
+                  </li>
+                  <li>
+                    <span className="text-off-white">Descriptor:</span>{' '}
+                    <span className="font-mono text-electric-blue">ANCHORREGISTRY-V1-GENESIS</span>
+                  </li>
+                  <li>
+                    <span className="text-off-white">Manifest hash:</span>{' '}
+                    <span className="font-mono text-[11px] text-electric-blue break-all">
+                      664034ff7b3517ef8f2708b81646414a6482d8cc362d52144a877648f94ceae6
+                    </span>
+                  </li>
+                  <li>
+                    <span className="text-off-white">License / language / version:</span>{' '}
+                    BUSL-1.1 · Solidity · v1
+                  </li>
+                  <li>
+                    <span className="text-off-white">URL:</span>{' '}
+                    <span className="font-mono text-[11px] text-electric-blue break-all">
+                      https://github.com/AnchorRegistry/ar-contracts-v1
+                    </span>
+                  </li>
+                  <li>
+                    <span className="text-off-white">Registrant:</span>{' '}
+                    <span className="font-mono text-[11px] text-electric-blue break-all">
+                      0xC7a7AFde1177fbF0Bb265Ea5a616d1b8D7eD8c44
+                    </span>
+                  </li>
+                  <li>
+                    <span className="text-off-white">Registry contract:</span>{' '}
+                    <span className="font-mono text-[11px] text-electric-blue break-all">
+                      0x3eC509393425BCAa48224FB90C710e100ADA1D2A
+                    </span>
+                  </li>
+                  <li>
+                    <span className="text-off-white">Anchored:</span> 2026-04-11 15:48:47 UTC, block 44,566,590
+                  </li>
+                  <li>
+                    <span className="text-off-white">Tx:</span>{' '}
+                    <span className="font-mono text-[11px] text-electric-blue break-all">
+                      0xdf1b1acbc1899110abe5126a4bc550a8a8648521dc3e92d363d062b13a865434
+                    </span>
+                  </li>
+                  <li>
+                    <span className="text-off-white">Status:</span> root anchor (depth 0), not sealed, not retracted
+                  </li>
+                </ul>
+                <p className="mb-2 text-[13px] font-medium text-off-white">
+                  Tree children (depth 1):
+                </p>
+                <ul className="space-y-1.5 text-[13px] leading-[1.6] text-muted-slate">
+                  <li>
+                    <span className="font-mono text-electric-blue">AR-2026-jVPvp5Q</span>{' '}
+                    — RESEARCH —{' '}
+                    <span className="italic">Trustless Provenance Trees: A Game-Theoretic Framework for Operator-Gated Blockchain Registries</span>{' '}
+                    (the arXiv paper)
+                  </li>
+                  <li>
+                    <span className="font-mono text-electric-blue">AR-2026-pJ53j6K</span>{' '}
+                    — CODE —{' '}
+                    <span className="italic">AnchorRegistry Python Package</span>
+                  </li>
+                </ul>
+              </div>
               <p className="mt-4 text-[13px] leading-[1.7] text-muted-slate">
                 The agent fetches the repo, finds the SPDX-Anchor tag, calls{' '}
                 <span className="font-mono text-electric-blue">ar_verify_arid</span>, and
