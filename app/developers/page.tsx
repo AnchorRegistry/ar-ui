@@ -701,14 +701,14 @@ print(status["continuation"])   # AR-2026-YYYYYYY`}
             {/* ── §8 Testnet ──────────────────────────────────────────── */}
             <section id="testnet">
               <SectionLabel>§8 · Testnet</SectionLabel>
-              <SectionHeading>A fully sandboxed AnchorRegistry environment</SectionHeading>
+              <SectionHeading>A shared sandboxed AnchorRegistry environment</SectionHeading>
               <Prose className="mb-6">
-                AnchorRegistry runs a complete, sandboxed testnet — its own UI, its own API,
-                and its own contract on{' '}
-                <span className="text-off-white">Base Sepolia</span>. It mirrors the mainnet
-                surface end-to-end: same endpoints, same AR-ID format, same verify flow, full
-                V1.5 feature parity including the x402 rail, ACCOUNT anchors, and SEAL.
-                Separate state, separate keys, no real money.
+                AnchorRegistry runs a single shared testnet — one UI, one API, one contract on{' '}
+                <span className="text-off-white">Base Sepolia</span>, used by every developer
+                with access. It mirrors the mainnet surface end-to-end: same endpoints, same
+                AR-ID format, same verify flow, full V1.5 feature parity including the x402
+                rail, ACCOUNT anchors, and SEAL. Separate state from production, separate keys,
+                no real money.
               </Prose>
 
               <Prose className="mb-6">
@@ -716,8 +716,8 @@ print(status["continuation"])   # AR-2026-YYYYYYY`}
                 <a href="mailto:support@anchorregistry.com" className="text-electric-blue hover:underline">
                   support@anchorregistry.com
                 </a>{' '}
-                with a brief description of what you&rsquo;re building and we&rsquo;ll
-                provision testnet UI credentials and an API key.
+                with a brief description of what you&rsquo;re building and we&rsquo;ll grant
+                you access to the shared testnet UI and API.
               </Prose>
 
               <h3 className="mb-3 mt-8 text-[15px] font-medium text-off-white">Endpoints</h3>
@@ -828,6 +828,11 @@ print(record["contract_address"])     # 0xB0435faA...`}
                 <li>— A short description of what you&rsquo;re integrating (anchorid CLI, custom client, agent, etc.)</li>
                 <li>— The wallet address you&rsquo;ll use for x402 testing on Base Sepolia (if applicable)</li>
               </ul>
+              <p className="mt-4 text-[13px] leading-[1.7] text-muted-slate">
+                Testnet is a shared environment — every approved developer registers against
+                the same contract and the same database. Treat anything you publish there as
+                visible to other testers.
+              </p>
             </section>
 
             <div className="mt-16 rounded-lg border border-[#2E4270] bg-surface px-6 py-5">
