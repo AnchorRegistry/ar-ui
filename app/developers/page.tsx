@@ -725,14 +725,14 @@ print(status["continuation"])   # AR-2026-YYYYYYY`}
 
               <h3 className="mb-3 mt-8 text-[15px] font-medium text-off-white">Resolve a testnet AR-ID</h3>
               <Prose className="mb-4">
-                The verify URL handles testnet AR-IDs the same way as mainnet ones — content
-                negotiation on{' '}
-                <span className="font-mono text-electric-blue">Accept</span> applies identically.
+                Testnet has its own subdomain —{' '}
+                <span className="font-mono text-electric-blue">testnet.anchorregistry.ai</span>{' '}
+                — mirroring the mainnet apex but pointing at the Base Sepolia contract.
+                Endpoint shape and resolution semantics match mainnet. Hosted access is
+                gated today — see the partnership note below. The Python package
+                reads on-chain logs directly and works against testnet without any hosted
+                dependency.
               </Prose>
-              <CopyCodeBlock label="Smart URL (HTML or JSON)">
-{`curl -H "Accept: application/json" \\
-  https://anchorregistry.ai/AR-2026-XXXXXXX`}
-              </CopyCodeBlock>
 
               <h3 className="mb-3 mt-8 text-[15px] font-medium text-off-white">Read with the Python package</h3>
               <Prose className="mb-4">
@@ -758,8 +758,9 @@ print(record["contract_address"])     # 0xB0435faA...`}
                 <p className="text-[13px] leading-[1.7] text-muted-slate">
                   Testnet anchors carry no real provenance weight. AR-IDs registered on testnet
                   are not interchangeable with mainnet AR-IDs and should not be embedded in
-                  published artifacts as proof of authorship. Public testnet access is
-                  read-only — for testnet write access or integration partnerships, contact{' '}
+                  published artifacts as proof of authorship. Hosted testnet endpoints are
+                  gated today — for testnet access of any kind, including integration
+                  partnerships, contact{' '}
                   <a href="mailto:support@anchorregistry.com" className="text-electric-blue hover:underline">
                     support@anchorregistry.com
                   </a>.
