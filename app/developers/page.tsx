@@ -727,20 +727,12 @@ print(status["continuation"])   # AR-2026-YYYYYYY`}
               <Prose className="mb-4">
                 Testnet has its own subdomain —{' '}
                 <span className="font-mono text-electric-blue">testnet.anchorregistry.ai</span>{' '}
-                — mirroring the mainnet apex but pointing at the Base Sepolia contract. The
-                machine-readable endpoint always returns JSON; the smart URL content-negotiates
-                on <span className="font-mono text-electric-blue">Accept</span>.
+                — mirroring the mainnet apex but pointing at the Base Sepolia contract.
+                Endpoint shape and resolution semantics match mainnet. Hosted access is
+                gated today — see the partnership note below. The Python package
+                reads on-chain logs directly and works against testnet without any hosted
+                dependency.
               </Prose>
-              <CopyCodeBlock label="Always JSON — no setup required">
-{`curl https://testnet.anchorregistry.ai/machine/AR-2026-dPXazj6`}
-              </CopyCodeBlock>
-
-              <div className="mt-4">
-                <CopyCodeBlock label="Smart URL with content negotiation">
-{`curl -H "Accept: application/json" \\
-  https://testnet.anchorregistry.ai/AR-2026-dPXazj6`}
-                </CopyCodeBlock>
-              </div>
 
               <h3 className="mb-3 mt-8 text-[15px] font-medium text-off-white">Read with the Python package</h3>
               <Prose className="mb-4">
@@ -766,8 +758,9 @@ print(record["contract_address"])     # 0xB0435faA...`}
                 <p className="text-[13px] leading-[1.7] text-muted-slate">
                   Testnet anchors carry no real provenance weight. AR-IDs registered on testnet
                   are not interchangeable with mainnet AR-IDs and should not be embedded in
-                  published artifacts as proof of authorship. Public testnet access is
-                  read-only — for testnet write access or integration partnerships, contact{' '}
+                  published artifacts as proof of authorship. Hosted testnet endpoints are
+                  gated today — for testnet access of any kind, including integration
+                  partnerships, contact{' '}
                   <a href="mailto:support@anchorregistry.com" className="text-electric-blue hover:underline">
                     support@anchorregistry.com
                   </a>.
