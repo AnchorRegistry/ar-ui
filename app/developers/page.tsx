@@ -725,14 +725,22 @@ print(status["continuation"])   # AR-2026-YYYYYYY`}
 
               <h3 className="mb-3 mt-8 text-[15px] font-medium text-off-white">Resolve a testnet AR-ID</h3>
               <Prose className="mb-4">
-                The verify URL handles testnet AR-IDs the same way as mainnet ones — content
-                negotiation on{' '}
-                <span className="font-mono text-electric-blue">Accept</span> applies identically.
+                Testnet has its own subdomain —{' '}
+                <span className="font-mono text-electric-blue">testnet.anchorregistry.ai</span>{' '}
+                — mirroring the mainnet apex but pointing at the Base Sepolia contract. The
+                machine-readable endpoint always returns JSON; the smart URL content-negotiates
+                on <span className="font-mono text-electric-blue">Accept</span>.
               </Prose>
-              <CopyCodeBlock label="Smart URL (HTML or JSON)">
-{`curl -H "Accept: application/json" \\
-  https://anchorregistry.ai/AR-2026-XXXXXXX`}
+              <CopyCodeBlock label="Always JSON — no setup required">
+{`curl https://testnet.anchorregistry.ai/machine/AR-2026-dPXazj6`}
               </CopyCodeBlock>
+
+              <div className="mt-4">
+                <CopyCodeBlock label="Smart URL with content negotiation">
+{`curl -H "Accept: application/json" \\
+  https://testnet.anchorregistry.ai/AR-2026-dPXazj6`}
+                </CopyCodeBlock>
+              </div>
 
               <h3 className="mb-3 mt-8 text-[15px] font-medium text-off-white">Read with the Python package</h3>
               <Prose className="mb-4">
