@@ -18,6 +18,7 @@ const NAV_SECTIONS = [
   { id: 'verify',       label: 'Verify'         },
   { id: 'mcp',          label: 'MCP server'     },
   { id: 'python',       label: 'Python package' },
+  { id: 'testnet',      label: 'Testnet'        },
 ]
 
 // ─── helpers (match docs page style) ─────────────────────────────────────────
@@ -693,6 +694,77 @@ print(status["continuation"])   # AR-2026-YYYYYYY`}
                   anchorregistry.readthedocs.io
                 </a>
               </p>
+            </section>
+
+            <Divider />
+
+            {/* ── §8 Testnet ──────────────────────────────────────────── */}
+            <section id="testnet">
+              <SectionLabel>§8 · Testnet</SectionLabel>
+              <SectionHeading>Read the Base Sepolia deployment</SectionHeading>
+              <Prose className="mb-6">
+                AnchorRegistry is also deployed on{' '}
+                <span className="text-off-white">Base Sepolia</span> for development and
+                integration testing. Testnet anchors share the same contract shape, AR-ID format,
+                and verify flow as mainnet — the only difference is the network the registrations
+                live on.
+              </Prose>
+
+              <div className="mb-6 inline-flex items-center gap-2 rounded-md border border-[#2E4270] bg-surface px-4 py-2.5 font-mono text-[12px]">
+                <span className="text-muted-slate">Contract</span>
+                <span className="text-muted-slate">·</span>
+                <a
+                  href="https://sepolia.basescan.org/address/0xb0435faa6deedc1cb6a809008516fe4f4b094f76"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-electric-blue hover:underline break-all"
+                >
+                  0xB0435faA6DeEDC1CB6a809008516fe4F4B094F76
+                </a>
+              </div>
+
+              <h3 className="mb-3 mt-8 text-[15px] font-medium text-off-white">Resolve a testnet AR-ID</h3>
+              <Prose className="mb-4">
+                The verify URL handles testnet AR-IDs the same way as mainnet ones — content
+                negotiation on{' '}
+                <span className="font-mono text-electric-blue">Accept</span> applies identically.
+              </Prose>
+              <CopyCodeBlock label="Smart URL (HTML or JSON)">
+{`curl -H "Accept: application/json" \\
+  https://anchorregistry.ai/AR-2026-XXXXXXX`}
+              </CopyCodeBlock>
+
+              <h3 className="mb-3 mt-8 text-[15px] font-medium text-off-white">Read with the Python package</h3>
+              <Prose className="mb-4">
+                Point the SDK at Base Sepolia by passing{' '}
+                <span className="font-mono text-electric-blue">network=&quot;base-sepolia&quot;</span>{' '}
+                to <span className="font-mono text-electric-blue">configure()</span>. The rest of
+                the API is unchanged.
+              </Prose>
+              <CopyCodeBlock label="Configure for Base Sepolia">
+{`from anchorregistry import configure, get_by_arid
+
+configure(network="base-sepolia")
+
+record = get_by_arid("AR-2026-XXXXXXX")
+print(record["artifact_type_name"])
+print(record["contract_address"])     # 0xB0435faA...`}
+              </CopyCodeBlock>
+
+              <div className="mt-8 rounded-md border border-gold/40 bg-surface px-4 py-4">
+                <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.1em] text-gold">
+                  Note
+                </div>
+                <p className="text-[13px] leading-[1.7] text-muted-slate">
+                  Testnet anchors carry no real provenance weight. AR-IDs registered on testnet
+                  are not interchangeable with mainnet AR-IDs and should not be embedded in
+                  published artifacts as proof of authorship. Public testnet access is
+                  read-only — for testnet write access or integration partnerships, contact{' '}
+                  <a href="mailto:support@anchorregistry.com" className="text-electric-blue hover:underline">
+                    support@anchorregistry.com
+                  </a>.
+                </p>
+              </div>
             </section>
 
             <div className="mt-16 rounded-lg border border-[#2E4270] bg-surface px-6 py-5">
