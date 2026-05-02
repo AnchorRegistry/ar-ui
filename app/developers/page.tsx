@@ -701,45 +701,87 @@ print(status["continuation"])   # AR-2026-YYYYYYY`}
             {/* ── §8 Testnet ──────────────────────────────────────────── */}
             <section id="testnet">
               <SectionLabel>§8 · Testnet</SectionLabel>
-              <SectionHeading>Read the Base Sepolia deployment</SectionHeading>
+              <SectionHeading>A fully sandboxed AnchorRegistry environment</SectionHeading>
               <Prose className="mb-6">
-                AnchorRegistry is also deployed on{' '}
-                <span className="text-off-white">Base Sepolia</span> for development and
-                integration testing. Testnet anchors share the same contract shape, AR-ID format,
-                and verify flow as mainnet — the only difference is the network the registrations
-                live on.
+                AnchorRegistry runs a complete, sandboxed testnet — its own UI, its own API,
+                and its own contract on{' '}
+                <span className="text-off-white">Base Sepolia</span>. It mirrors the mainnet
+                surface end-to-end: same endpoints, same AR-ID format, same verify flow, full
+                V1.5 feature parity including the x402 rail, ACCOUNT anchors, and SEAL.
+                Separate state, separate keys, no real money.
               </Prose>
 
-              <div className="mb-6 inline-flex items-center gap-2 rounded-md border border-[#2E4270] bg-surface px-4 py-2.5 font-mono text-[12px]">
-                <span className="text-muted-slate">Contract</span>
-                <span className="text-muted-slate">·</span>
-                <a
-                  href="https://sepolia.basescan.org/address/0xb0435faa6deedc1cb6a809008516fe4f4b094f76"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-electric-blue hover:underline break-all"
-                >
-                  0xB0435faA6DeEDC1CB6a809008516fe4F4B094F76
-                </a>
+              <Prose className="mb-6">
+                <span className="text-off-white">Hosted access is by request only.</span> Email{' '}
+                <a href="mailto:support@anchorregistry.com" className="text-electric-blue hover:underline">
+                  support@anchorregistry.com
+                </a>{' '}
+                with a brief description of what you&rsquo;re building and we&rsquo;ll
+                provision testnet UI credentials and an API key.
+              </Prose>
+
+              <h3 className="mb-3 mt-8 text-[15px] font-medium text-off-white">Endpoints</h3>
+              <div className="mb-6 overflow-hidden rounded-md border border-[#2E4270]">
+                <div className="grid grid-cols-[140px_1fr] gap-4 border-b border-[#2E4270] px-4 py-3 font-mono text-[12px]">
+                  <span className="text-muted-slate">Testnet UI</span>
+                  <span className="text-electric-blue break-all">
+                    https://testnet.anchorregistry.com/{' '}
+                    <span className="text-muted-slate">(access by request)</span>
+                  </span>
+                </div>
+                <div className="grid grid-cols-[140px_1fr] gap-4 border-b border-[#2E4270] px-4 py-3 font-mono text-[12px]">
+                  <span className="text-muted-slate">Testnet API</span>
+                  <span className="text-electric-blue break-all">
+                    https://ar-api-testnet-production.up.railway.app
+                  </span>
+                </div>
+                <div className="grid grid-cols-[140px_1fr] gap-4 border-b border-[#2E4270] px-4 py-3 font-mono text-[12px]">
+                  <span className="text-muted-slate">Network</span>
+                  <span className="text-electric-blue">Base Sepolia</span>
+                </div>
+                <div className="grid grid-cols-[140px_1fr] gap-4 px-4 py-3 font-mono text-[12px]">
+                  <span className="text-muted-slate">Contract</span>
+                  <a
+                    href="https://sepolia.basescan.org/address/0xb0435faa6deedc1cb6a809008516fe4f4b094f76"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-electric-blue hover:underline break-all"
+                  >
+                    0xB0435faA6DeEDC1CB6a809008516fe4F4B094F76
+                  </a>
+                </div>
               </div>
 
-              <h3 className="mb-3 mt-8 text-[15px] font-medium text-off-white">Resolve a testnet AR-ID</h3>
-              <Prose className="mb-4">
-                Testnet has its own subdomain —{' '}
-                <span className="font-mono text-electric-blue">testnet.anchorregistry.ai</span>{' '}
-                — mirroring the mainnet apex but pointing at the Base Sepolia contract.
-                Endpoint shape and resolution semantics match mainnet. Hosted access is
-                gated today — see the partnership note below. The Python package
-                reads on-chain logs directly and works against testnet without any hosted
-                dependency.
-              </Prose>
+              <h3 className="mb-3 mt-8 text-[15px] font-medium text-off-white">What testnet gives you</h3>
+              <ul className="mb-6 space-y-2 text-[13px] leading-[1.7] text-muted-slate">
+                <li>
+                  <span className="text-off-white">Stripe rail</span> in test mode —
+                  $5 / $9 / $12 individual anchor purchases with Stripe&rsquo;s published
+                  test card numbers. No real charges.
+                </li>
+                <li>
+                  <span className="text-off-white">x402 rail</span> — ACCOUNT anchors,
+                  batch registration, top-ups, Starter and Builder tiers. Uses Sepolia USDC.
+                </li>
+                <li>
+                  <span className="text-off-white">SEAL</span> end-to-end, including the{' '}
+                  <span className="font-mono text-electric-blue">H(K ∥ C_seal)</span> token
+                  commitment flow.
+                </li>
+                <li>
+                  All 24 artifact types, including the gated types (LEGAL, ENTITY, PROOF) for
+                  testing only.
+                </li>
+                <li>
+                  Full verify surface, ownership token flow, and tree resolution.
+                </li>
+              </ul>
 
-              <h3 className="mb-3 mt-8 text-[15px] font-medium text-off-white">Read with the Python package</h3>
+              <h3 className="mb-3 mt-8 text-[15px] font-medium text-off-white">Read testnet from Python</h3>
               <Prose className="mb-4">
-                Point the SDK at Base Sepolia by passing{' '}
-                <span className="font-mono text-electric-blue">network=&quot;base-sepolia&quot;</span>{' '}
-                to <span className="font-mono text-electric-blue">configure()</span>. The rest of
-                the API is unchanged.
+                The <span className="font-mono text-electric-blue">anchorregistry</span>{' '}
+                Python package reads on-chain logs directly and works against testnet without
+                any hosted dependency. Point it at Base Sepolia:
               </Prose>
               <CopyCodeBlock label="Configure for Base Sepolia">
 {`from anchorregistry import configure, get_by_arid
@@ -751,21 +793,41 @@ print(record["artifact_type_name"])
 print(record["contract_address"])     # 0xB0435faA...`}
               </CopyCodeBlock>
 
-              <div className="mt-8 rounded-md border border-gold/40 bg-surface px-4 py-4">
-                <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.1em] text-gold">
-                  Note
-                </div>
-                <p className="text-[13px] leading-[1.7] text-muted-slate">
-                  Testnet anchors carry no real provenance weight. AR-IDs registered on testnet
-                  are not interchangeable with mainnet AR-IDs and should not be embedded in
-                  published artifacts as proof of authorship. Hosted testnet endpoints are
-                  gated today — for testnet access of any kind, including integration
-                  partnerships, contact{' '}
-                  <a href="mailto:support@anchorregistry.com" className="text-electric-blue hover:underline">
-                    support@anchorregistry.com
-                  </a>.
-                </p>
-              </div>
+              <h3 className="mb-3 mt-8 text-[15px] font-medium text-off-white">What&rsquo;s different from production</h3>
+              <ul className="mb-6 space-y-2 text-[13px] leading-[1.7] text-muted-slate">
+                <li>
+                  AR-IDs issued on testnet are{' '}
+                  <span className="text-off-white">not portable to mainnet</span>. They share
+                  the <span className="font-mono">AR-{'{YYYY}'}-{'{hashid}'}</span> format
+                  but are scoped to the testnet contract address.
+                </li>
+                <li>
+                  Testnet uses Base Sepolia ETH for gas and Sepolia USDC for x402. Both are
+                  freely available from public faucets.
+                </li>
+                <li>
+                  Testnet state may be reset between major version upgrades. Production is
+                  immutable; testnet is not.
+                </li>
+                <li>
+                  Testnet anchors carry no real provenance weight and should not be embedded
+                  in published artifacts as proof of authorship.
+                </li>
+              </ul>
+
+              <h3 className="mb-3 mt-8 text-[15px] font-medium text-off-white">Requesting access</h3>
+              <Prose className="mb-3">
+                Email{' '}
+                <a href="mailto:support@anchorregistry.com" className="text-electric-blue hover:underline">
+                  support@anchorregistry.com
+                </a>{' '}
+                and include:
+              </Prose>
+              <ul className="space-y-1.5 text-[13px] leading-[1.7] text-muted-slate">
+                <li>— Your name, GitHub handle, or organization</li>
+                <li>— A short description of what you&rsquo;re integrating (anchorid CLI, custom client, agent, etc.)</li>
+                <li>— The wallet address you&rsquo;ll use for x402 testing on Base Sepolia (if applicable)</li>
+              </ul>
             </section>
 
             <div className="mt-16 rounded-lg border border-[#2E4270] bg-surface px-6 py-5">
