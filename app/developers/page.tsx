@@ -565,6 +565,21 @@ export default function DevelopersPage() {
                 and seal status.
               </p>
 
+              <p className="mt-4 text-[13px] leading-[1.7] text-muted-slate">
+                <span className="text-off-white">For deeper provenance lookups</span>, agents
+                reach for the other two tools as the situation calls for.{' '}
+                <span className="font-mono text-electric-blue">ar_resolve_tree</span>{' '}
+                returns the full descendant graph rooted at any AR-ID — useful when the
+                agent needs to verify not just one artifact but every component of a release
+                tree (e.g., a paper plus the code plus the dataset that produced it).{' '}
+                <span className="font-mono text-electric-blue">ar_verify_by_hash</span> is
+                the inverse path: when the artifact is in hand but no AR-ID has been
+                observed, the agent computes a SHA-256 of the content and resolves the
+                anchor directly from the hash — useful for integrity-checking a downloaded
+                model weight, a research PDF, or a code archive against the registry without
+                trusting any tag the file might carry.
+              </p>
+
               <h3 className="mb-3 mt-8 text-[15px] font-medium text-off-white">Transport</h3>
               <Prose>
                 Streamable HTTP at{' '}
