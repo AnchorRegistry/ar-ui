@@ -25,11 +25,6 @@ export const metadata: Metadata = {
 // with sameAs links across the project's public surfaces (parallel .ai
 // domain, X profile, the foundational arXiv paper, the PyPI package).
 //
-// The PostalAddress on the Organization is the canonical business address
-// signal — search engines and AI systems treat this as the authoritative
-// answer to "where is this entity located?" The same address is presented
-// visibly in the site Footer; the two reinforce each other.
-//
 // Mirrors the same pattern used on echoledger.ai (Organization + Person in a
 // shared @graph). The Person here is the same individual (Ian Moore), and
 // his external sameAs profiles (GitHub, arXiv author, Medium, X) are listed
@@ -45,14 +40,6 @@ const jsonLd = {
       url:          'https://anchorregistry.com',
       description:
         'Provenance infrastructure for the agentic economy. Register any digital artifact and receive permanent, verifiable, on-chain proof of authorship. One payment. No expiry. Verifiable by any human or AI, forever.',
-      address: {
-        '@type':         'PostalAddress',
-        streetAddress:   '4949 Canoe Pass Way, Suite 1008',
-        addressLocality: 'Tsawwassen',
-        addressRegion:   'BC',
-        postalCode:      'V4M 0B2',
-        addressCountry:  'CA',
-      },
       founder: { '@id': 'https://anchorregistry.com/#person' },
       sameAs: [
         'https://anchorregistry.ai',
