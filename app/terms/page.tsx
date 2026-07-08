@@ -78,7 +78,7 @@ const CLAUSES = [
     number: '9',
     title:  'Limitation of Liability',
     body: [
-      'To the maximum extent permitted by applicable law, AnchorRegistry and DeFiMind Corp, and their respective officers, directors, employees, and agents, shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from or related to your use of, or inability to use, the service.',
+      'To the maximum extent permitted by applicable law, AnchorRegistry and EchoLedger Corp, and their respective officers, directors, employees, and agents, shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from or related to your use of, or inability to use, the service.',
       'In no event shall AnchorRegistry\'s total cumulative liability to you exceed the fees paid by you to AnchorRegistry in the twelve (12) months preceding the claim.',
     ],
   },
@@ -95,7 +95,7 @@ const CLAUSES = [
     title:  'Governing Law and Jurisdiction',
     body: [
       'These Terms of Service are governed by and construed in accordance with the laws of the Province of Ontario, Canada, without regard to its conflict of law provisions.',
-      'DeFiMind Corp is incorporated under the laws of the Province of British Columbia, Canada. Any disputes arising under these terms shall be subject to the exclusive jurisdiction of the courts of Ontario, Canada.',
+      'EchoLedger Corp is incorporated under the laws of the Province of British Columbia, Canada. Any disputes arising under these terms shall be subject to the exclusive jurisdiction of the courts of Ontario, Canada.',
     ],
   },
   {
@@ -138,7 +138,7 @@ export default function TermsPage() {
               </div>
               <div className="flex gap-3">
                 <span className="w-28 shrink-0">Issued by</span>
-                <span className="text-off-white">DeFiMind Corp</span>
+                <span className="text-off-white">EchoLedger Corp</span>
               </div>
             </div>
           </div>
@@ -165,10 +165,10 @@ export default function TermsPage() {
           {/* Footer */}
           <div className="mt-12 border-t border-[#2E4270] pt-8">
             <p className="font-mono text-[11px] text-muted-slate">
-              AnchorRegistry™ · <Link href="/" className="text-[#3B82F6] hover:underline">anchorregistry.com</Link> · DeFiMind Corp
+              AnchorRegistry™ · <Link href="/" className="text-[#3B82F6] hover:underline">anchorregistry.com</Link> · EchoLedger Corp
             </p>
             <p className="mt-1 font-mono text-[10px] text-muted-slate/60">
-              © 2026 DeFiMind Corp. All rights reserved. Patent pending.
+              © 2026 EchoLedger Corp. All rights reserved. Patent pending.
             </p>
           </div>
 

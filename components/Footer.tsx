@@ -31,12 +31,12 @@ export default function Footer() {
           Uses the semantic <address> element so crawlers, screen readers,
           and AI systems recognize this as the organization's contact info.
 
-          IMPORTANT: the recipient name on the FIRST LINE is "DeFiMind",
+          IMPORTANT: the recipient name on the FIRST LINE is "EchoLedger",
           NOT "AnchorRegistry". This is the operational reality of the
-          virtual mail service — the account is registered under DeFiMind,
+          virtual mail service — the account is registered under EchoLedger,
           and any parcel addressed to "AnchorRegistry" at this address will
           be returned to sender. The visible brand on the AR site remains
-          AnchorRegistry; the postal recipient is DeFiMind because that's
+          AnchorRegistry; the postal recipient is EchoLedger because that's
           the registered mail-handling identity. (Sub-brands routinely list
           a parent or operating company's name on the shipping line — no
           inconsistency for the reader, and the only way to make mail
@@ -45,7 +45,7 @@ export default function Footer() {
           The same address is asserted as structured data in the root
           layout's JSON-LD Organization → PostalAddress. The JSON-LD
           Organization.name stays as "AnchorRegistry" — that models the
-          *entity* whose contact address this is. The "DeFiMind" line in
+          *entity* whose contact address this is. The "EchoLedger" line in
           the visible footer is the *postal recipient* for actual mail
           handling; the two roles aren't equivalent and don't need to match.
 
@@ -57,7 +57,7 @@ export default function Footer() {
           </div>
           <address className="not-italic">
             <strong className="font-medium text-off-white">
-              DeFiMind
+              EchoLedger
             </strong>
             <br />
             4949 Canoe Pass Way, Suite 1008

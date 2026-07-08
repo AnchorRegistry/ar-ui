@@ -187,7 +187,7 @@ const EVENT_BY_EXECUTOR: Record<string, {
     locationLabel:           'Environment',
     locationPlaceholder:     'e.g. Railway prod, AWS us-east-1',
     orchestratorLabel:       'Orchestrator',
-    orchestratorPlaceholder: 'e.g. DeFiMind v1.2, LangChain agent',
+    orchestratorPlaceholder: 'e.g. EchoLedger v1.2, LangChain agent',
     urlLabel:                'Run Logs / Job URL',
     eventDatePlaceholder:    'e.g. 2026-03-19T17:00:00Z',
   },

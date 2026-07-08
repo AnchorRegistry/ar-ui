@@ -191,7 +191,7 @@ export function IPProvenanceTree() {
         <Node cx={post.cx}     cy={post.cy}     type="POST"
           arId="AR-2026-W5T2X9Y" title="Launch announcement"   sub="child" />
         <Node cx={model.cx}    cy={model.cy}    type="MODEL"    faded
-          arId="AR-2026-·······" title="DeFiMind v1"           sub="grandchild" />
+          arId="AR-2026-·······" title="EchoLedger v1"           sub="grandchild" />
 
         <TreeIdStrip vw={VW} vy={VH - 36}
           label="SPDX-Anchor: anchorregistry.ai/AR-2026-K7X9M2P · permanent prior art" />
@@ -283,11 +283,11 @@ export function AIComplianceTree() {
         <Node cx={root.cx}   cy={root.cy}   type="DATA"  isRoot
           arId="AR-2026-K7X9M2P" title="Training dataset v2.1" sub="root" />
         <Node cx={model.cx}  cy={model.cy}  type="MODEL"
-          arId="AR-2026-N3P8Q1R" title="DeFiMind v1.2"         sub="child" />
+          arId="AR-2026-N3P8Q1R" title="EchoLedger v1.2"         sub="child" />
         <Node cx={evmach.cx} cy={evmach.cy} type="EVENT"
           arId="AR-2026-W5T2X9Y" title="Training run"          sub="executor · MACHINE" />
         <Node cx={agent.cx}  cy={agent.cy}  type="AGENT"
-          arId="AR-2026-·······" title="DeFiMind agent v1.2"   sub="grandchild" />
+          arId="AR-2026-·······" title="EchoLedger agent v1.2"   sub="grandchild" />
 
         <TreeIdStrip vw={VW} vy={VH - 36}
           label="immutable proof · what model · what version · what action · when" />

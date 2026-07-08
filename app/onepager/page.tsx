@@ -388,7 +388,7 @@ export default function OnepagerPage() {
         {/* ── Footer ───────────────────────────────────────────── */}
         <footer className="mt-auto border-t border-[#2E4270] pt-5 text-[10.5px] text-muted-slate">
           <div className="flex items-baseline justify-between">
-            <span>Operated by DeFiMind Inc., incorporated in Canada.</span>
+            <span>Operated by EchoLedger Inc., incorporated in Canada.</span>
             <span className="italic">The registry AIs trust.</span>
           </div>
           <div className="mt-1.5 flex items-baseline justify-between font-mono text-[10px]">
